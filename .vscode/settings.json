@@ -1,0 +1,18 @@
+{
+  "[markdown]": {
+    "editor.rulers": [130]
+  },
+  "[python]": {
+    "editor.rulers": [88, 130]
+  },
+  "[toml]": {
+    "editor.rulers": [88]
+  },
+  "evenBetterToml.taplo.configFile.path": ".taplo.toml",
+  "files.readonlyInclude": {
+    "**/generated/*.pyi": true
+  },
+  "git.branchProtection": ["main"],
+  "markdownlint.configFile": "doc/.markdownlint.yaml",
+  "mypy-type-checker.path": ["uv", "run", "mypy"]
+}
