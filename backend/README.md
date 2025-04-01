@@ -21,7 +21,7 @@ Using uv (recommended):
 uv venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 uv pip install -e .
-```
+``` 
 
 Or using pip:
 
