@@ -36,7 +36,7 @@ pip install -e .
 ### Running the server locally
 
 ```bash
-fastapi run main:app --reload
+fastapi dev --reload
 ```
 
 The server will start at http://localhost:8000
