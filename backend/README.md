@@ -20,7 +20,7 @@ Using uv (recommended):
 ```bash
 uv venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-uv pip install -e ".[dev]"
+uv pip install -e .
 ```
 
 Or using pip:
@@ -28,7 +28,7 @@ Or using pip:
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+pip install -e .
 ```
 
 ## 💻 Development
