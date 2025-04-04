@@ -23,7 +23,7 @@ class Event(SQLModel, table=True):
     event_occurred_at: datetime
     event_source: str  # e.g., CWB Open Data
     event_severity: EventSeverity = Field(default="NA")  # NA / L1 / L2
-    event_is_suppressed_by: int = Field(default=None, foreign_key="events.event_id")
+    event_is_suppressed_by: int = Field(default=None, foreign_key="event.event_id")
 
     suppressed_by: "Event | None" = Relationship(
         sa_relationship_kwargs={"remote_side": "Event.event_id"}
@@ -33,12 +33,12 @@ class Event(SQLModel, table=True):
 
 class Alert(SQLModel, table=True):
     alert_id: int = Field(default=None, primary_key=True)
-    event_id: int = Field(default=None, foreign_key="events.event_id")
+    event_id: int = Field(default=None, foreign_key="event.event_id")
     alert_created_at: datetime
     alert_alert_time: datetime
     alert_state: AlertState
 
-    event: Event = Relationship(back_populates="alerts")
+    event: Event = Relationship(back_populates="alert")
     reports: list["Report"] = Relationship(back_populates="alert")
 
 
@@ -54,14 +54,14 @@ class Zone(SQLModel, table=True):
 
 class Report(SQLModel, table=True):
     report_id: int = Field(default=None, primary_key=True)
-    alert_id: int = Field(default=None, foreign_key="alerts.alert_id")
-    user_id: int = Field(default=None, foreign_key="users.user_id")
+    alert_id: int = Field(default=None, foreign_key="alert.alert_id")
+    user_id: int = Field(default=None, foreign_key="user.user_id")
     report_created_at: datetime
     report_action_flag: bool  # true = 啟動戰情, false = 否
     report_damage_flag: bool  # true = 有損傷, false = 無損傷
-    report_factory_zone: str = Field(default=None, foreign_key="zones.id")
+    report_factory_zone: int = Field(default=None, foreign_key="zone.zone_id")
     report_reported_at: datetime
 
-    alert: Alert = Relationship(back_populates="reports")
-    user: User = Relationship(back_populates="reports")
-    zone: Zone = Relationship(back_populates="reports")
+    alert: Alert = Relationship(back_populates="report")
+    user: User = Relationship(back_populates="report")
+    zone: Zone = Relationship(back_populates="report")

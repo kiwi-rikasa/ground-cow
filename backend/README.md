@@ -22,6 +22,20 @@ uv venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 uv sync
 ```
+### Launch PostgreSQL server
+Start DB
+```bash
+docker compose -f docker-postgresql.yml up -d
+```
+Stop DB (keep data)
+```bash
+docker compose -f docker-postgresql.yml down
+```
+Stop and Wipe all data
+```bash
+docker compose -f docker-postgresql.yml down -v
+```
+
 
 ## 💻 Development
 
