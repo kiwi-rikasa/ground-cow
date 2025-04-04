@@ -3,6 +3,7 @@ from sqlalchemy import inspect
 from db import engine
 from models.models import User, Event, Alert, Zone, Report
 
+
 def start_db():
     inspector = inspect(engine)
     existing_tables = inspector.get_table_names()
@@ -20,6 +21,7 @@ def start_db():
         print("Missing tables created.")
     else:
         print("All required tables already exist.")
+
 
 if __name__ == "__main__":
     start_db()
