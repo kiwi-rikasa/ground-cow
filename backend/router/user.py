@@ -3,8 +3,6 @@ from sqlmodel import Session, select
 from ..models.models import User
 from ..schema.user import UserCreate, UserUpdate, UserPublic, UsersPublic
 from ..db import get_session
-from typing import List
-from datetime import datetime
 
 user_router = APIRouter()
 

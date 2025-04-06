@@ -3,7 +3,6 @@ from sqlmodel import Session, select
 from ..models.models import Alert
 from ..schema.alert import AlertCreate, AlertUpdate, AlertPublic, AlertsPublic
 from ..db import get_session
-from datetime import datetime, timezone
 
 alert_router = APIRouter()
 
