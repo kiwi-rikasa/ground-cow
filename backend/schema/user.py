@@ -32,4 +32,3 @@ class UserPublic(UserBase):
 # List wrapper
 class UsersPublic(SQLModel):
     data: list[UserPublic]
-    count: int

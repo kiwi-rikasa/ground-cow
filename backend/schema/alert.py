@@ -30,4 +30,3 @@ class AlertPublic(AlertBase):
 # List wrapper
 class AlertsPublic(SQLModel):
     data: list[AlertPublic]
-    count: int
