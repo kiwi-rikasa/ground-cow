@@ -63,7 +63,7 @@ export default function AuthDialog() {
               Sign Out
             </Button>
           ) : (
-            <Button className="round-xl" onClick={() => signIn()}>
+            <Button className="round-xl" onClick={() => signIn("google")}>
               Sign In
             </Button>
           )}
