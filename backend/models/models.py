@@ -9,7 +9,7 @@ class User(SQLModel, table=True):
     user_created_at: datetime = Field(default_factory=datetime.now)
     user_email: str
     user_name: str
-    user_role: UserRole = Field(default="operator")  # admin/control/operator
+    user_role: UserRole = Field(default=UserRole.operator)  # admin/control/operator
 
     reports: list["Report"] = Relationship(back_populates="user")
 
