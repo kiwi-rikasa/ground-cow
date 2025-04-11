@@ -59,11 +59,11 @@ export default function AuthDialog() {
 
         <DialogFooter>
           {session?.user ? (
-            <Button className="round-xl" onClick={() => signOut()}>
+            <Button className="rounded-xl" onClick={() => signOut()}>
               Sign Out
             </Button>
           ) : (
-            <Button className="round-xl" onClick={() => signIn("google")}>
+            <Button className="rounded-xl" onClick={() => signIn("google")}>
               Sign In
             </Button>
           )}
