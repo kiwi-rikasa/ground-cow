@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import AuthDialog from "@/components/auth-dialog";
 import { useSession } from "next-auth/react";
+import { Suspense } from "react";
 
 import data from "./data.json";
 
@@ -29,7 +30,9 @@ export default function Page() {
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">
-          <AuthDialog />
+          <Suspense fallback={<div>Loading auth...</div>}>
+            <AuthDialog />
+          </Suspense>
           <div className="@container/main flex flex-1 flex-col gap-2">
             {session?.user ? (
               <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
