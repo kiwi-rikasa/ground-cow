@@ -1,0 +1,171 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+        
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: mysecret
+          POSTGRES_DB: groundcow
+        ports:
+          - 7777:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv venv
+          source .venv/bin/activate
+          uv sync
+
+      - name: Install test dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install pytest pytest-cov
+
+      - name: Set up environment
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:mysecret@localhost:7777/groundcow" > .env
+          
+      - name: Initialize database schema
+        run: |
+          source .venv/bin/activate
+          uv run python -c "from app.core.db import init_db; init_db()"
+
+      - name: Run tests with coverage
+        run: |
+          source .venv/bin/activate
+          uv run python -m pytest --cov=app app/tests/
+
+      - name: Generate coverage report
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          source .venv/bin/activate
+          uv run python -m pytest --cov=app --cov-report=xml app/tests/
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./backend/coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: kiwi-rikasa/ground-cow
+
+  backend-build:
+    name: Backend Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+        
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: mysecret
+          POSTGRES_DB: groundcow
+        ports:
+          - 7777:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv venv
+          source .venv/bin/activate
+          uv sync
+
+      - name: Set up environment
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:mysecret@localhost:7777/groundcow" > .env
+          
+      - name: Initialize database schema
+        run: |
+          source .venv/bin/activate
+          uv run python -c "from app.core.db import init_db; init_db()"
+
+      - name: Verify application starts
+        run: |
+          source .venv/bin/activate
+          # Start FastAPI in the background
+          PYTHONPATH=. uv run fastapi run --reload app/main.py &
+          PID=$!
+          
+          # Give it a moment to start
+          sleep 5
+          
+          # Check if process is still running
+          kill -0 $PID || { echo "FastAPI process died"; exit 1; }
+          
+          # Try to hit the root endpoint
+          curl -s http://localhost:8000/ || { echo "FastAPI endpoint failed"; exit 1; }
+          
+          # Kill the process
+          kill $PID
+
+  frontend-test-build:
+    name: Frontend Test and Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run tests
+        run: bun run test
+
+      - name: Build frontend
+        run: bun run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend/out
+          retention-days: 7 

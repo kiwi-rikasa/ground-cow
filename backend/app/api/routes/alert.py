@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
-from ..models.models import Alert
-from ..schema.alert import AlertCreate, AlertUpdate, AlertPublic, AlertsPublic
-from ..db import get_session
+from fastapi import APIRouter, HTTPException
+from sqlmodel import select
+
+from app.api.deps import SessionDep
+from ...models.models import Alert
+from ...models.schemas.alert import AlertCreate, AlertUpdate, AlertPublic, AlertsPublic
 
 alert_router = APIRouter()
 
 
 @alert_router.get("/", response_model=AlertsPublic)
-def list_alerts(session: Session = Depends(get_session)) -> AlertsPublic:
+def list_alerts(session: SessionDep) -> AlertsPublic:
     """
     Get all alerts.
     """
@@ -20,7 +21,7 @@ def list_alerts(session: Session = Depends(get_session)) -> AlertsPublic:
 
 
 @alert_router.get("/{alert_id}", response_model=AlertPublic)
-def get_alert(alert_id: int, session: Session = Depends(get_session)) -> AlertPublic:
+def get_alert(alert_id: int, session: SessionDep) -> AlertPublic:
     """
     Get a specific alert by ID.
     """
@@ -31,9 +32,7 @@ def get_alert(alert_id: int, session: Session = Depends(get_session)) -> AlertPu
 
 
 @alert_router.post("/", response_model=AlertPublic)
-def create_alert(
-    alert_in: AlertCreate, session: Session = Depends(get_session)
-) -> AlertPublic:
+def create_alert(alert_in: AlertCreate, session: SessionDep) -> AlertPublic:
     """
     Create a new alert.
     """
@@ -48,7 +47,7 @@ def create_alert(
 def update_alert(
     alert_id: int,
     alert_in: AlertUpdate,
-    session: Session = Depends(get_session),
+    session: SessionDep,
 ) -> AlertPublic:
     """
     Update alert state or fields.
@@ -67,7 +66,7 @@ def update_alert(
 
 
 @alert_router.delete("/{alert_id}")
-def delete_alert(alert_id: int, session: Session = Depends(get_session)) -> dict:
+def delete_alert(alert_id: int, session: SessionDep) -> dict:
     """
     Delete a specific alert by ID.
     """

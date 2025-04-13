@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from sqlmodel import SQLModel
-from ..models.consts import AlertState
+from ..consts import AlertState
 
 
 # Shared fields
