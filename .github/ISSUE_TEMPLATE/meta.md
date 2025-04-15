@@ -1,5 +1,6 @@
 ---
 name: Meta
+about: Meta
 title: "[META] "
 labels: meta
 assignees: 'guan404ming'

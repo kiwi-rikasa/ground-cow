@@ -16,6 +16,8 @@ export default defineConfig({
       "**/components/ui/**",
     ],
     coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         ...(configDefaults.coverage?.exclude || []),
         "**/node_modules/**",
