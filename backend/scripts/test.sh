@@ -1,15 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Ensure test dependencies are installed
-echo "Ensuring test dependencies are installed..."
-uv pip install pytest pytest-cov
+set -e
+set -x
 
-# Run tests with coverage
-echo "Running tests with coverage..."
-python -m pytest --cov=app app/tests/ $@
-
-# Generate HTML coverage report
-echo "Generating HTML coverage report..."
-python -m pytest --cov=app --cov-report=html app/tests/
-
-echo "Tests completed. Coverage report available in htmlcov/ directory." 
+coverage run --source=app -m pytest
+coverage report --show-missing
+coverage html --title "${@-coverage}"
