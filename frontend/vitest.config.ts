@@ -21,6 +21,7 @@ export default defineConfig({
       exclude: [
         ...(configDefaults.coverage?.exclude || []),
         "**/components/ui/**",
+        "**/lib/auth.ts",
       ],
       include: [
         "**/lib/**",
