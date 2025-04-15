@@ -1,13 +1,10 @@
 ---
 name: Feature Request
 about: Feature Request
-title: "[FEATURE] "
+title: "feat: "
 labels: feat
 assignees: ''
 ---
-
-## Why
-<!-- A clear and concise description of why this feature is needed. -->
 
 ## What
 <!-- A clear and concise description of what the feature is. -->

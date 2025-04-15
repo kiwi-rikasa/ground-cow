@@ -1,7 +1,7 @@
 ---
 name: Meta
 about: Meta
-title: "[META] "
+title: "meta: "
 labels: meta
 assignees: 'guan404ming'
 ---
