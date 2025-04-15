@@ -20,10 +20,12 @@ export default defineConfig({
       reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         ...(configDefaults.coverage?.exclude || []),
-        "**/node_modules/**",
-        "**/fixtures/**",
-        "**/templates/**",
         "**/components/ui/**",
+      ],
+      include: [
+        "**/lib/**",
+        "**/components/**",
+        "**/app/api/**",
       ],
     },
   },
