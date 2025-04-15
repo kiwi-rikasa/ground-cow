@@ -1,5 +1,6 @@
 ---
 name: Feature Request
+about: Feature Request
 title: "[FEATURE] "
 labels: feat
 assignees: ''
