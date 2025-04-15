@@ -13,9 +13,14 @@ uv venv
 
 ```bash
 cd backend
+docker compose -f docker-postgresql.yml up -d
 uv sync
 uv run fastapi run --reload app/main.py
 ```
+
+When the application is running, you can access the application at 
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 ## 🧪 Testing
 

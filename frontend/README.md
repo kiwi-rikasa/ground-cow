@@ -18,6 +18,8 @@ bun install
 bun run dev
 ```
 
+When the application is running, you can access the application at [http://localhost:3000](http://localhost:3000).
+
 ## 🧪 Testing
 
 ```bash
