@@ -17,8 +17,8 @@ For detailed frontend setup instructions, please refer to the [Frontend README](
 3. Create a new branch: `git checkout -b your-branch-name`
 4. Make your changes
 5. Run tests and linting:
-   - Backend: `ruff check .` and `ruff format .`
-   - Frontend: `bun run lint` and `bun run test`
+   - Backend: `uv run pytest` and `uv run ruff format`
+   - Frontend: `bun run test` and `bun run format`
 6. Commit your changes following the commit message conventions
 7. Push to your fork: `git push origin your-branch-name`
 8. Create a pull request

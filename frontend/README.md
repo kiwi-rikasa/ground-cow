@@ -2,7 +2,7 @@
 
 The frontend is built with [Bun](https://bun.sh/), [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [Next.js](https://nextjs.org/) and [Shadcn UI](https://ui.shadcn.com/).
 
-## Setup
+## 🔧 Setup
 
 ```bash
 cp .env.example .env
@@ -10,7 +10,7 @@ cp .env.example .env
 
 Edit the `.env` file with your own values.
 
-## Development
+## 💻 Development
 
 ```bash
 cd frontend
@@ -18,7 +18,7 @@ bun install
 bun run dev
 ```
 
-## Test
+## 🧪 Testing
 
 ```bash
 # Run all tests
@@ -31,7 +31,7 @@ bun run test --coverage
 bun run test test/unit/example.test.ts
 ```
 
-## Lint
+## ✨ Linting
 
 ```bash
 bun run lint
