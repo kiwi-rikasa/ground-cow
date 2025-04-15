@@ -85,6 +85,22 @@ backend/
 
 The project uses pytest for testing. Tests are located in the `app/tests/` directory.
 
+### Running tests
+
+```bash
+# Run all tests
+python -m pytest app/tests
+
+# Run with coverage report
+python -m pytest --cov=app app/tests/
+
+# Run a specific test file
+python -m pytest app/tests/test_router_user.py
+
+# Run a specific test
+python -m pytest app/tests/test_router_user.py::test_create_user
+```
+
 ### Installing test dependencies
 
 ```bash
