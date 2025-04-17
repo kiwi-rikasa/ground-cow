@@ -36,9 +36,7 @@ def exporter_dag():
         return "Whatever you return gets printed in the logs"
 
     run_this = print_context()
-    # [END howto_operator_python]
 
-    # [START howto_operator_python_render_sql]
     @task(
         task_id="log_sql_query",
         templates_dict={"query": "sql/sample.sql"},
@@ -50,9 +48,7 @@ def exporter_dag():
         )
 
     log_the_sql = log_sql()
-    # [END howto_operator_python_render_sql]
 
-    # [START howto_operator_python_kwargs]
     # Generate 5 sleeping tasks, sleeping from 0.0 to 0.4 seconds respectively
     @task
     def my_sleeping_function(random_base):
@@ -65,14 +61,13 @@ def exporter_dag():
         )
 
         run_this >> log_the_sql >> sleeping_task
-    # [END howto_operator_python_kwargs]
 
     if not is_venv_installed():
         log.warning(
             "The virtalenv_python example task requires virtualenv, please install it."
         )
     else:
-        # [START howto_operator_python_venv]
+
         @task.virtualenv(
             task_id="virtualenv_python",
             requirements=["colorama==0.4.0"],
@@ -99,11 +94,9 @@ def exporter_dag():
             print("Finished")
 
         virtualenv_task = callable_virtualenv()
-        # [END howto_operator_python_venv]
 
         sleeping_task >> virtualenv_task
 
-        # [START howto_operator_external_python]
         @task.external_python(task_id="external_python", python=PATH_TO_PYTHON_BINARY)
         def callable_external_python():
             """
@@ -123,7 +116,6 @@ def exporter_dag():
             print("Finished")
 
         external_python_task = callable_external_python()
-        # [END howto_operator_external_python]
 
         run_this >> external_python_task >> virtualenv_task
 
