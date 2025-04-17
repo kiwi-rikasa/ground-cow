@@ -13,25 +13,14 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
-        
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: mysecret
-          POSTGRES_DB: groundcow
-        ports:
-          - 7777:5432
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Init database
+        run: |
+          cd ..
+          docker compose up -d
 
       - uses: astral-sh/setup-uv@v5
         with:
@@ -47,10 +36,6 @@ jobs:
         run: |
           source .venv/bin/activate
           uv pip install pytest pytest-cov
-
-      - name: Set up environment
-        run: |
-          echo "DATABASE_URL=postgresql://postgres:mysecret@localhost:7777/groundcow" > .env
           
       - name: Initialize database schema
         run: |

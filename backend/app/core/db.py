@@ -1,22 +1,9 @@
 from sqlmodel import create_engine, SQLModel
 from sqlalchemy import inspect
-from dotenv import load_dotenv
-import os
 from app.models.models import User, Event, Alert, Zone, Report
+from app.core.config import settings
 
-# First check if DATABASE_URL is already set (e.g., in testing environment)
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-# If not set, try to load from .env file
-if not DATABASE_URL:
-    is_loaded = load_dotenv()
-    DATABASE_URL = os.getenv("DATABASE_URL")
-
-    if not is_loaded or not DATABASE_URL:
-        raise ValueError("DATABASE_URL is not set")
-
-
-engine = create_engine(DATABASE_URL)
+engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
 
 def init_db():
