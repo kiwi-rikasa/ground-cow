@@ -35,6 +35,7 @@ jobs:
 
       - name: Verify application starts
         run: |
+          sleep 5
           curl -s http://localhost:8000/ || { echo "FastAPI endpoint failed"; exit 1; }
 
       - run: docker compose down -v
