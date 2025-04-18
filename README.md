@@ -8,3 +8,17 @@
 Ground Cow is a platform for managing your farm. It is built with [FastAPI](https://fastapi.tiangolo.com/) and [Next.js](https://nextjs.org/).
 
 [![ground cow](img/ground-cow.png)](https://github.com/kiwi-rikasa/ground-cow)
+
+## 💻 Development
+
+Start the services
+
+```bash
+docker compose up --build
+```
+
+Stop the services
+
+```bash
+docker compose down -v
+```

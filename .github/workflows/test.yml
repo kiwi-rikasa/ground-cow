@@ -17,14 +17,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
       - name: Init database
         run: |
           cd ..
-          docker compose up -d
-
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
+          docker compose down -v
+          docker compose up --build -d
 
       - name: Install dependencies
         run: |
@@ -36,11 +43,6 @@ jobs:
         run: |
           source .venv/bin/activate
           uv pip install pytest pytest-cov
-          
-      - name: Initialize database schema
-        run: |
-          source .venv/bin/activate
-          uv run python -c "from app.core.db import init_db; init_db()"
 
       - name: Run tests with coverage
         run: |
@@ -60,6 +62,8 @@ jobs:
           files: ./backend/coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: kiwi-rikasa/ground-cow
+
+      - run: docker compose down -v
 
   frontend-test:
     name: Frontend Tests
