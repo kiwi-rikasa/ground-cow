@@ -31,7 +31,7 @@ jobs:
         run: |
           cd ..
           docker compose down -v
-          docker compose up --build -d --wait backend pgweb
+          docker compose up --build -d --wait backend pgweb db
 
       - name: Verify application starts
         run: |
