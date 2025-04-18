@@ -9,6 +9,7 @@ dependencies = [
     "sqlmodel>=0.0.24",
     "pydantic-settings>=2.8.1",
     "psycopg[binary]>=3.2.6",
+    "tenacity>=9.1.2",
 ]
 
 [dependency-groups]

@@ -17,44 +17,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      
       - name: Init database
         run: |
           cd ..
-          docker compose up -d
-
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Install dependencies
-        run: |
-          uv venv
-          source .venv/bin/activate
-          uv sync
-          
-      - name: Initialize database schema
-        run: |
-          source .venv/bin/activate
-          uv run python -c "from app.core.db import init_db; init_db()"
+          docker compose down -v
+          docker compose up --build -d --wait backend pgweb db
 
       - name: Verify application starts
         run: |
-          source .venv/bin/activate
-          # Start FastAPI in the background
-          PYTHONPATH=. uv run fastapi run --reload app/main.py &
-          PID=$!
-          
-          # Give it a moment to start
           sleep 5
-          
-          # Check if process is still running
-          kill -0 $PID || { echo "FastAPI process died"; exit 1; }
-          
-          # Try to hit the root endpoint
           curl -s http://localhost:8000/ || { echo "FastAPI endpoint failed"; exit 1; }
-          
-          # Kill the process
-          kill $PID
+
+      - run: docker compose down -v
 
   frontend-build:
     name: Frontend Build

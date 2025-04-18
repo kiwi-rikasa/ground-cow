@@ -3,8 +3,10 @@
 set -e
 set -x
 
+# Initialize the DB
+python app/core/pre_start.py
+
 # Run migrations
 uv run alembic upgrade head
 
-# Create initial data in DB
-uv run python -c "from app.core.db import init_db; init_db()"
+# Initialize the DB data
