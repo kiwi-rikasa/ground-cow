@@ -47,14 +47,14 @@ jobs:
       - name: Run tests with coverage
         run: |
           source .venv/bin/activate
-          uv run python -m pytest --cov=app --cov-config=../pytest.ini app/tests/
+          uv run python -m pytest --cov=app --cov-config=.coveragerc app/tests/
 
       - name: Generate coverage report
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           source .venv/bin/activate
-          uv run python -m pytest --cov=app --cov-config=../pytest.ini --cov-report=xml app/tests/
+          uv run python -m pytest --cov=app --cov-config=.coveragerc --cov-report=xml app/tests/
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
