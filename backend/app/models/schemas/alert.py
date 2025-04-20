@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel, Field
 from ..consts import AlertState
 
 
@@ -8,7 +8,7 @@ from ..consts import AlertState
 class AlertBase(SQLModel):
     event_id: int
     alert_alert_time: datetime
-    alert_state: AlertState
+    alert_state: AlertState = Field(default=AlertState.active)
 
 
 # Create input

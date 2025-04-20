@@ -13,10 +13,7 @@ def list_users(session: SessionDep) -> UsersPublic:
     Get all users.
     """
     users = session.exec(select(User)).all()
-    return UsersPublic(
-        data=[UserPublic.model_validate(user) for user in users],
-        count=len(users),
-    )
+    return UsersPublic(data=[UserPublic.model_validate(user) for user in users])
 
 
 @user_router.get("/{user_id}", response_model=UserPublic)
