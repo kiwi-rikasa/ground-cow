@@ -1,0 +1,13 @@
+[run]
+branch = True
+source = app
+omit =
+    app/core/config.py
+    app/core/db.py
+    app/core/pre_start.py
+    app/api/routes/__init__.py
+
+[report]
+show_missing = true
+exclude_lines =
+    pragma: no cover
