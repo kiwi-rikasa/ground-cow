@@ -14,10 +14,7 @@ def list_alerts(session: SessionDep) -> AlertsPublic:
     Get all alerts.
     """
     alerts = session.exec(select(Alert)).all()
-    return AlertsPublic(
-        data=[AlertPublic.model_validate(alert) for alert in alerts],
-        count=len(alerts),
-    )
+    return AlertsPublic(data=[AlertPublic.model_validate(alert) for alert in alerts])
 
 
 @alert_router.get("/{alert_id}", response_model=AlertPublic)
