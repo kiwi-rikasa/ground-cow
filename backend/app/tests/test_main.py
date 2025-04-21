@@ -19,3 +19,11 @@ def test_api_router(client: TestClient):
     response = client.get("/alert/")
     assert response.status_code == 200
     assert "data" in response.json()
+
+    response = client.get("/event/")
+    assert response.status_code == 200
+    assert "data" in response.json()
+
+    response = client.get("/zone/")
+    assert response.status_code == 200
+    assert "data" in response.json()
