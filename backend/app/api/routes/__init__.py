@@ -12,6 +12,7 @@ api_router.include_router(event_router, prefix="/event")
 api_router.include_router(zone_router, prefix="/zone")
 api_router.include_router(report_router, prefix="/report")
 
+
 @api_router.get("/")
 def root():
     return {"message": "Hello, World!"}
