@@ -3,13 +3,13 @@
 export type AlertCreate = {
     event_id: number;
     alert_alert_time: string;
-    alert_state: AlertState;
+    alert_state?: AlertState;
 };
 
 export type AlertPublic = {
     event_id: number;
     alert_alert_time: string;
-    alert_state: AlertState;
+    alert_state?: AlertState;
     alert_id: number;
     alert_created_at: string;
 };
@@ -24,8 +24,82 @@ export type AlertsPublic = {
     data: Array<AlertPublic>;
 };
 
+export type EventCreate = {
+    event_depth: number;
+    event_epicenter: string;
+    event_location: string;
+    event_magnitude: number;
+    event_occurred_at: string;
+    event_source: string;
+    event_severity?: EventSeverity;
+    event_is_suppressed_by?: number | null;
+};
+
+export type EventPublic = {
+    event_depth: number;
+    event_epicenter: string;
+    event_location: string;
+    event_magnitude: number;
+    event_occurred_at: string;
+    event_source: string;
+    event_severity?: EventSeverity;
+    event_is_suppressed_by?: number | null;
+    event_id: number;
+    event_created_at: string;
+};
+
+export type EventSeverity = 'NA' | 'L1' | 'L2';
+
+export type EventUpdate = {
+    event_depth?: number | null;
+    event_epicenter?: string | null;
+    event_location?: string | null;
+    event_magnitude?: number | null;
+    event_occurred_at?: string | null;
+    event_source?: string | null;
+    event_severity?: EventSeverity | null;
+    event_is_suppressed_by?: number | null;
+};
+
+export type EventsPublic = {
+    data: Array<EventPublic>;
+};
+
 export type HttpValidationError = {
     detail?: Array<ValidationError>;
+};
+
+export type ReportCreate = {
+    alert_id?: number | null;
+    user_id?: number | null;
+    report_action_flag: boolean;
+    report_damage_flag: boolean;
+    report_factory_zone?: number | null;
+    report_reported_at: string;
+};
+
+export type ReportPublic = {
+    alert_id?: number | null;
+    user_id?: number | null;
+    report_action_flag: boolean;
+    report_damage_flag: boolean;
+    report_factory_zone?: number | null;
+    report_reported_at: string;
+    report_id: number;
+    report_created_at: string;
+};
+
+export type ReportUpdate = {
+    alert_id?: number | null;
+    user_id?: number | null;
+    report_action_flag?: boolean | null;
+    report_damage_flag?: boolean | null;
+    report_factory_zone?: number | null;
+    report_reported_at?: string | null;
+};
+
+export type ReportsPublic = {
+    data: Array<ReportPublic>;
 };
 
 export type UserCreate = {
@@ -58,6 +132,30 @@ export type ValidationError = {
     loc: Array<string | number>;
     msg: string;
     type: string;
+};
+
+export type ZoneCreate = {
+    zone_name?: string | null;
+    zone_note: string;
+    zone_regions: string;
+};
+
+export type ZonePublic = {
+    zone_name?: string | null;
+    zone_note: string;
+    zone_regions: string;
+    zone_id: number;
+    zone_created_at: string;
+};
+
+export type ZoneUpdate = {
+    zone_name?: string | null;
+    zone_note?: string | null;
+    zone_regions?: string | null;
+};
+
+export type ZonesPublic = {
+    data: Array<ZonePublic>;
 };
 
 export type ListUsersUserGetData = {
@@ -307,6 +405,378 @@ export type UpdateAlertAlertAlertIdPatchResponses = {
 };
 
 export type UpdateAlertAlertAlertIdPatchResponse = UpdateAlertAlertAlertIdPatchResponses[keyof UpdateAlertAlertAlertIdPatchResponses];
+
+export type ListEventsEventGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/event/';
+};
+
+export type ListEventsEventGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: EventsPublic;
+};
+
+export type ListEventsEventGetResponse = ListEventsEventGetResponses[keyof ListEventsEventGetResponses];
+
+export type CreateEventEventPostData = {
+    body: EventCreate;
+    path?: never;
+    query?: never;
+    url: '/event/';
+};
+
+export type CreateEventEventPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateEventEventPostError = CreateEventEventPostErrors[keyof CreateEventEventPostErrors];
+
+export type CreateEventEventPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: EventPublic;
+};
+
+export type CreateEventEventPostResponse = CreateEventEventPostResponses[keyof CreateEventEventPostResponses];
+
+export type DeleteEventEventEventIdDeleteData = {
+    body?: never;
+    path: {
+        event_id: number;
+    };
+    query?: never;
+    url: '/event/{event_id}';
+};
+
+export type DeleteEventEventEventIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteEventEventEventIdDeleteError = DeleteEventEventEventIdDeleteErrors[keyof DeleteEventEventEventIdDeleteErrors];
+
+export type DeleteEventEventEventIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type DeleteEventEventEventIdDeleteResponse = DeleteEventEventEventIdDeleteResponses[keyof DeleteEventEventEventIdDeleteResponses];
+
+export type GetEventEventEventIdGetData = {
+    body?: never;
+    path: {
+        event_id: number;
+    };
+    query?: never;
+    url: '/event/{event_id}';
+};
+
+export type GetEventEventEventIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetEventEventEventIdGetError = GetEventEventEventIdGetErrors[keyof GetEventEventEventIdGetErrors];
+
+export type GetEventEventEventIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: EventPublic;
+};
+
+export type GetEventEventEventIdGetResponse = GetEventEventEventIdGetResponses[keyof GetEventEventEventIdGetResponses];
+
+export type UpdateEventEventEventIdPatchData = {
+    body: EventUpdate;
+    path: {
+        event_id: number;
+    };
+    query?: never;
+    url: '/event/{event_id}';
+};
+
+export type UpdateEventEventEventIdPatchErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateEventEventEventIdPatchError = UpdateEventEventEventIdPatchErrors[keyof UpdateEventEventEventIdPatchErrors];
+
+export type UpdateEventEventEventIdPatchResponses = {
+    /**
+     * Successful Response
+     */
+    200: EventPublic;
+};
+
+export type UpdateEventEventEventIdPatchResponse = UpdateEventEventEventIdPatchResponses[keyof UpdateEventEventEventIdPatchResponses];
+
+export type ListZonesZoneGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/zone/';
+};
+
+export type ListZonesZoneGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: ZonesPublic;
+};
+
+export type ListZonesZoneGetResponse = ListZonesZoneGetResponses[keyof ListZonesZoneGetResponses];
+
+export type CreateZoneZonePostData = {
+    body: ZoneCreate;
+    path?: never;
+    query?: never;
+    url: '/zone/';
+};
+
+export type CreateZoneZonePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateZoneZonePostError = CreateZoneZonePostErrors[keyof CreateZoneZonePostErrors];
+
+export type CreateZoneZonePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: ZonePublic;
+};
+
+export type CreateZoneZonePostResponse = CreateZoneZonePostResponses[keyof CreateZoneZonePostResponses];
+
+export type DeleteZoneZoneZoneIdDeleteData = {
+    body?: never;
+    path: {
+        zone_id: number;
+    };
+    query?: never;
+    url: '/zone/{zone_id}';
+};
+
+export type DeleteZoneZoneZoneIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteZoneZoneZoneIdDeleteError = DeleteZoneZoneZoneIdDeleteErrors[keyof DeleteZoneZoneZoneIdDeleteErrors];
+
+export type DeleteZoneZoneZoneIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type DeleteZoneZoneZoneIdDeleteResponse = DeleteZoneZoneZoneIdDeleteResponses[keyof DeleteZoneZoneZoneIdDeleteResponses];
+
+export type GetZoneZoneZoneIdGetData = {
+    body?: never;
+    path: {
+        zone_id: number;
+    };
+    query?: never;
+    url: '/zone/{zone_id}';
+};
+
+export type GetZoneZoneZoneIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetZoneZoneZoneIdGetError = GetZoneZoneZoneIdGetErrors[keyof GetZoneZoneZoneIdGetErrors];
+
+export type GetZoneZoneZoneIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: ZonePublic;
+};
+
+export type GetZoneZoneZoneIdGetResponse = GetZoneZoneZoneIdGetResponses[keyof GetZoneZoneZoneIdGetResponses];
+
+export type UpdateZoneZoneZoneIdPatchData = {
+    body: ZoneUpdate;
+    path: {
+        zone_id: number;
+    };
+    query?: never;
+    url: '/zone/{zone_id}';
+};
+
+export type UpdateZoneZoneZoneIdPatchErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateZoneZoneZoneIdPatchError = UpdateZoneZoneZoneIdPatchErrors[keyof UpdateZoneZoneZoneIdPatchErrors];
+
+export type UpdateZoneZoneZoneIdPatchResponses = {
+    /**
+     * Successful Response
+     */
+    200: ZonePublic;
+};
+
+export type UpdateZoneZoneZoneIdPatchResponse = UpdateZoneZoneZoneIdPatchResponses[keyof UpdateZoneZoneZoneIdPatchResponses];
+
+export type ListReportsReportGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/report/';
+};
+
+export type ListReportsReportGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportsPublic;
+};
+
+export type ListReportsReportGetResponse = ListReportsReportGetResponses[keyof ListReportsReportGetResponses];
+
+export type CreateReportReportPostData = {
+    body: ReportCreate;
+    path?: never;
+    query?: never;
+    url: '/report/';
+};
+
+export type CreateReportReportPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateReportReportPostError = CreateReportReportPostErrors[keyof CreateReportReportPostErrors];
+
+export type CreateReportReportPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportPublic;
+};
+
+export type CreateReportReportPostResponse = CreateReportReportPostResponses[keyof CreateReportReportPostResponses];
+
+export type DeleteReportReportReportIdDeleteData = {
+    body?: never;
+    path: {
+        report_id: number;
+    };
+    query?: never;
+    url: '/report/{report_id}';
+};
+
+export type DeleteReportReportReportIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteReportReportReportIdDeleteError = DeleteReportReportReportIdDeleteErrors[keyof DeleteReportReportReportIdDeleteErrors];
+
+export type DeleteReportReportReportIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type DeleteReportReportReportIdDeleteResponse = DeleteReportReportReportIdDeleteResponses[keyof DeleteReportReportReportIdDeleteResponses];
+
+export type GetReportReportReportIdGetData = {
+    body?: never;
+    path: {
+        report_id: number;
+    };
+    query?: never;
+    url: '/report/{report_id}';
+};
+
+export type GetReportReportReportIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetReportReportReportIdGetError = GetReportReportReportIdGetErrors[keyof GetReportReportReportIdGetErrors];
+
+export type GetReportReportReportIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportPublic;
+};
+
+export type GetReportReportReportIdGetResponse = GetReportReportReportIdGetResponses[keyof GetReportReportReportIdGetResponses];
+
+export type UpdateReportReportReportIdPatchData = {
+    body: ReportUpdate;
+    path: {
+        report_id: number;
+    };
+    query?: never;
+    url: '/report/{report_id}';
+};
+
+export type UpdateReportReportReportIdPatchErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateReportReportReportIdPatchError = UpdateReportReportReportIdPatchErrors[keyof UpdateReportReportReportIdPatchErrors];
+
+export type UpdateReportReportReportIdPatchResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportPublic;
+};
+
+export type UpdateReportReportReportIdPatchResponse = UpdateReportReportReportIdPatchResponses[keyof UpdateReportReportReportIdPatchResponses];
 
 export type RootGetData = {
     body?: never;
