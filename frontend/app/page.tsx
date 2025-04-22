@@ -4,7 +4,6 @@ import { DataTable } from "@/components/data-table";
 import { SiteHeader } from "@/components/site-header";
 import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import AuthDialog from "@/components/auth-dialog";
 import { useSession } from "next-auth/react";
 import { Suspense } from "react";
 
