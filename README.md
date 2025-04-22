@@ -22,3 +22,8 @@ Stop the services
 ```bash
 docker compose down -v
 ```
+
+Access the services at:
+
+- backend: http://localhost:8000
+- db admin: http://localhost:8081
