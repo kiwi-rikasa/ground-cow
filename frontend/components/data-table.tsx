@@ -148,6 +148,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
+          className="cursor-pointer"
         />
       </div>
     ),
@@ -157,6 +158,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          className="cursor-pointer"
         />
       </div>
     ),
@@ -266,7 +268,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+            className="data-[state=open]:bg-muted text-muted-foreground flex size-8 cursor-pointer"
             size="icon"
           >
             <IconDotsVertical />
@@ -396,9 +398,9 @@ export function DataTable({
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="cursor-pointer">
                 <IconLayoutColumns />
-                <span className="hidden lg:inline">Customize Columns</span>
+                <span className="hidden lg:inline ">Customize Columns</span>
                 <span className="lg:hidden">Columns</span>
                 <IconChevronDown />
               </Button>
@@ -415,7 +417,7 @@ export function DataTable({
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize"
+                      className="capitalize cursor-pointer"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
@@ -500,14 +502,22 @@ export function DataTable({
                   table.setPageSize(Number(value));
                 }}
               >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                <SelectTrigger
+                  size="sm"
+                  className="w-20 cursor-pointer"
+                  id="rows-per-page"
+                >
                   <SelectValue
                     placeholder={table.getState().pagination.pageSize}
                   />
                 </SelectTrigger>
                 <SelectContent side="top">
                   {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                    <SelectItem
+                      key={pageSize}
+                      value={`${pageSize}`}
+                      className="cursor-pointer"
+                    >
                       {pageSize}
                     </SelectItem>
                   ))}
@@ -521,7 +531,7 @@ export function DataTable({
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
                 variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
+                className="hidden h-8 w-8 p-0 lg:flex cursor-pointer"
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
               >
@@ -530,7 +540,7 @@ export function DataTable({
               </Button>
               <Button
                 variant="outline"
-                className="size-8"
+                className="size-8 cursor-pointer"
                 size="icon"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
@@ -540,7 +550,7 @@ export function DataTable({
               </Button>
               <Button
                 variant="outline"
-                className="size-8"
+                className="size-8 cursor-pointer"
                 size="icon"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
@@ -550,7 +560,7 @@ export function DataTable({
               </Button>
               <Button
                 variant="outline"
-                className="hidden size-8 lg:flex"
+                className="hidden size-8 lg:flex cursor-pointer"
                 size="icon"
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
@@ -587,7 +597,10 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
-        <Button variant="link" className="text-foreground w-fit px-0 text-left">
+        <Button
+          variant="link"
+          className="text-foreground w-fit px-0 text-left cursor-pointer"
+        >
           {item.header}
         </Button>
       </DrawerTrigger>
@@ -644,24 +657,32 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               <div className="flex flex-col gap-3">
                 <Label htmlFor="type">Damage</Label>
                 <Select defaultValue={item.damage}>
-                  <SelectTrigger id="type" className="w-full">
+                  <SelectTrigger id="type" className="w-full cursor-pointer">
                     <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="True">True</SelectItem>
-                    <SelectItem value="False">False</SelectItem>
+                    <SelectItem value="True" className="cursor-pointer">
+                      True
+                    </SelectItem>
+                    <SelectItem value="False" className="cursor-pointer">
+                      False
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex flex-col gap-3">
                 <Label htmlFor="status">Action</Label>
                 <Select defaultValue={item.action}>
-                  <SelectTrigger id="status" className="w-full">
+                  <SelectTrigger id="status" className="w-full cursor-pointer">
                     <SelectValue placeholder="Select a status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="True">True</SelectItem>
-                    <SelectItem value="False">False</SelectItem>
+                    <SelectItem value="True" className="cursor-pointer">
+                      True
+                    </SelectItem>
+                    <SelectItem value="False" className="cursor-pointer">
+                      False
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -681,9 +702,11 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
           </form>
         </div>
         <DrawerFooter>
-          <Button>Submit</Button>
+          <Button className="cursor-pointer">Submit</Button>
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button className="cursor-pointer" variant="outline">
+              Done
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
