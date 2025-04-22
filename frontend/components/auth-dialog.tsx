@@ -59,11 +59,17 @@ export default function AuthDialog() {
 
         <DialogFooter>
           {session?.user ? (
-            <Button className="rounded-xl" onClick={() => signOut()}>
+            <Button
+              className="rounded-xl cursor-pointer"
+              onClick={() => signOut()}
+            >
               Sign Out
             </Button>
           ) : (
-            <Button className="rounded-xl" onClick={() => signIn("google")}>
+            <Button
+              className="rounded-xl cursor-pointer"
+              onClick={() => signIn("google")}
+            >
               Sign In
             </Button>
           )}
