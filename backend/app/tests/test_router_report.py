@@ -1,80 +1,19 @@
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 from fastapi.testclient import TestClient
 from sqlmodel import Session
-from app.models.models import User, Alert, Event, Report, Zone
-from app.models.consts import UserRole, AlertState, EventSeverity
+from app.models.models import Report
 
 
 @pytest.fixture
-def test_event(db_session: Session):
-    """Create a test event for testing."""
-    event = Event(
-        event_depth=10.5,
-        event_epicenter="Test Epicenter",
-        event_location="Test Location",
-        event_magnitude=5.2,
-        event_occurred_at=datetime.now() - timedelta(hours=1),
-        event_source="Test Source",
-        event_severity=EventSeverity.NA,
-    )
-    db_session.add(event)
-    db_session.commit()
-    db_session.refresh(event)
-    return event
-
-
-@pytest.fixture
-def test_alert(db_session: Session, test_event: Event):
-    """Create a test alert for testing."""
-    alert = Alert(
-        event_id=test_event.event_id,
-        alert_alert_time=datetime.now(),
-        alert_state=AlertState.active,
-    )
-    db_session.add(alert)
-    db_session.commit()
-    db_session.refresh(alert)
-    return alert
-
-
-@pytest.fixture
-def test_user(db_session: Session):
-    """Create a test user for testing."""
-    user = User(
-        user_email="test@example.com",
-        user_name="Test User",
-        user_role=UserRole.operator,
-    )
-    db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
-    return user
-
-
-@pytest.fixture
-def test_zone(db_session: Session):
-    """Create a test zone for testing."""
-    zone = Zone(
-        zone_name="Test Zone A", zone_note="Test Note 123", zone_regions="Region FDZ"
-    )
-    db_session.add(zone)
-    db_session.commit()
-    db_session.refresh(zone)
-    return zone
-
-
-@pytest.fixture
-def test_report(
-    db_session: Session, test_alert: Alert, test_user: User, test_zone: Zone
-):
+def test_report(db_session: Session):
     """Create a test report for testing."""
     report = Report(
-        alert_id=test_alert.alert_id,
-        user_id=test_user.user_id,
+        alert_id=0,
+        user_id=0,
         report_action_flag=False,
         report_damage_flag=False,
-        report_factory_zone=test_zone.zone_id,
+        report_factory_zone=0,
         report_reported_at=datetime.now(),
     )
     db_session.add(report)
@@ -83,16 +22,14 @@ def test_report(
     return report
 
 
-def test_create_report(
-    client: TestClient, test_alert: Alert, test_user: User, test_zone: Zone
-):
+def test_create_report(client: TestClient):
     """Test creating a new report."""
     report_data = {
-        "alert_id": test_alert.alert_id,
-        "user_id": test_user.user_id,
+        "alert_id": 1,
+        "user_id": 0,
         "report_action_flag": False,
         "report_damage_flag": False,
-        "report_factory_zone": test_zone.zone_id,
+        "report_factory_zone": 0,
         "report_reported_at": datetime.now().isoformat(),
     }
 
