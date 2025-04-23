@@ -8,7 +8,6 @@ from ..consts import EventSeverity
 class EventBase(SQLModel):
     event_intensity: float
     event_severity: EventSeverity = Field(default=EventSeverity.NA)
-    event_is_suppressed_by: Optional[int] = None
 
 
 # Create input
@@ -21,7 +20,6 @@ class EventCreate(EventBase):
 class EventUpdate(SQLModel):
     event_intensity: Optional[float] = None
     event_severity: Optional[EventSeverity] = None
-    event_is_suppressed_by: Optional[int] = None
 
 
 # Response schema

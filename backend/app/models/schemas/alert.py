@@ -7,8 +7,10 @@ from ..consts import AlertState
 # Shared fields
 class AlertBase(SQLModel):
     event_id: int
+    zone_id: int
     alert_alert_time: datetime
     alert_state: AlertState = Field(default=AlertState.active)
+    alert_is_suppressed_by: Optional[int] = None
 
 
 # Create input
@@ -19,6 +21,7 @@ class AlertCreate(AlertBase):
 # Update input
 class AlertUpdate(SQLModel):
     alert_state: Optional[AlertState] = None
+    alert_is_suppressed_by: Optional[int] = None
 
 
 # Response schema
