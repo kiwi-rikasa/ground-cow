@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
+from typing import Optional, Literal
 from sqlmodel import select
-
 from app.api.deps import SessionDep
 from ...models.models import Alert
 from ...models.schemas.alert import AlertCreate, AlertUpdate, AlertPublic, AlertsPublic
@@ -9,11 +9,30 @@ alert_router = APIRouter()
 
 
 @alert_router.get("/", response_model=AlertsPublic)
-def list_alerts(session: SessionDep) -> AlertsPublic:
+def list_alerts(
+    session: SessionDep,
+    offset: int = 0,
+    limit: int = 30,
+    alert_state: Optional[str] = None,
+    zone_id: Optional[int] = None,
+    sort_by: Optional[str] = "alert_created_at",
+    order: Literal["asc", "desc"] = "desc",
+) -> AlertsPublic:
     """
-    Get all alerts.
+    Get specified alerts.
     """
-    alerts = session.exec(select(Alert)).all()
+    query = select(Alert)
+
+    if alert_state is not None:
+        query = query.where(Alert.alert_state == alert_state)
+    if zone_id is not None:
+        query = query.where(Alert.zone_id == zone_id)
+
+    if hasattr(Alert, sort_by):
+        column = getattr(Alert, sort_by)
+        query = query.order_by(column.asc() if order == "asc" else column.desc())
+
+    alerts = session.exec(query.offset(offset).limit(limit)).all()
     return AlertsPublic(data=[AlertPublic.model_validate(alert) for alert in alerts])
 
 

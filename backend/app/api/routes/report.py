@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from typing import Optional, Literal
 from sqlmodel import select
 from ...models.models import Report
 from ...models.schemas.report import (
@@ -13,11 +14,33 @@ report_router = APIRouter()
 
 
 @report_router.get("/", response_model=ReportsPublic)
-def list_reports(session: SessionDep) -> ReportsPublic:
+def list_reports(
+    session: SessionDep,
+    offset: int = 0,
+    limit: int = 30,
+    alert_id: Optional[int] = None,
+    user_id: Optional[int] = None,
+    report_factory_zone: Optional[int] = None,
+    sort_by: Optional[str] = "report_reported_at",
+    order: Literal["asc", "desc"] = "desc",
+) -> ReportsPublic:
     """
     Get all reports.
     """
-    reports = session.exec(select(Report)).all()
+    query = select(Report)
+
+    if alert_id is not None:
+        query = query.where(Report.alert_id == alert_id)
+    if user_id is not None:
+        query = query.where(Report.user_id == user_id)
+    if report_factory_zone is not None:
+        query = query.where(Report.report_factory_zone == report_factory_zone)
+
+    if hasattr(Report, sort_by):
+        column = getattr(Report, sort_by)
+        query = query.order_by(column.asc() if order == "asc" else column.desc())
+
+    reports = session.exec(query.offset(offset).limit(limit)).all()
     return ReportsPublic(
         data=[ReportPublic.model_validate(report) for report in reports]
     )
