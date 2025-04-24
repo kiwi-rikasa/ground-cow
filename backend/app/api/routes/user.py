@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from typing import Optional
 from sqlmodel import select
 from ...models.models import User
 from ...models.schemas.user import UserCreate, UserUpdate, UserPublic, UsersPublic
@@ -8,11 +9,21 @@ user_router = APIRouter()
 
 
 @user_router.get("/", response_model=UsersPublic)
-def list_users(session: SessionDep) -> UsersPublic:
+def list_users(
+    session: SessionDep,
+    offset: int = 0,
+    limit: int = 30,
+    user_role: Optional[str] = None,
+) -> UsersPublic:
     """
     Get all users.
     """
-    users = session.exec(select(User)).all()
+    query = select(User)
+
+    if user_role is not None:
+        query = query.where(User.user_role == user_role)
+
+    users = session.exec(query.offset(offset).limit(limit)).all()
     return UsersPublic(data=[UserPublic.model_validate(user) for user in users])
 
 

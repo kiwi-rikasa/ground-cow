@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from typing import Optional, Literal
 from sqlmodel import select
 from ...models.models import Event
 from ...models.schemas.event import EventCreate, EventUpdate, EventPublic, EventsPublic
@@ -8,11 +9,33 @@ event_router = APIRouter()
 
 
 @event_router.get("/", response_model=EventsPublic)
-def list_events(session: SessionDep) -> EventsPublic:
+def list_events(
+    session: SessionDep,
+    offset: int = 0,
+    limit: int = 30,
+    zone_id: Optional[int] = None,
+    earthquake_id: Optional[int] = None,
+    event_severity: Optional[str] = None,
+    sort_by: Optional[str] = "event_created_at",
+    order: Literal["asc", "desc"] = "desc",
+) -> EventsPublic:
     """
-    Get all events.
+    Get specified events.
     """
-    events = session.exec(select(Event)).all()
+    query = select(Event)
+
+    if zone_id is not None:
+        query = query.where(Event.zone_id == zone_id)
+    if earthquake_id is not None:
+        query = query.where(Event.earthquake_id == earthquake_id)
+    if event_severity is not None:
+        query = query.where(Event.event_severity == event_severity)
+
+    if hasattr(Event, sort_by):
+        column = getattr(Event, sort_by)
+        query = query.order_by(column.asc() if order == "asc" else column.desc())
+
+    events = session.exec(query.offset(offset).limit(limit)).all()
     return EventsPublic(data=[EventPublic.model_validate(event) for event in events])
 
 
