@@ -15,6 +15,11 @@ def test_api_router(client: TestClient):
     assert response.status_code == 200
     assert "data" in response.json()
 
+    # Test earthquake router
+    response = client.get("/earthquake/")
+    assert response.status_code == 200
+    assert "data" in response.json()
+
     # Test alert router
     response = client.get("/alert/")
     assert response.status_code == 200

@@ -1,34 +1,17 @@
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 from fastapi.testclient import TestClient
 from sqlmodel import Session
-from app.models.models import Alert, Event
-from app.models.consts import AlertState, EventSeverity
+from app.models.models import Alert
+from app.models.consts import AlertState
 
 
 @pytest.fixture
-def test_event(db_session: Session):
-    """Create a test event for testing."""
-    event = Event(
-        event_depth=10.5,
-        event_epicenter="Test Epicenter",
-        event_location="Test Location",
-        event_magnitude=5.2,
-        event_occurred_at=datetime.now() - timedelta(hours=1),
-        event_source="Test Source",
-        event_severity=EventSeverity.NA,
-    )
-    db_session.add(event)
-    db_session.commit()
-    db_session.refresh(event)
-    return event
-
-
-@pytest.fixture
-def test_alert(db_session: Session, test_event: Event):
+def test_alert(db_session: Session):
     """Create a test alert for testing."""
     alert = Alert(
-        event_id=test_event.event_id,
+        event_id=0,
+        zone_id=1,
         alert_alert_time=datetime.now(),
         alert_state=AlertState.active,
     )
@@ -38,12 +21,14 @@ def test_alert(db_session: Session, test_event: Event):
     return alert
 
 
-def test_create_alert(client: TestClient, test_event: Event):
+def test_create_alert(client: TestClient):
     """Test creating a new alert."""
     alert_data = {
-        "event_id": test_event.event_id,
+        "event_id": 1,
+        "zone_id": 1,
         "alert_alert_time": datetime.now().isoformat(),
         "alert_state": "active",
+        "alert_is_suppressed_by": 0,
     }
 
     response = client.post("/alert/", json=alert_data)
@@ -52,6 +37,7 @@ def test_create_alert(client: TestClient, test_event: Event):
     data = response.json()
     assert data["event_id"] == alert_data["event_id"]
     assert data["alert_state"] == alert_data["alert_state"]
+    assert data["alert_is_suppressed_by"] == alert_data["alert_is_suppressed_by"]
     assert "alert_id" in data
     assert "alert_created_at" in data
 
@@ -95,8 +81,9 @@ def test_update_alert(client: TestClient, test_alert: Alert):
 
     data = response.json()
     assert data["alert_id"] == test_alert.alert_id
-    assert data["alert_state"] == update_data["alert_state"]
     assert data["event_id"] == test_alert.event_id
+    assert data["alert_state"] == update_data["alert_state"]
+    assert data["alert_is_suppressed_by"] == test_alert.alert_is_suppressed_by
 
 
 def test_update_alert_not_found(client: TestClient):

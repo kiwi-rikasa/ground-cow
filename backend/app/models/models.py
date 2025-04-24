@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel, Relationship, UniqueConstraint
 from .consts import UserRole, AlertState, EventSeverity
 
 
@@ -14,23 +14,33 @@ class User(SQLModel, table=True):
     reports: list["Report"] = Relationship(back_populates="user")
 
 
+class Earthquake(SQLModel, table=True):
+    earthquake_id: Optional[int] = Field(default=None, primary_key=True)
+    earthquake_created_at: datetime = Field(default_factory=datetime.now)
+    earthquake_magnitude: float
+    earthquake_occurred_at: datetime
+    earthquake_source: str  # e.g., CWB Open Data
+
+    events: list["Event"] = Relationship(back_populates="earthquake")
+
+
 class Event(SQLModel, table=True):
     event_id: Optional[int] = Field(default=None, primary_key=True)
+    earthquake_id: Optional[int] = Field(
+        default=None, foreign_key="earthquake.earthquake_id", ondelete="CASCADE"
+    )
+    zone_id: Optional[int] = Field(
+        default=None, foreign_key="zone.zone_id", ondelete="CASCADE"
+    )
     event_created_at: datetime = Field(default_factory=datetime.now)
-    event_depth: float
-    event_epicenter: str
-    event_location: str
-    event_magnitude: float
-    event_occurred_at: datetime
-    event_source: str  # e.g., CWB Open Data
+    event_intensity: float
     event_severity: EventSeverity = Field(default=EventSeverity.NA)  # NA / L1 / L2
-    event_is_suppressed_by: Optional[int] = Field(
-        default=None, foreign_key="event.event_id", ondelete="SET NULL"
+    __table_args__ = (
+        UniqueConstraint("earthquake_id", "zone_id", name="uq_event_earthquake_zone"),
     )
 
-    suppressed_by: Optional["Event"] = Relationship(
-        sa_relationship_kwargs={"remote_side": "Event.event_id"}
-    )
+    earthquake: "Earthquake" = Relationship(back_populates="events")
+    zone: "Zone" = Relationship(back_populates="events")
     alerts: list["Alert"] = Relationship(back_populates="event")
 
 
@@ -39,11 +49,21 @@ class Alert(SQLModel, table=True):
     event_id: Optional[int] = Field(
         default=None, foreign_key="event.event_id", ondelete="CASCADE"
     )
+    zone_id: Optional[int] = Field(
+        default=None, foreign_key="zone.zone_id", ondelete="CASCADE"
+    )
     alert_created_at: datetime = Field(default_factory=datetime.now)
     alert_alert_time: datetime
     alert_state: AlertState = Field(default=AlertState.active)
+    alert_is_suppressed_by: Optional[int] = Field(
+        default=None, foreign_key="alert.alert_id", ondelete="SET NULL"
+    )
 
     event: "Event" = Relationship(back_populates="alerts")
+    zone: "Zone" = Relationship(back_populates="alerts")
+    suppressed_by: Optional["Alert"] = Relationship(
+        sa_relationship_kwargs={"remote_side": "Alert.alert_id"}
+    )
     reports: list["Report"] = Relationship(back_populates="alert")
 
 
@@ -52,8 +72,10 @@ class Zone(SQLModel, table=True):
     zone_created_at: datetime = Field(default_factory=datetime.now)
     zone_name: Optional[str] = Field(default=None, unique=True)
     zone_note: str
-    zone_regions: str
+    zone_regions: str  # e.g., county name or station id
 
+    events: list["Event"] = Relationship(back_populates="zone")
+    alerts: list["Alert"] = Relationship(back_populates="zone")
     reports: list["Report"] = Relationship(back_populates="zone")
 
 
