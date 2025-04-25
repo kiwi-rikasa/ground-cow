@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from typing import Optional, Literal
 from sqlmodel import select
 from ...models.models import Earthquake
 from ...models.schemas.earthquake import (
@@ -13,11 +14,23 @@ earthquake_router = APIRouter()
 
 
 @earthquake_router.get("/", response_model=EarthquakesPublic)
-def list_earthquakes(session: SessionDep) -> EarthquakesPublic:
+def list_earthquakes(
+    session: SessionDep,
+    offset: int = 0,
+    limit: int = 30,
+    sort_by: Optional[str] = "earthquake_occurred_at",
+    order: Literal["asc", "desc"] = "desc",
+) -> EarthquakesPublic:
     """
     Get all earthquakes.
     """
-    earthquakes = session.exec(select(Earthquake)).all()
+    query = select(Earthquake)
+
+    if hasattr(Earthquake, sort_by):
+        column = getattr(Earthquake, sort_by)
+        query = query.order_by(column.asc() if order == "asc" else column.desc())
+
+    earthquakes = session.exec(query.offset(offset).limit(limit)).all()
     return EarthquakesPublic(
         data=[EarthquakePublic.model_validate(earthquake) for earthquake in earthquakes]
     )
