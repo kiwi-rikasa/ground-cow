@@ -2,14 +2,18 @@
 
 export type AlertCreate = {
     event_id: number;
+    zone_id: number;
     alert_alert_time: string;
     alert_state?: AlertState;
+    alert_is_suppressed_by?: number | null;
 };
 
 export type AlertPublic = {
     event_id: number;
+    zone_id: number;
     alert_alert_time: string;
     alert_state?: AlertState;
+    alert_is_suppressed_by?: number | null;
     alert_id: number;
     alert_created_at: string;
 };
@@ -18,47 +22,59 @@ export type AlertState = 'active' | 'resolved' | 'closed';
 
 export type AlertUpdate = {
     alert_state?: AlertState | null;
+    alert_is_suppressed_by?: number | null;
 };
 
 export type AlertsPublic = {
     data: Array<AlertPublic>;
 };
 
+export type EarthquakeCreate = {
+    earthquake_magnitude: number;
+    earthquake_occurred_at: string;
+    earthquake_source: string;
+    earthquake_id: number;
+};
+
+export type EarthquakePublic = {
+    earthquake_magnitude: number;
+    earthquake_occurred_at: string;
+    earthquake_source: string;
+    earthquake_id: number;
+    earthquake_created_at: string;
+};
+
+export type EarthquakeUpdate = {
+    earthquake_magnitude?: number | null;
+    earthquake_occurred_at?: string | null;
+    earthquake_source?: string | null;
+};
+
+export type EarthquakesPublic = {
+    data: Array<EarthquakePublic>;
+};
+
 export type EventCreate = {
-    event_depth: number;
-    event_epicenter: string;
-    event_location: string;
-    event_magnitude: number;
-    event_occurred_at: string;
-    event_source: string;
+    event_intensity: number;
     event_severity?: EventSeverity;
-    event_is_suppressed_by?: number | null;
+    earthquake_id: number;
+    zone_id: number;
 };
 
 export type EventPublic = {
-    event_depth: number;
-    event_epicenter: string;
-    event_location: string;
-    event_magnitude: number;
-    event_occurred_at: string;
-    event_source: string;
+    event_intensity: number;
     event_severity?: EventSeverity;
-    event_is_suppressed_by?: number | null;
     event_id: number;
+    earthquake_id: number;
+    zone_id: number;
     event_created_at: string;
 };
 
 export type EventSeverity = 'NA' | 'L1' | 'L2';
 
 export type EventUpdate = {
-    event_depth?: number | null;
-    event_epicenter?: string | null;
-    event_location?: string | null;
-    event_magnitude?: number | null;
-    event_occurred_at?: string | null;
-    event_source?: string | null;
+    event_intensity?: number | null;
     event_severity?: EventSeverity | null;
-    event_is_suppressed_by?: number | null;
 };
 
 export type EventsPublic = {
@@ -161,9 +177,22 @@ export type ZonesPublic = {
 export type ListUsersUserGetData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        user_role?: string | null;
+    };
     url: '/user/';
 };
+
+export type ListUsersUserGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListUsersUserGetError = ListUsersUserGetErrors[keyof ListUsersUserGetErrors];
 
 export type ListUsersUserGetResponses = {
     /**
@@ -282,12 +311,166 @@ export type UpdateUserUserUserIdPatchResponses = {
 
 export type UpdateUserUserUserIdPatchResponse = UpdateUserUserUserIdPatchResponses[keyof UpdateUserUserUserIdPatchResponses];
 
+export type ListEarthquakesEarthquakeGetData = {
+    body?: never;
+    path?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        sort_by?: string | null;
+        order?: 'asc' | 'desc';
+    };
+    url: '/earthquake/';
+};
+
+export type ListEarthquakesEarthquakeGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListEarthquakesEarthquakeGetError = ListEarthquakesEarthquakeGetErrors[keyof ListEarthquakesEarthquakeGetErrors];
+
+export type ListEarthquakesEarthquakeGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: EarthquakesPublic;
+};
+
+export type ListEarthquakesEarthquakeGetResponse = ListEarthquakesEarthquakeGetResponses[keyof ListEarthquakesEarthquakeGetResponses];
+
+export type CreateEarthquakeEarthquakePostData = {
+    body: EarthquakeCreate;
+    path?: never;
+    query?: never;
+    url: '/earthquake/';
+};
+
+export type CreateEarthquakeEarthquakePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateEarthquakeEarthquakePostError = CreateEarthquakeEarthquakePostErrors[keyof CreateEarthquakeEarthquakePostErrors];
+
+export type CreateEarthquakeEarthquakePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: EarthquakePublic;
+};
+
+export type CreateEarthquakeEarthquakePostResponse = CreateEarthquakeEarthquakePostResponses[keyof CreateEarthquakeEarthquakePostResponses];
+
+export type DeleteEarthquakeEarthquakeEarthquakeIdDeleteData = {
+    body?: never;
+    path: {
+        earthquake_id: number;
+    };
+    query?: never;
+    url: '/earthquake/{earthquake_id}';
+};
+
+export type DeleteEarthquakeEarthquakeEarthquakeIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteEarthquakeEarthquakeEarthquakeIdDeleteError = DeleteEarthquakeEarthquakeEarthquakeIdDeleteErrors[keyof DeleteEarthquakeEarthquakeEarthquakeIdDeleteErrors];
+
+export type DeleteEarthquakeEarthquakeEarthquakeIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type DeleteEarthquakeEarthquakeEarthquakeIdDeleteResponse = DeleteEarthquakeEarthquakeEarthquakeIdDeleteResponses[keyof DeleteEarthquakeEarthquakeEarthquakeIdDeleteResponses];
+
+export type GetEarthquakeEarthquakeEarthquakeIdGetData = {
+    body?: never;
+    path: {
+        earthquake_id: number;
+    };
+    query?: never;
+    url: '/earthquake/{earthquake_id}';
+};
+
+export type GetEarthquakeEarthquakeEarthquakeIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetEarthquakeEarthquakeEarthquakeIdGetError = GetEarthquakeEarthquakeEarthquakeIdGetErrors[keyof GetEarthquakeEarthquakeEarthquakeIdGetErrors];
+
+export type GetEarthquakeEarthquakeEarthquakeIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: EarthquakePublic;
+};
+
+export type GetEarthquakeEarthquakeEarthquakeIdGetResponse = GetEarthquakeEarthquakeEarthquakeIdGetResponses[keyof GetEarthquakeEarthquakeEarthquakeIdGetResponses];
+
+export type UpdateEarthquakeEarthquakeEarthquakeIdPatchData = {
+    body: EarthquakeUpdate;
+    path: {
+        earthquake_id: number;
+    };
+    query?: never;
+    url: '/earthquake/{earthquake_id}';
+};
+
+export type UpdateEarthquakeEarthquakeEarthquakeIdPatchErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateEarthquakeEarthquakeEarthquakeIdPatchError = UpdateEarthquakeEarthquakeEarthquakeIdPatchErrors[keyof UpdateEarthquakeEarthquakeEarthquakeIdPatchErrors];
+
+export type UpdateEarthquakeEarthquakeEarthquakeIdPatchResponses = {
+    /**
+     * Successful Response
+     */
+    200: EarthquakePublic;
+};
+
+export type UpdateEarthquakeEarthquakeEarthquakeIdPatchResponse = UpdateEarthquakeEarthquakeEarthquakeIdPatchResponses[keyof UpdateEarthquakeEarthquakeEarthquakeIdPatchResponses];
+
 export type ListAlertsAlertGetData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        alert_state?: string | null;
+        zone_id?: number | null;
+        sort_by?: string | null;
+        order?: 'asc' | 'desc';
+    };
     url: '/alert/';
 };
+
+export type ListAlertsAlertGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListAlertsAlertGetError = ListAlertsAlertGetErrors[keyof ListAlertsAlertGetErrors];
 
 export type ListAlertsAlertGetResponses = {
     /**
@@ -409,9 +592,26 @@ export type UpdateAlertAlertAlertIdPatchResponse = UpdateAlertAlertAlertIdPatchR
 export type ListEventsEventGetData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        zone_id?: number | null;
+        earthquake_id?: number | null;
+        event_severity?: string | null;
+        sort_by?: string | null;
+        order?: 'asc' | 'desc';
+    };
     url: '/event/';
 };
+
+export type ListEventsEventGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListEventsEventGetError = ListEventsEventGetErrors[keyof ListEventsEventGetErrors];
 
 export type ListEventsEventGetResponses = {
     /**
@@ -657,9 +857,26 @@ export type UpdateZoneZoneZoneIdPatchResponse = UpdateZoneZoneZoneIdPatchRespons
 export type ListReportsReportGetData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+        alert_id?: number | null;
+        user_id?: number | null;
+        report_factory_zone?: number | null;
+        sort_by?: string | null;
+        order?: 'asc' | 'desc';
+    };
     url: '/report/';
 };
+
+export type ListReportsReportGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListReportsReportGetError = ListReportsReportGetErrors[keyof ListReportsReportGetErrors];
 
 export type ListReportsReportGetResponses = {
     /**
