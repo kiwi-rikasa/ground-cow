@@ -47,7 +47,7 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <Suspense fallback={<div>Loading auth...</div>}></Suspense>
           <div className="@container/main flex flex-1 flex-col gap-2 items-center justify-center">
-            <h1>Reports</h1>
+            <h1>Team</h1>
           </div>
         </div>
       </SidebarInset>
