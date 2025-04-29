@@ -27,3 +27,4 @@ Access the services at:
 
 - backend: http://localhost:8000
 - db admin: http://localhost:8081
+- airflow web server: http://localhost:8083
