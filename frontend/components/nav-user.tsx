@@ -35,15 +35,15 @@ export function NavUser() {
       <SidebarMenuItem>
         {session?.user ? (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild role="button">
               <SidebarMenuButton
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
               >
                 <Avatar className="h-8 w-8 rounded-lg grayscale">
-                  <AvatarImage src={session?.user?.image || ""} />
+                  <AvatarImage src={session?.user?.image || ""} role="img" />
                   <AvatarFallback className="rounded-lg">
-                    <IconUser />
+                    <IconUser role="img" />
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -62,13 +62,14 @@ export function NavUser() {
               side={isMobile ? "bottom" : "right"}
               align="end"
               sideOffset={4}
+              role="menu"
             >
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={session?.user?.image || ""} />
+                    <AvatarImage src={session?.user?.image || ""} role="img" />
                     <AvatarFallback className="rounded-lg">
-                      <IconUser />
+                      <IconUser role="img" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -83,15 +84,15 @@ export function NavUser() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem role="menuitem">
                   <IconUserCircle />
                   Account
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem role="menuitem">
                   <IconCreditCard />
                   Billing
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem role="menuitem">
                   <IconNotification />
                   Notifications
                 </DropdownMenuItem>
@@ -101,6 +102,7 @@ export function NavUser() {
                 onClick={() => {
                   signOut();
                 }}
+                role="menuitem"
               >
                 <IconLogout />
                 Log out
@@ -116,10 +118,7 @@ export function NavUser() {
             }}
           >
             <Avatar className="h-8 w-8 rounded-lg grayscale">
-              <AvatarImage src={session?.user?.image || ""} />
-              <AvatarFallback className="rounded-lg">
-                <IconUser />
-              </AvatarFallback>
+              <IconUser role="img" />
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">Sign In</span>
