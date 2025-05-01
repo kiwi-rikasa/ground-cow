@@ -19,6 +19,21 @@ def test_user(db_session: Session):
     return user
 
 
+@pytest.fixture
+def multiple_test_users(db_session: Session):
+    users = [
+        User(
+            user_email=f"test{i}@example.com",
+            user_name=f"Test User {i}",
+            user_role=UserRole.operator if i % 2 == 0 else UserRole.control,
+        )
+        for i in range(1, 6)
+    ]
+    db_session.add_all(users)
+    db_session.commit()
+    return users
+
+
 def test_create_user(client: TestClient):
     """Test creating a new user."""
     user_data = {
@@ -49,6 +64,24 @@ def test_list_users(client: TestClient, test_user: User):
     # Check if our test user is in the list
     user_ids = [user["user_id"] for user in data["data"]]
     assert test_user.user_id in user_ids
+
+
+def test_list_users_with_limit_offset(client: TestClient, multiple_test_users):
+    response = client.get("/user/?offset=1&limit=3")
+    assert response.status_code == 200
+
+    data = response.json()["data"]
+    assert len(data) == 3
+
+
+def test_list_users_with_filter(client: TestClient, multiple_test_users):
+    target_user = multiple_test_users[1]
+    response = client.get(f"/user/?user_role={target_user.user_role.value}")
+    assert response.status_code == 200
+
+    data = response.json()["data"]
+    assert len(data) >= 1
+    assert all(e["user_role"] == target_user.user_role for e in data)
 
 
 def test_get_user(client: TestClient, test_user: User):
