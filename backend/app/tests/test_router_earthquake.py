@@ -20,6 +20,22 @@ def test_earthquake(db_session: Session):
     return earthquake
 
 
+@pytest.fixture
+def multiple_test_earthquakes(db_session: Session):
+    earthquakes = [
+        Earthquake(
+            earthquake_id=i,
+            earthquake_magnitude=i + 2.5,
+            earthquake_occurred_at=datetime.now() - timedelta(hours=1),
+            earthquake_source=f"Test source {i}",
+        )
+        for i in range(5)
+    ]
+    db_session.add_all(earthquakes)
+    db_session.commit()
+    return earthquakes
+
+
 def test_create_earthquake(client: TestClient):
     """Test creating a new earthquake."""
     earthquake_data = {
@@ -47,6 +63,25 @@ def test_list_earthquakes(client: TestClient, test_earthquake: Earthquake):
     assert "data" in data
     earthquake_ids = [e["earthquake_id"] for e in data["data"]]
     assert test_earthquake.earthquake_id in earthquake_ids
+
+
+def test_list_earthquakes_with_limit_offset(
+    client: TestClient, multiple_test_earthquakes
+):
+    response = client.get("/earthquake/?offset=1&limit=3")
+    assert response.status_code == 200
+    data = response.json()
+    assert "data" in data
+    assert len(data["data"]) == 3
+
+
+def test_list_earthquakes_with_sorting(client: TestClient, multiple_test_earthquakes):
+    response = client.get("/earthquake/?sort_by=earthquake_created_at&order=asc")
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert len(data) > 0
+    times = [datetime.fromisoformat(e["earthquake_created_at"]) for e in data]
+    assert times == sorted(times)
 
 
 def test_get_earthquake(client: TestClient, test_earthquake: Earthquake):
