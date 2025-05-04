@@ -98,11 +98,11 @@ def multiple_test_events(
     return events
 
 
-def test_create_event(client: TestClient):
+def test_create_event(client: TestClient, test_earthquake: Earthquake, test_zone: Zone):
     """Test creating a new event."""
     event_data = {
-        "earthquake_id": 2025010100000040001,
-        "zone_id": 0,
+        "earthquake_id": test_earthquake.earthquake_id,
+        "zone_id": test_zone.zone_id,
         "event_intensity": 2.0,
         "event_severity": EventSeverity.L1,
     }
@@ -117,6 +117,35 @@ def test_create_event(client: TestClient):
     assert data["event_severity"] == event_data["event_severity"]
     assert "event_id" in data
     assert "event_created_at" in data
+
+
+@pytest.mark.parametrize(
+    "fk_field, invalid_value",
+    [
+        ("earthquake_id", 9999),
+        ("zone_id", 9999),
+    ],
+    ids=["invalid_earthquake_id", "invalid_zone_id"],
+)
+def test_create_event_with_invalid_fk(
+    client: TestClient,
+    test_earthquake: Earthquake,
+    test_zone: Zone,
+    fk_field,
+    invalid_value,
+):
+    payload = {
+        "earthquake_id": test_earthquake.earthquake_id,
+        "zone_id": test_zone.zone_id,
+        "event_intensity": 5.0,
+        "event_severity": "L1",
+    }
+
+    payload[fk_field] = invalid_value
+
+    response = client.post("/event/", json=payload)
+    assert response.status_code == 400
+    assert fk_field in response.json()["detail"]
 
 
 def test_list_events(client: TestClient, test_event: Event):
