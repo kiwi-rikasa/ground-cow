@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Optional
 from sqlmodel import Field, SQLModel, Relationship, UniqueConstraint
+from sqlalchemy import BigInteger, Column, ForeignKey
+
 from .consts import UserRole, AlertState, EventSeverity
 
 
@@ -15,7 +17,9 @@ class User(SQLModel, table=True):
 
 
 class Earthquake(SQLModel, table=True):
-    earthquake_id: Optional[int] = Field(default=None, primary_key=True)
+    earthquake_id: Optional[int] = Field(
+        default=None, sa_column=Column(BigInteger, primary_key=True)
+    )
     earthquake_created_at: datetime = Field(default_factory=datetime.now)
     earthquake_magnitude: float
     earthquake_occurred_at: datetime
@@ -27,7 +31,10 @@ class Earthquake(SQLModel, table=True):
 class Event(SQLModel, table=True):
     event_id: Optional[int] = Field(default=None, primary_key=True)
     earthquake_id: Optional[int] = Field(
-        default=None, foreign_key="earthquake.earthquake_id", ondelete="CASCADE"
+        default=None,
+        sa_column=Column(
+            BigInteger(), ForeignKey("earthquake.earthquake_id", ondelete="CASCADE")
+        ),
     )
     zone_id: Optional[int] = Field(
         default=None, foreign_key="zone.zone_id", ondelete="CASCADE"
