@@ -14,7 +14,9 @@ Ground Cow is a platform for managing your farm. It is built with [FastAPI](http
 Start the services
 
 ```bash
-# Run all the services
+# Run all services
+docker compose --profile all up --build
+# or, if 'COMPOSE_PROFILES=all' is set in .env
 docker compose up --build
 
 # Run the app
