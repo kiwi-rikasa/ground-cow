@@ -24,8 +24,8 @@ x-airflow-common: &airflow-common
     airflow-postgres:
       condition: service_healthy
   profiles:
-    - airflow
     - all
+    - airflow
 
 services:
 
@@ -50,6 +50,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
     profiles:
+      - all
       - app
       - backend
       - db
@@ -83,6 +84,7 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-pgweb-https.tls.certresolver=le
       - traefik.http.services.${STACK_NAME?Variable not set}-pgweb.loadbalancer.server.port=8081
     profiles:
+      - all
       - app
       - backend
       - db
@@ -116,6 +118,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - SENTRY_DSN=${SENTRY_DSN}
     profiles:
+      - all
       - app
       - backend
       - db
@@ -155,6 +158,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - SENTRY_DSN=${SENTRY_DSN}
     profiles:
+      - all
       - app
       - backend
 
@@ -190,6 +194,7 @@ services:
       # Enable redirection for HTTP and HTTPS
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.middlewares=https-redirect
     profiles:
+      - all
       - app
 
   airflow-redis:
@@ -204,6 +209,7 @@ services:
       retries: 50
       start_period: 30s
     profiles:
+      - all
       - airflow
 
   airflow-postgres:
@@ -227,6 +233,7 @@ services:
       POSTGRES_USER: ${AIRFLOW_POSTGRES_USER?Variable not set}
       POSTGRES_DB: ${AIRFLOW_POSTGRES_DB?Variable not set}
     profiles:
+      - all
       - airflow
 
   airflow-init:
@@ -292,8 +299,6 @@ services:
     user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
-    profiles:
-      - airflow
 
   airflow-webserver:
     <<: *airflow-common
@@ -311,8 +316,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-    profiles:
-      - airflow
 
   airflow-scheduler:
     <<: *airflow-common
@@ -328,8 +331,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-    profiles:
-      - airflow
 
   airflow-worker:
     <<: *airflow-common
