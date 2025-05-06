@@ -5,21 +5,34 @@ import { SiteHeader } from "@/components/site-header";
 import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-import data from "./alert.json";
-
+import { AlertPublic, listAlertsAlertGet } from "./client";
+import { Skeleton } from "@/components/ui/skeleton";
 export default function Page() {
   const { data: session, status } = useSession();
-  const transformedData = data.map((item) => ({
+  const [alerts, setAlerts] = useState<AlertPublic[] | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchAlerts() {
+      const { data: alerts } = await listAlertsAlertGet();
+      if (alerts) {
+        setAlerts(alerts?.data);
+      }
+    }
+    fetchAlerts();
+  }, []);
+
+  const transformedData = alerts?.map((item) => ({
     ...item,
     alert_created_at: new Date(item.alert_created_at),
     alert_alert_time: new Date(item.alert_alert_time),
     alert_state: item.alert_state as "active" | "resolved" | "closed",
+    alert_is_suppressed_by: item.alert_is_suppressed_by ?? null,
   }));
 
-  if (status === "loading") {
-    return;
+  if (status === "loading" || !transformedData) {
+    return <Skeleton className="h-svh" />;
   }
 
   if (!session) {
@@ -47,7 +60,7 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <Suspense fallback={<div>Loading auth...</div>}></Suspense>
           <div className="@container/main flex flex-1 flex-col gap-2">
-            {session?.user ? (
+            {session?.user && transformedData ? (
               <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                 <AlertDataTable data={transformedData} />
               </div>
