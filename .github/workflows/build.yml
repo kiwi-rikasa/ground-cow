@@ -19,6 +19,8 @@ jobs:
 
       - name: Set up env
         run: |
+          cd ..
+          touch .env
           "${{ secrets.ENV_FILE }}" > .env
 
       - name: Set up Python
@@ -56,6 +58,8 @@ jobs:
 
       - name: Set up env
         run: |
+          cd ..
+          touch .env
           "${{ secrets.ENV_FILE }}" > .env
 
       - name: Setup Bun
