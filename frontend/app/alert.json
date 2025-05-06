@@ -3,7 +3,7 @@
     "event_id": 1,
     "zone_id": 101,
     "alert_alert_time": "2024-10-01T12:00:00Z",
-    "alert_state": "Active",
+    "alert_state": "active",
     "alert_is_suppressed_by": null,
     "alert_id": 1001,
     "alert_created_at": "2024-10-01T12:00:00Z"
@@ -12,7 +12,7 @@
     "event_id": 2,
     "zone_id": 102,
     "alert_alert_time": "2024-10-02T12:05:00Z",
-    "alert_state": "Resolved",
+    "alert_state": "resolved",
     "alert_is_suppressed_by": 2001,
     "alert_id": 1002,
     "alert_created_at": "2024-10-02T12:00:00Z"
@@ -21,7 +21,7 @@
     "event_id": 3,
     "zone_id": 103,
     "alert_alert_time": "2024-10-05T01:00:00Z",
-    "alert_state": "Resolved",
+    "alert_state": "resolved",
     "alert_is_suppressed_by": 2002,
     "alert_id": 1003,
     "alert_created_at": "2024-10-05T01:00:00Z"
@@ -30,7 +30,7 @@
     "event_id": 4,
     "zone_id": 104,
     "alert_alert_time": "2024-10-06T20:40:00Z",
-    "alert_state": "Resolved",
+    "alert_state": "resolved",
     "alert_is_suppressed_by": 2003,
     "alert_id": 1004,
     "alert_created_at": "2024-10-06T20:40:00Z"
@@ -39,7 +39,7 @@
     "event_id": 5,
     "zone_id": 105,
     "alert_alert_time": "2024-10-10T12:20:45Z",
-    "alert_state": "Closed",
+    "alert_state": "closed",
     "alert_is_suppressed_by": null,
     "alert_id": 1005,
     "alert_created_at": "2024-10-10T12:20:45Z"
@@ -48,7 +48,7 @@
     "event_id": 6,
     "zone_id": 106,
     "alert_alert_time": "2024-10-11T14:30:50Z",
-    "alert_state": "Closed",
+    "alert_state": "closed",
     "alert_is_suppressed_by": null,
     "alert_id": 1006,
     "alert_created_at": "2024-10-11T14:30:50Z"
@@ -57,7 +57,7 @@
     "event_id": 7,
     "zone_id": 107,
     "alert_alert_time": "2024-10-15T10:45:00Z",
-    "alert_state": "Active",
+    "alert_state": "active",
     "alert_is_suppressed_by": null,
     "alert_id": 1007,
     "alert_created_at": "2024-10-15T10:45:00Z"
@@ -66,7 +66,7 @@
     "event_id": 8,
     "zone_id": 108,
     "alert_alert_time": "2024-10-16T09:23:40Z",
-    "alert_state": "Resolved",
+    "alert_state": "resolved",
     "alert_is_suppressed_by": 2004,
     "alert_id": 1008,
     "alert_created_at": "2024-10-16T09:23:40Z"
@@ -75,7 +75,7 @@
     "event_id": 9,
     "zone_id": 109,
     "alert_alert_time": "2024-10-20T05:30:10Z",
-    "alert_state": "Resolved",
+    "alert_state": "resolved",
     "alert_is_suppressed_by": 2005,
     "alert_id": 1009,
     "alert_created_at": "2024-10-20T05:30:10Z"
@@ -84,7 +84,7 @@
     "event_id": 10,
     "zone_id": 110,
     "alert_alert_time": "2024-10-22T12:40:00Z",
-    "alert_state": "Resolved",
+    "alert_state": "resolved",
     "alert_is_suppressed_by": 2006,
     "alert_id": 1010,
     "alert_created_at": "2024-10-22T12:40:00Z"
@@ -93,7 +93,7 @@
     "event_id": 11,
     "zone_id": 111,
     "alert_alert_time": "2024-10-25T08:00:00Z",
-    "alert_state": "Active",
+    "alert_state": "active",
     "alert_is_suppressed_by": null,
     "alert_id": 1011,
     "alert_created_at": "2024-10-25T08:00:00Z"

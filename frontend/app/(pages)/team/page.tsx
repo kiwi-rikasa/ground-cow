@@ -5,7 +5,48 @@ import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
 import { Suspense } from "react";
+import { UserDataTable } from "@/components/user-data-table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 // import { listReportsReportGet } from "@/app/client/sdk.gen";
+
+// 模擬用戶數據，注意：我們在這裡使用 as const 來確保字符串字面量類型
+const mockUsers = [
+  {
+    user_id: 1,
+    user_created_at: "2024-01-01T09:00:00Z",
+    user_email: "admin@example.com",
+    user_name: "Admin User",
+    user_role: "admin" as const,
+  },
+  {
+    user_id: 2,
+    user_created_at: "2024-01-02T10:30:00Z",
+    user_email: "control1@example.com",
+    user_name: "Control Manager",
+    user_role: "control" as const,
+  },
+  {
+    user_id: 3,
+    user_created_at: "2024-01-03T14:15:00Z",
+    user_email: "operator1@example.com",
+    user_name: "Field Operator 1",
+    user_role: "operator" as const,
+  },
+  {
+    user_id: 4,
+    user_created_at: "2024-01-04T11:45:00Z",
+    user_email: "operator2@example.com",
+    user_name: "Field Operator 2",
+    user_role: "operator" as const,
+  },
+  {
+    user_id: 5,
+    user_created_at: "2024-01-05T16:30:00Z",
+    user_email: "control2@example.com",
+    user_name: "Control Assistant",
+    user_role: "control" as const,
+  },
+];
 
 export default function Page() {
   const { data: session, status } = useSession();
@@ -44,11 +85,20 @@ export default function Page() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <Suspense fallback={<div>Loading auth...</div>}></Suspense>
-          <div className="@container/main flex flex-1 flex-col gap-2 items-center justify-center">
-            <h1>Team</h1>
-          </div>
+        <div className="flex flex-1 flex-col p-6">
+          <Suspense fallback={<div>Loading...</div>}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Team Management</CardTitle>
+                <CardDescription>
+                  Manage users and their roles within the system
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <UserDataTable data={mockUsers} />
+              </CardContent>
+            </Card>
+          </Suspense>
         </div>
       </SidebarInset>
     </SidebarProvider>

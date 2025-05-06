@@ -1,20 +1,21 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
-import { DataTable } from "@/components/data-table";
+import { AlertDataTable } from "@/components/alert-data-table";
 import { SiteHeader } from "@/components/site-header";
 import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
 import { Suspense } from "react";
 
-import data from "./data.json";
+import data from "./alert.json";
 
 export default function Page() {
   const { data: session, status } = useSession();
   const transformedData = data.map((item) => ({
     ...item,
-    occurredTime: new Date(item.occurredTime),
-    lastUpdated: item.lastUpdated ? new Date(item.lastUpdated) : null,
+    alert_created_at: new Date(item.alert_created_at),
+    alert_alert_time: new Date(item.alert_alert_time),
+    alert_state: item.alert_state as "active" | "resolved" | "closed",
   }));
 
   if (status === "loading") {
@@ -48,7 +49,7 @@ export default function Page() {
           <div className="@container/main flex flex-1 flex-col gap-2">
             {session?.user ? (
               <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                <DataTable data={transformedData} />
+                <AlertDataTable data={transformedData} />
               </div>
             ) : (
               <div></div>
