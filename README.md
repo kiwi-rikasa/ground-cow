@@ -14,7 +14,14 @@ Ground Cow is a platform for managing your farm. It is built with [FastAPI](http
 Start the services
 
 ```bash
+# Run all the services
 docker compose up --build
+
+# Run the app
+docker-compose --profile app up --build -d
+
+# Run the airflow
+docker-compose --profile airflow up --build -d
 ```
 
 Stop the services

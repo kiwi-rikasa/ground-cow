@@ -17,7 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup env
+        run: |
+          cd ..
+          touch .env
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -74,6 +80,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup env
+        run: |
+          cd ..
+          touch .env
+          echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1

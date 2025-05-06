@@ -78,6 +78,16 @@ services:
         - path: ./backend/pyproject.toml
           action: rebuild
 
+  frontend:
+    restart: "no"
+    ports:
+      - "3000:3000"
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:8000
+        - NODE_ENV=development
+
 networks:
   traefik-public:
     # For local dev, don't expect an external Traefik network
