@@ -52,7 +52,7 @@ services:
     profiles:
       - app
       - backend
-      - all
+      - db
 
   pgweb:
     image: sosedoff/pgweb
@@ -84,8 +84,8 @@ services:
       - traefik.http.services.${STACK_NAME?Variable not set}-pgweb.loadbalancer.server.port=8081
     profiles:
       - app
-      - all
       - backend
+      - db
 
   prestart:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
@@ -117,8 +117,8 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
     profiles:
       - app
-      - all
       - backend
+      - db
 
   backend:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
@@ -156,7 +156,6 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
     profiles:
       - app
-      - all
       - backend
 
   frontend:
@@ -192,7 +191,6 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.middlewares=https-redirect
     profiles:
       - app
-      - all
 
   airflow-redis:
     image: redis:7.2-bookworm
@@ -207,7 +205,6 @@ services:
       start_period: 30s
     profiles:
       - airflow
-      - all
 
   airflow-postgres:
     image: postgres:13
@@ -231,7 +228,6 @@ services:
       POSTGRES_DB: ${AIRFLOW_POSTGRES_DB?Variable not set}
     profiles:
       - airflow
-      - all
 
   airflow-init:
     <<: *airflow-common
@@ -298,7 +294,6 @@ services:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
     profiles:
       - airflow
-      - all
 
   airflow-webserver:
     <<: *airflow-common
@@ -318,7 +313,6 @@ services:
         condition: service_completed_successfully
     profiles:
       - airflow
-      - all
 
   airflow-scheduler:
     <<: *airflow-common
@@ -336,7 +330,6 @@ services:
         condition: service_completed_successfully
     profiles:
       - airflow
-      - all
 
 volumes:
   app-db-data:

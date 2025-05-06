@@ -13,6 +13,10 @@ Edit the `.env` file with your own values.
 ## 💻 Development
 
 ```bash
+# Run the backend (db -> pre-start -> backend)
+docker compose --profile backend up --build -d
+
+# Run the frontend
 cd frontend
 bun install
 bun run dev

@@ -12,8 +12,11 @@ uv venv
 ## 💻 Development
 
 ```bash
-cd backend
+# Run the database
 docker compose -f docker-postgresql.yml up -d
+
+# Run the backend
+cd backend
 uv sync
 uv run fastapi run --reload app/main.py
 ```
@@ -39,4 +42,14 @@ uv run pytest test/unit/example.test.ts
 
 ```bash
 uv run ruff format
+```
+
+## 📦 Database Migrations
+
+```bash
+# Create a new migration
+alembic revision --autogenerate -m "message"
+
+# Apply migrations
+alembic upgrade head
 ```
