@@ -97,10 +97,7 @@ import { format } from "date-fns";
 export const schema = z.object({
   id: z.number(),
   header: z.string(),
-  type: z.string(),
   status: z.string(),
-  target: z.string(),
-  limit: z.string(),
   reviewer: z.string(),
   damage: z.string(),
   action: z.string(),
@@ -111,7 +108,6 @@ export const schema = z.object({
   reporter: z.string(),
 });
 
-// Create a separate component for the drag handle
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
     id,
@@ -184,11 +180,17 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       <div className="w-32">
         <Badge variant="outline" className="text-muted-foreground px-1.5">
           {row.original.status === "Resolved" ? (
-            <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
+            <IconCircleCheckFilled
+              className="fill-green-500 dark:fill-green-400"
+              role="icon"
+            />
           ) : row.original.status === "Closed" ? (
-            <IconXboxXFilled className="fill-red-500 dark:fill-red-400" />
+            <IconXboxXFilled
+              className="fill-red-500 dark:fill-red-400"
+              role="icon"
+            />
           ) : (
-            <IconLoader />
+            <IconLoader role="icon" />
           )}
           {row.original.status}
         </Badge>
@@ -221,7 +223,6 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "occurredTime",
     header: "Occurred Time",
     cell: ({ row }) => {
-      // const occurredTime = new Date(row.original.occurredTime);
       const formattedTime = format(
         row.original.occurredTime,
         "yyyy-MM-dd HH:mm:ss"
@@ -265,7 +266,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     id: "actions",
     cell: () => (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild role="button">
           <Button
             variant="ghost"
             className="data-[state=open]:bg-muted text-muted-foreground flex size-8 cursor-pointer"
@@ -446,10 +447,14 @@ export function DataTable({
             <Table>
               <TableHeader className="bg-muted sticky top-0 z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
+                  <TableRow key={headerGroup.id} role="row">
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead key={header.id} colSpan={header.colSpan}>
+                        <TableHead
+                          key={header.id}
+                          colSpan={header.colSpan}
+                          role="header"
+                        >
                           {header.isPlaceholder
                             ? null
                             : flexRender(
