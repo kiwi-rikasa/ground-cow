@@ -197,14 +197,16 @@ def multiple_test_reports(
     return reports
 
 
-def test_create_report(client: TestClient):
+def test_create_report(
+    client: TestClient, test_alert: Alert, test_user: User, test_zone: Zone
+):
     """Test creating a new report."""
     report_data = {
-        "alert_id": 1,
-        "user_id": 0,
+        "alert_id": test_alert.alert_id,
+        "user_id": test_user.user_id,
         "report_action_flag": False,
         "report_damage_flag": False,
-        "report_factory_zone": 0,
+        "report_factory_zone": test_zone.zone_id,
         "report_reported_at": datetime.now().isoformat(),
     }
 
@@ -220,6 +222,40 @@ def test_create_report(client: TestClient):
     assert "report_id" in data
     assert "report_reported_at" in data
     assert "report_created_at" in data
+
+
+@pytest.mark.parametrize(
+    "fk_field, invalid_value",
+    [
+        ("alert_id", 999999),
+        ("user_id", 999999),
+        ("report_factory_zone", 999999),
+    ],
+    ids=["invalid_alert_id", "invalid_user_id", "invalid_factory_zone"],
+)
+def test_create_report_with_invalid_fk(
+    client: TestClient,
+    test_alert: Alert,
+    test_user: User,
+    test_zone: Zone,
+    fk_field,
+    invalid_value,
+):
+    payload = {
+        "alert_id": test_alert.alert_id,
+        "user_id": test_user.user_id,
+        "report_factory_zone": test_zone.zone_id,
+        "report_created_at": datetime.now().isoformat(),
+        "report_reported_at": datetime.now().isoformat(),
+        "report_action_flag": True,
+        "report_damage_flag": False,
+    }
+
+    payload[fk_field] = invalid_value
+
+    response = client.post("/report/", json=payload)
+    assert response.status_code == 400
+    assert fk_field in response.json()["detail"]
 
 
 def test_list_reports(client: TestClient, test_report: Report):

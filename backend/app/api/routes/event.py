@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from typing import Optional, Literal
 from sqlmodel import select
-from ...models.models import Event
+from ...models.models import Event, Earthquake, Zone
 from ...models.schemas.event import EventCreate, EventUpdate, EventPublic, EventsPublic
-from app.api.deps import SessionDep
+from app.api.deps import SessionDep, validate_fk_exists
 
 event_router = APIRouter()
 
@@ -55,6 +55,9 @@ def create_event(event_in: EventCreate, session: SessionDep) -> EventPublic:
     """
     Create a new event.
     """
+    validate_fk_exists(session, Earthquake, event_in.earthquake_id, "earthquake_id")
+    validate_fk_exists(session, Zone, event_in.zone_id, "zone_id")
+
     event = Event.model_validate(event_in)
     session.add(event)
     session.commit()

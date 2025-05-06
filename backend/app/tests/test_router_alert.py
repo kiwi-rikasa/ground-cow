@@ -130,14 +130,16 @@ def multiple_test_alerts(db_session: Session, multiple_test_events):
     return alerts
 
 
-def test_create_alert(client: TestClient):
+def test_create_alert(
+    client: TestClient, test_event: Event, test_zone: Zone, test_alert: Alert
+):
     """Test creating a new alert."""
     alert_data = {
-        "event_id": 1,
-        "zone_id": 1,
+        "event_id": test_event.event_id,
+        "zone_id": test_zone.zone_id,
         "alert_alert_time": datetime.now().isoformat(),
         "alert_state": "active",
-        "alert_is_suppressed_by": 0,
+        "alert_is_suppressed_by": test_alert.alert_id,
     }
 
     response = client.post("/alert/", json=alert_data)
@@ -149,6 +151,32 @@ def test_create_alert(client: TestClient):
     assert data["alert_is_suppressed_by"] == alert_data["alert_is_suppressed_by"]
     assert "alert_id" in data
     assert "alert_created_at" in data
+
+
+@pytest.mark.parametrize(
+    "fk_field, invalid_value",
+    [
+        ("event_id", 9999),
+        ("zone_id", 9999),
+        ("alert_is_suppressed_by", 9999),
+    ],
+    ids=["invalid_event_id", "invalid_zone_id", "invalid_alert_is_suppressed_by"],
+)
+def test_create_alert_with_invalid_foreign_keys(
+    client: TestClient, test_event: Event, test_zone: Zone, fk_field, invalid_value
+):
+    payload = {
+        "event_id": test_event.event_id,
+        "zone_id": test_zone.zone_id,
+        "alert_alert_time": datetime.now().isoformat(),
+        "alert_state": "active",
+        "alert_is_suppressed_by": None,
+    }
+    payload[fk_field] = invalid_value
+
+    response = client.post("/alert/", json=payload)
+    assert response.status_code == 400
+    assert fk_field in response.json()["detail"]
 
 
 def test_list_alerts(client: TestClient, test_alert: Alert):

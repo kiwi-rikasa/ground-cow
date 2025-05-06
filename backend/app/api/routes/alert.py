@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from typing import Optional, Literal
 from sqlmodel import select
-from app.api.deps import SessionDep
-from ...models.models import Alert
+from app.api.deps import SessionDep, validate_fk_exists
+from ...models.models import Alert, Event, Zone
 from ...models.schemas.alert import AlertCreate, AlertUpdate, AlertPublic, AlertsPublic
 
 alert_router = APIRouter()
@@ -52,6 +52,12 @@ def create_alert(alert_in: AlertCreate, session: SessionDep) -> AlertPublic:
     """
     Create a new alert.
     """
+    validate_fk_exists(session, Event, alert_in.event_id, "event_id")
+    validate_fk_exists(session, Zone, alert_in.zone_id, "zone_id")
+    validate_fk_exists(
+        session, Alert, alert_in.alert_is_suppressed_by, "alert_is_suppressed_by"
+    )
+
     alert = Alert.model_validate(alert_in)
     session.add(alert)
     session.commit()

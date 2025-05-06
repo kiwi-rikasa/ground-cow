@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from typing import Optional, Literal
 from sqlmodel import select
-from ...models.models import Report
+from ...models.models import Report, Alert, User, Zone
 from ...models.schemas.report import (
     ReportCreate,
     ReportUpdate,
     ReportPublic,
     ReportsPublic,
 )
-from app.api.deps import SessionDep
+from app.api.deps import SessionDep, validate_fk_exists
 
 report_router = APIRouter()
 
@@ -62,6 +62,12 @@ def create_report(report_in: ReportCreate, session: SessionDep) -> ReportPublic:
     """
     Create a new report.
     """
+    validate_fk_exists(session, Alert, report_in.alert_id, "alert_id")
+    validate_fk_exists(session, User, report_in.user_id, "user_id")
+    validate_fk_exists(
+        session, Zone, report_in.report_factory_zone, "report_factory_zone"
+    )
+
     report = Report.model_validate(report_in)
     session.add(report)
     session.commit()
