@@ -28,7 +28,7 @@ describe("AppSidebar", () => {
 
     expect(screen.getByText("TSMC")).toBeInTheDocument();
 
-    const mainNavItems = ["Dashboard", "Reports", "Records", "Team"];
+    const mainNavItems = ["Dashboard", "Reports", "Events", "Team"];
     mainNavItems.forEach((title) => {
       expect(screen.getByText(title)).toBeInTheDocument();
     });

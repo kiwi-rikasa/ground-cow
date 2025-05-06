@@ -42,8 +42,8 @@ const data = {
       icon: IconListDetails,
     },
     {
-      title: "Records",
-      url: "/records",
+      title: "Events",
+      url: "/events",
       icon: IconFolder,
     },
     {

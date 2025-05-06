@@ -1,22 +1,20 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
+import { DataTable } from "@/components/event-data-table";
 import { SiteHeader } from "@/components/site-header";
 import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
 import { Suspense } from "react";
-// import { listReportsReportGet } from "@/app/client/sdk.gen";
+
+import data from "@/app/event-data.json";
 
 export default function Page() {
   const { data: session, status } = useSession();
-
-  // useEffect(() => {
-  //   const fetchReports = async () => {
-  //     const { data: reports } = await listReportsReportGet();
-  //     console.log("reports", reports);
-  //   };
-  //   fetchReports();
-  // }, []);
+  const transformedData = data.map((item) => ({
+    ...item,
+    event_created_at: new Date(item.event_created_at),
+  }));
 
   if (status === "loading") {
     return;
@@ -46,8 +44,14 @@ export default function Page() {
         <SiteHeader />
         <div className="flex flex-1 flex-col">
           <Suspense fallback={<div>Loading auth...</div>}></Suspense>
-          <div className="@container/main flex flex-1 flex-col gap-2 items-center justify-center">
-            <h1>Reports</h1>
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            {session?.user ? (
+              <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+                <DataTable data={transformedData} />
+              </div>
+            ) : (
+              <div></div>
+            )}
           </div>
         </div>
       </SidebarInset>
