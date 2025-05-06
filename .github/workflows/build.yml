@@ -33,11 +33,11 @@ jobs:
         with:
           enable-cache: true
       
-      - name: Init database
+      - name: Init database and backend
         run: |
           cd ..
           docker compose down -v
-          docker compose up --build -d --wait backend pgweb db
+          docker compose --profile backend up --build -d
 
       - name: Verify application starts
         run: |
