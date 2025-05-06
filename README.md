@@ -18,13 +18,13 @@ Start the services
 docker compose up --build
 
 # Run the app
-docker-compose --profile app up --build -d
+docker compose --profile app up --build -d
 
 # Run the backend (db -> pre-start -> backend)
-docker-compose --profile backend up --build -d
+docker compose --profile backend up --build -d
 
 # Run the airflow
-docker-compose --profile airflow up --build -d
+docker compose --profile airflow up --build -d
 ```
 
 Stop the services
