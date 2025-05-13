@@ -10,4 +10,3 @@ python app/core/pre_start.py
 uv run alembic upgrade head
 
 # Initialize the DB data
-python app/core/pre_start.py
