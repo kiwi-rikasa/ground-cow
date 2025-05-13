@@ -73,7 +73,7 @@ export default function Page() {
           <Suspense fallback={<div>Loading...</div>}>
             <Card>
               <CardHeader>
-                <CardTitle>Team Management</CardTitle>
+                <CardTitle>Users Management</CardTitle>
                 <CardDescription>
                   Manage users and their roles within the system
                 </CardDescription>
