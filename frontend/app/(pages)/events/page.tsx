@@ -5,16 +5,33 @@ import { SiteHeader } from "@/components/site-header";
 import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-import data from "@/app/event-data.json";
+import { EventPublic, listEventsEventGet } from "@/app/client";
 
 export default function Page() {
   const { data: session, status } = useSession();
-  const transformedData = data.map((item) => ({
-    ...item,
-    event_created_at: new Date(item.event_created_at),
-  }));
+
+  const [events, setEvents] = useState<EventPublic[] | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      const { data: events } = await listEventsEventGet();
+      if (events) {
+        setEvents(events?.data);
+      }
+    }
+    fetchEvents();
+  }, []);
+
+  const transformedData =
+    events?.map((item) => ({
+      ...item,
+      event_created_at: new Date(item.event_created_at),
+      event_severity: item.event_severity || "",
+      zone_id: item.zone_id || null,
+      earthquake_id: item.earthquake_id || null,
+    })) || [];
 
   if (status === "loading") {
     return;

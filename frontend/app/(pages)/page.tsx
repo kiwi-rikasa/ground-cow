@@ -7,7 +7,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 
-import { AlertPublic, listAlertsAlertGet } from "./client";
+import { AlertPublic, listAlertsAlertGet } from "../client";
 import { Skeleton } from "@/components/ui/skeleton";
 export default function Page() {
   const { data: session, status } = useSession();
