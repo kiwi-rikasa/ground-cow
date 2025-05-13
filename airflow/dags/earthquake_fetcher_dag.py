@@ -62,22 +62,29 @@ def earthquake_fetcher_dag():
         return zones
 
     @task
-    def map_events(earthquakes, zones):
-        cross = list(product(earthquakes, zones))
-        print("CROSS ___", cross)
-        return cross
+    def group_events(earthquakes, zones):
+        return [(zone, earthquakes) for zone in zones]
 
     @task
-    def create_event(event):
-        event = parse_event(event)
-        event_id = save_event(event).get("event_id", None)
-        print(event_id)
+    def process_events(data):
+        zone, earthquakes = data
+        zone_id = zone.get("zone_id")
+
+        events = list(product(earthquakes, [zone]))
+
+        # For each earthquake...
+        for event in events:
+            # Build and save the event
+            event = parse_event(event)
+            event_id = save_event(event).get("event_id", None)
+            print(zone_id, event_id)
+
         return
 
     earthquakes = fetch_earthquakes()
     zones = load_zones()
-    events = map_events(earthquakes, zones)
-    create_event.expand(event=events)
+    by_zone_events = group_events(earthquakes, zones)
+    process_events.expand(data=by_zone_events)
 
 
 earthquake_fetcher_dag()
