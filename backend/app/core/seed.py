@@ -1,4 +1,3 @@
-from sqlalchemy.exc import ProgrammingError
 from sqlmodel import Session, select
 from datetime import datetime, timedelta
 from random import randrange
