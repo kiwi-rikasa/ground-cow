@@ -1,6 +1,6 @@
 from __future__ import annotations
 import pendulum
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import product
 
 from airflow.decorators import dag, task
@@ -15,12 +15,10 @@ from utils.save_event import save_event
 from utils.parse_alert import check_suppression
 from utils.save_alert import save_alert
 
-DAG_RUN_INTERVAL = 30  # 30 seconds
-
 
 @dag(
     dag_id="earthquake_fetcher_dag",
-    schedule=f"*/{DAG_RUN_INTERVAL} * * * * *",
+    schedule=timedelta(seconds=30),
     start_date=pendulum.datetime(2025, 5, 1, tz="Asia/Taipei"),
     catchup=False,
     max_active_runs=1,
@@ -67,6 +65,8 @@ def earthquake_fetcher_dag():
 
     @task
     def group_events(earthquakes, zones):
+        if not earthquakes:
+            return []
         return [(zone, earthquakes) for zone in zones]
 
     @task
