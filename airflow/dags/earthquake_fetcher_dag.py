@@ -1,5 +1,6 @@
 from __future__ import annotations
 import pendulum
+from datetime import datetime
 from itertools import product
 
 from airflow.decorators import dag, task
@@ -10,6 +11,8 @@ from utils.save_earthquake import save_earthquake
 
 from utils.parse_event import parse_event
 from utils.save_event import save_event
+
+from utils.save_alert import save_alert
 
 DAG_RUN_INTERVAL = 30  # 30 seconds
 
@@ -70,14 +73,29 @@ def earthquake_fetcher_dag():
         zone, earthquakes = data
         zone_id = zone.get("zone_id")
 
-        events = list(product(earthquakes, [zone]))
+        raw_events = list(product(earthquakes, [zone]))
 
         # For each earthquake...
-        for event in events:
-            # Build and save the event
-            event = parse_event(event)
-            event_id = save_event(event).get("event_id", None)
-            print(zone_id, event_id)
+        for raw_event in raw_events:
+            # Build
+            event = parse_event(raw_event)
+
+            if not event:
+                continue
+
+            # Save the event (if exists) to the database
+            db_event = save_event(event)
+            db_event_id = db_event.get("event_id")
+
+            # Create alert for the event
+            alert = {
+                "event_id": db_event_id,
+                "zone_id": zone_id,
+                "timestamp": datetime.now().timestamp(),
+                "suppressed_by": None,
+            }
+
+            save_alert(alert)
 
         return
 
