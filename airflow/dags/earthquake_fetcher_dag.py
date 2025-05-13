@@ -12,6 +12,7 @@ from utils.save_earthquake import save_earthquake
 from utils.parse_event import parse_event
 from utils.save_event import save_event
 
+from utils.parse_alert import check_suppression
 from utils.save_alert import save_alert
 
 DAG_RUN_INTERVAL = 30  # 30 seconds
@@ -77,7 +78,8 @@ def earthquake_fetcher_dag():
 
         # For each earthquake...
         for raw_event in raw_events:
-            # Build
+            # ========== Event ===========
+            # Build the event
             event = parse_event(raw_event)
 
             if not event:
@@ -87,15 +89,59 @@ def earthquake_fetcher_dag():
             db_event = save_event(event)
             db_event_id = db_event.get("event_id")
 
-            # Create alert for the event
+            # ========== Alert ===========
+            # Pre-work: get suppression variables
+            suppression_interval = Variable.get(
+                "suppression_interval_cache", default_var=1800, deserialize_json=True
+            )
+            last_unsuppressed_alert = Variable.get(
+                f"zone_{zone_id}_last_unsuppressed_alert_cache",
+                default_var=None,
+                deserialize_json=True,
+            )
+
+            alert_time = datetime.now().timestamp()
+            # Check if the alert should be suppressed
+            # If there is no last unsuppressed alert, it means this is the first alert, which should not be suppressed
+            alert_should_suppress = (
+                check_suppression(
+                    currTime=alert_time,
+                    currSeverity=event.get("severity"),
+                    prevTime=last_unsuppressed_alert.get("timestamp"),
+                    prevSeverity=last_unsuppressed_alert.get("severity"),
+                    interval=suppression_interval,
+                )
+                if last_unsuppressed_alert
+                else False
+            )
+
+            # Build the alert
             alert = {
                 "event_id": db_event_id,
                 "zone_id": zone_id,
-                "timestamp": datetime.now().timestamp(),
-                "suppressed_by": None,
+                "timestamp": alert_time,
+                "suppressed_by": (
+                    last_unsuppressed_alert.get("alert_id")
+                    if alert_should_suppress
+                    else None
+                ),
             }
 
-            save_alert(alert)
+            # Save the alert to the database
+            db_alert = save_alert(alert)
+            db_alert_id = db_alert.get("alert_id")
+
+            # If the alert is not suppressed, update the last unsuppressed alert variable
+            if not alert_should_suppress:
+                Variable.set(
+                    f"zone_{zone_id}_last_unsuppressed_alert_cache",
+                    {
+                        "alert_id": db_alert_id,
+                        "timestamp": alert_time,
+                        "severity": event.get("severity"),
+                    },
+                    serialize_json=True,
+                )
 
         return
 
