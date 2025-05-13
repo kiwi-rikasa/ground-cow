@@ -4,60 +4,44 @@ import { SiteHeader } from "@/components/site-header";
 import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
-import { Suspense } from "react";
-import { UserDataTable } from "@/components/user-data-table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-// import { listReportsReportGet } from "@/app/client/sdk.gen";
-
-// 模擬用戶數據，注意：我們在這裡使用 as const 來確保字符串字面量類型
-const mockUsers = [
-  {
-    user_id: 1,
-    user_created_at: "2024-01-01T09:00:00Z",
-    user_email: "admin@example.com",
-    user_name: "Admin User",
-    user_role: "admin" as const,
-  },
-  {
-    user_id: 2,
-    user_created_at: "2024-01-02T10:30:00Z",
-    user_email: "control1@example.com",
-    user_name: "Control Manager",
-    user_role: "control" as const,
-  },
-  {
-    user_id: 3,
-    user_created_at: "2024-01-03T14:15:00Z",
-    user_email: "operator1@example.com",
-    user_name: "Field Operator 1",
-    user_role: "operator" as const,
-  },
-  {
-    user_id: 4,
-    user_created_at: "2024-01-04T11:45:00Z",
-    user_email: "operator2@example.com",
-    user_name: "Field Operator 2",
-    user_role: "operator" as const,
-  },
-  {
-    user_id: 5,
-    user_created_at: "2024-01-05T16:30:00Z",
-    user_email: "control2@example.com",
-    user_name: "Control Assistant",
-    user_role: "control" as const,
-  },
-];
+import { Suspense, useEffect, useState } from "react";
+import {
+  UserDataTable,
+  type UserDataInput,
+} from "@/components/user-data-table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { UserPublic, listUsersUserGet } from "@/app/client";
 
 export default function Page() {
   const { data: session, status } = useSession();
+  const [users, setUsers] = useState<UserPublic[] | undefined>(undefined);
 
-  // useEffect(() => {
-  //   const fetchReports = async () => {
-  //     const { data: reports } = await listReportsReportGet();
-  //     console.log("reports", reports);
-  //   };
-  //   fetchReports();
-  // }, []);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const { data: users } = await listUsersUserGet();
+      if (users) {
+        setUsers(users?.data);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Transform users data to match UserDataInput type
+  const transformedUsers: UserDataInput[] =
+    users?.map((user) => ({
+      user_id: user.user_id,
+      user_created_at: user.user_created_at,
+      user_email: user.user_email,
+      user_name: user.user_name,
+      user_role:
+        (user.user_role as "admin" | "control" | "operator") || "operator",
+    })) || [];
 
   if (status === "loading") {
     return;
@@ -95,7 +79,7 @@ export default function Page() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <UserDataTable data={mockUsers} />
+                <UserDataTable data={transformedUsers} />
               </CardContent>
             </Card>
           </Suspense>
