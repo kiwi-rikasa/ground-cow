@@ -1,17 +1,16 @@
 from sqlmodel import Session, select
 from datetime import datetime, timedelta
 from random import randrange
-from app.models.models import (
-    Zone, Earthquake, Event, Alert, Report, User
-)
+from app.models.models import Zone, Earthquake, Event, Alert, Report, User
 from app.models.consts import EventSeverity, AlertState, UserRole
+
 
 def seed_db(session: Session):
     print("Seeding database", session)
     if session.exec(select(User)).first():
         print("✅ Seed data already exists. Skipping.")
         return
-    
+
     zones = [
         Zone(zone_name="Taipei", zone_note="North Area", zone_regions="Taipei City"),
         Zone(
@@ -44,9 +43,11 @@ def seed_db(session: Session):
     events = [
         Event(
             earthquake_id=earthquakes[i].earthquake_id,
-            zone_id=zones[i%5].zone_id,
+            zone_id=zones[i % 5].zone_id,
             event_intensity=earthquakes[i].earthquake_magnitude + randrange(-2, 2),
-            event_severity=EventSeverity.L2 if earthquakes[i].earthquake_magnitude >= 4.5 else EventSeverity.L1,
+            event_severity=EventSeverity.L2
+            if earthquakes[i].earthquake_magnitude >= 4.5
+            else EventSeverity.L1,
         )
         for i in range(30)
     ]
@@ -56,9 +57,13 @@ def seed_db(session: Session):
     alerts = [
         Alert(
             event_id=events[i].event_id,
-            zone_id=zones[i%5].zone_id,
+            zone_id=zones[i % 5].zone_id,
             alert_alert_time=datetime.now(),
-            alert_state=AlertState.active if i %3 == 2 else AlertState.closed if i % 3 == 1 else AlertState.resolved,
+            alert_state=AlertState.active
+            if i % 3 == 2
+            else AlertState.closed
+            if i % 3 == 1
+            else AlertState.resolved,
         )
         for i in range(30)
     ]
@@ -69,7 +74,11 @@ def seed_db(session: Session):
         User(
             user_email=f"user{i}@seed.com",
             user_name=f"User{i}",
-            user_role=UserRole.admin if i == 0 else UserRole.control if i == 1 else UserRole.operator,
+            user_role=UserRole.admin
+            if i == 0
+            else UserRole.control
+            if i == 1
+            else UserRole.operator,
         )
         for i in range(5)
     ]
@@ -79,10 +88,10 @@ def seed_db(session: Session):
     reports = [
         Report(
             alert_id=alerts[i].alert_id,
-            user_id=users[i%5].user_id,
+            user_id=users[i % 5].user_id,
             report_action_flag=(i % 2 == 0),
             report_damage_flag=(i % 2 == 1),
-            report_factory_zone=zones[i%5].zone_id,
+            report_factory_zone=zones[i % 5].zone_id,
             report_reported_at=datetime.now(),
         )
         for i in range(30)
@@ -93,6 +102,7 @@ def seed_db(session: Session):
     print(
         "✅ Seed data inserted: 5 zones, 30 earthquakes, 30 events, 30 alerts, 5 users, 30 reports"
     )
+
 
 if __name__ == "__main__":
     from app.core.db import engine
