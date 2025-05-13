@@ -3,10 +3,11 @@
 set -e
 set -x
 
-# Run migrations
-uv run alembic upgrade head
-
 # Initialize the DB
 python app/core/pre_start.py
 
+# Run migrations
+uv run alembic upgrade head
+
 # Initialize the DB data
+python app/core/seed.py

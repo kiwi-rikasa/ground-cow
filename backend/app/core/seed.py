@@ -5,8 +5,7 @@ from app.models.models import Zone, Earthquake, Event, Alert, Report, User
 from app.models.consts import EventSeverity, AlertState, UserRole
 
 
-def seed_db(session: Session):
-    print("Seeding database", session)
+def seed_db(session: Session) -> None:
     if session.exec(select(User)).first():
         print("✅ Seed data already exists. Skipping.")
         return
