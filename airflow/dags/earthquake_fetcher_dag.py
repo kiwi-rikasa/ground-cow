@@ -1,11 +1,15 @@
 from __future__ import annotations
 import pendulum
+from itertools import product
 
 from airflow.decorators import dag, task
 from airflow.models import Variable
 
 from utils.fetch_earthquake import fetch_earthquakes as _fetch_earthquakes
 from utils.save_earthquake import save_earthquake
+
+from utils.parse_event import parse_event
+from utils.save_event import save_event
 
 DAG_RUN_INTERVAL = 30  # 30 seconds
 
@@ -57,8 +61,23 @@ def earthquake_fetcher_dag():
             raise ValueError("Zone pulled from variable is not a list")
         return zones
 
-    fetch_earthquakes()
-    load_zones()
+    @task
+    def map_events(earthquakes, zones):
+        cross = list(product(earthquakes, zones))
+        print("CROSS ___", cross)
+        return cross
+
+    @task
+    def create_event(event):
+        event = parse_event(event)
+        event_id = save_event(event).get("event_id", None)
+        print(event_id)
+        return
+
+    earthquakes = fetch_earthquakes()
+    zones = load_zones()
+    events = map_events(earthquakes, zones)
+    create_event.expand(event=events)
 
 
 earthquake_fetcher_dag()
