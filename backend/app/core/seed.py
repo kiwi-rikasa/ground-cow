@@ -1,3 +1,4 @@
+from sqlalchemy.exc import ProgrammingError
 from sqlmodel import Session, select
 from datetime import datetime, timedelta
 from random import randrange
@@ -5,11 +6,17 @@ from app.models.models import Zone, Earthquake, Event, Alert, Report, User
 from app.models.consts import EventSeverity, AlertState, UserRole
 
 
-def seed_db(session: Session):
-    print("Seeding database", session)
-    if session.exec(select(User)).first():
-        print("✅ Seed data already exists. Skipping.")
-        return
+def seed_db(session: Session) -> None:
+    try:
+        if session.exec(select(User)).first():
+            print("✅ Seed data already exists. Skipping.")
+            return
+
+    except ProgrammingError as e:
+        if 'relation "user" does not exist' in str(e):
+            print("⏭️ Skipping seed — DB schema not ready.")
+            return
+        raise
 
     zones = [
         Zone(zone_name="Taipei", zone_note="North Area", zone_regions="Taipei City"),
