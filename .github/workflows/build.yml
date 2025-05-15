@@ -32,10 +32,12 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      
+
       - name: Init database and backend
         run: |
           cd ..
+          touch .env
+          echo "${{ secrets.ENV_FILE }}" > .env
           docker compose down -v
           docker compose --profile backend up --build -d
 
@@ -78,4 +80,4 @@ jobs:
         with:
           name: frontend-build
           path: ./frontend/out
-          retention-days: 7 
+          retention-days: 7
