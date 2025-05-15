@@ -310,11 +310,12 @@ function DraggableRow({ row }: { row: Row<ReportPublic> }) {
 }
 
 export function ReportDataTable({
-  data: initialData,
+  data,
+  setData,
 }: {
   data: ReportPublic[];
+  setData: React.Dispatch<React.SetStateAction<ReportPublic[]>>;
 }) {
-  const [data, setData] = React.useState(() => initialData || []);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -366,11 +367,9 @@ export function ReportDataTable({
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
-        return arrayMove(data, oldIndex, newIndex);
-      });
+      const oldIndex = dataIds.indexOf(active.id);
+      const newIndex = dataIds.indexOf(over.id);
+      setData(arrayMove([...data], oldIndex, newIndex));
     }
   }
 
@@ -391,6 +390,8 @@ export function ReportDataTable({
             }
             className="h-8 w-[150px] lg:w-[250px]"
           />
+          {data.length}
+          intial data length {data.length}
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>

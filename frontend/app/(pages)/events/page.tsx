@@ -1,18 +1,18 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
-import { DataTable } from "@/components/event-data-table";
+import { EventDataTable } from "@/components/event-data-table";
 import { SiteHeader } from "@/components/site-header";
 import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 
-import { EventPublic, listEventsEventGet } from "@/app/client";
+import { EventPublic, listEventsEventGet, EventSeverity } from "@/app/client";
 
 export default function Page() {
   const { data: session, status } = useSession();
 
-  const [events, setEvents] = useState<EventPublic[] | undefined>(undefined);
+  const [events, setEvents] = useState<EventPublic[]>([]);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -27,10 +27,9 @@ export default function Page() {
   const transformedData =
     events?.map((item) => ({
       ...item,
-      event_created_at: new Date(item.event_created_at),
-      event_severity: item.event_severity || "",
-      zone_id: item.zone_id || null,
-      earthquake_id: item.earthquake_id || null,
+      event_severity: item.event_severity || ("N/A" as EventSeverity),
+      zone_id: item.zone_id || 0,
+      earthquake_id: item.earthquake_id || 0,
     })) || [];
 
   if (status === "loading") {
@@ -64,7 +63,7 @@ export default function Page() {
           <div className="@container/main flex flex-1 flex-col gap-2">
             {session?.user ? (
               <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                <DataTable data={transformedData} />
+                <EventDataTable data={transformedData} setData={setEvents} />
               </div>
             ) : (
               <div></div>

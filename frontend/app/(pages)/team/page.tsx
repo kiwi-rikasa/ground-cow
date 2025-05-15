@@ -5,10 +5,7 @@ import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
-import {
-  UserDataTable,
-  type UserDataInput,
-} from "@/components/user-data-table";
+import { UserDataTable } from "@/components/user-data-table";
 import {
   Card,
   CardContent,
@@ -20,7 +17,7 @@ import { UserPublic, listUsersUserGet } from "@/app/client";
 
 export default function Page() {
   const { data: session, status } = useSession();
-  const [users, setUsers] = useState<UserPublic[] | undefined>(undefined);
+  const [users, setUsers] = useState<UserPublic[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -31,17 +28,6 @@ export default function Page() {
     };
     fetchUsers();
   }, []);
-
-  // Transform users data to match UserDataInput type
-  const transformedUsers: UserDataInput[] =
-    users?.map((user) => ({
-      user_id: user.user_id,
-      user_created_at: user.user_created_at,
-      user_email: user.user_email,
-      user_name: user.user_name,
-      user_role:
-        (user.user_role as "admin" | "control" | "operator") || "operator",
-    })) || [];
 
   if (status === "loading") {
     return;
@@ -79,7 +65,7 @@ export default function Page() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <UserDataTable data={transformedUsers} />
+                <UserDataTable data={users} setData={setUsers} />
               </CardContent>
             </Card>
           </Suspense>

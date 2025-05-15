@@ -46,7 +46,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -92,14 +91,7 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
 
-export const schema = z.object({
-  event_id: z.number(),
-  earthquake_id: z.number().nullable(),
-  zone_id: z.number().nullable(),
-  event_created_at: z.string().transform((val) => new Date(val)),
-  event_intensity: z.number(),
-  event_severity: z.string(),
-});
+import { EventPublic } from "@/app/client";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -120,7 +112,7 @@ function DragHandle({ id }: { id: number }) {
   );
 }
 
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
+const columns: ColumnDef<EventPublic>[] = [
   {
     id: "drag",
     header: () => null,
@@ -199,7 +191,8 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     cell: ({ row }) => (
       <div className="w-32">
         <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.event_intensity !== undefined && row.original.event_intensity !== null
+          {row.original.event_intensity !== undefined &&
+          row.original.event_intensity !== null
             ? row.original.event_intensity.toFixed(1)
             : "-"}
         </Badge>
@@ -269,7 +262,13 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   },
 ];
 
-function DraggableRow({ row, index }: { row: Row<z.infer<typeof schema>>, index: number }) {
+function DraggableRow({
+  row,
+  index,
+}: {
+  row: Row<EventPublic>;
+  index: number;
+}) {
   const rowId = row.id || `row-${index}`;
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: rowId,
@@ -295,17 +294,13 @@ function DraggableRow({ row, index }: { row: Row<z.infer<typeof schema>>, index:
   );
 }
 
-export function DataTable({
-  data: initialData,
+export function EventDataTable({
+  data,
+  setData,
 }: {
-  data: z.infer<typeof schema>[];
+  data: EventPublic[];
+  setData: React.Dispatch<React.SetStateAction<EventPublic[]>>;
 }) {
-  const [data, setData] = React.useState(() => 
-    initialData.map((item, index) => ({
-      ...item,
-      id: item.event_id || index + 1,
-    }))
-  );
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -325,7 +320,10 @@ export function DataTable({
   );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }, index) => (id?.toString() || `item-${index}`)),
+    () =>
+      data?.map(
+        ({ event_id }, index) => event_id?.toString() || `item-${index}`
+      ),
     [data]
   );
 
@@ -339,7 +337,7 @@ export function DataTable({
       columnFilters,
       pagination,
     },
-    getRowId: (row, index) => (row.event_id?.toString() || `row-${index}`),
+    getRowId: (row, index) => row.event_id?.toString() || `row-${index}`,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -461,7 +459,11 @@ export function DataTable({
                     strategy={verticalListSortingStrategy}
                   >
                     {table.getRowModel().rows.map((row, index) => (
-                      <DraggableRow key={row.id || `unique-row-${index}`} row={row} index={index} />
+                      <DraggableRow
+                        key={row.id || `unique-row-${index}`}
+                        row={row}
+                        index={index}
+                      />
                     ))}
                   </SortableContext>
                 ) : (
@@ -583,7 +585,7 @@ export function DataTable({
   );
 }
 
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({ item }: { item: EventPublic }) {
   const isMobile = useIsMobile();
 
   return (
@@ -612,7 +614,9 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                 id="event_created_at"
                 className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
               >
-                {item.event_created_at ? format(item.event_created_at, "yyyy-MM-dd HH:mm:ss") : "-"}
+                {item.event_created_at
+                  ? format(item.event_created_at, "yyyy-MM-dd HH:mm:ss")
+                  : "-"}
               </div>
             </div>
           </div>
@@ -643,7 +647,8 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                 id="event_intensity"
                 className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
               >
-                {item.event_intensity !== undefined && item.event_intensity !== null
+                {item.event_intensity !== undefined &&
+                item.event_intensity !== null
                   ? item.event_intensity.toFixed(1)
                   : "-"}
               </div>
@@ -651,7 +656,10 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
             <div className="flex flex-col gap-3">
               <Label htmlFor="event_severity">Severity</Label>
               <Select defaultValue={item.event_severity || "NA"}>
-                <SelectTrigger id="event_severity" className="w-full cursor-pointer">
+                <SelectTrigger
+                  id="event_severity"
+                  className="w-full cursor-pointer"
+                >
                   <SelectValue placeholder="Select severity" />
                 </SelectTrigger>
                 <SelectContent>

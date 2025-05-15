@@ -49,7 +49,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -94,14 +93,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
-
-export const schema = z.object({
-  user_id: z.number(),
-  user_created_at: z.string().transform((val) => new Date(val)),
-  user_email: z.string().email(),
-  user_name: z.string(),
-  user_role: z.enum(["admin", "control", "operator"]),
-});
+import { UserPublic } from "@/app/client";
 
 export type UserDataInput = {
   user_id: number;
@@ -130,7 +122,7 @@ function DragHandle({ id }: { id: number }) {
   );
 }
 
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
+const columns: ColumnDef<UserPublic>[] = [
   {
     id: "drag",
     header: () => null,
@@ -252,7 +244,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   },
 ];
 
-function DraggableRow({ row, index }: { row: Row<z.infer<typeof schema>>, index: number }) {
+function DraggableRow({ row, index }: { row: Row<UserPublic>; index: number }) {
   const rowId = row.id || `row-${index}`;
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: rowId,
@@ -279,16 +271,12 @@ function DraggableRow({ row, index }: { row: Row<z.infer<typeof schema>>, index:
 }
 
 export function UserDataTable({
-  data: initialData,
+  data,
+  setData,
 }: {
-  data: UserDataInput[];
+  data: UserPublic[];
+  setData: React.Dispatch<React.SetStateAction<UserPublic[]>>;
 }) {
-  const [data, setData] = React.useState(() => 
-    initialData.map((item, index) => ({
-      ...schema.parse(item),
-      id: item.user_id || index + 1,
-    }))
-  );
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -308,7 +296,8 @@ export function UserDataTable({
   );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }, index) => (id?.toString() || `item-${index}`)),
+    () =>
+      data?.map(({ user_id }, index) => user_id?.toString() || `item-${index}`),
     [data]
   );
 
@@ -322,7 +311,7 @@ export function UserDataTable({
       columnFilters,
       pagination,
     },
-    getRowId: (row, index) => (row.user_id?.toString() || `row-${index}`),
+    getRowId: (row, index) => row.user_id?.toString() || `row-${index}`,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -448,7 +437,11 @@ export function UserDataTable({
                     strategy={verticalListSortingStrategy}
                   >
                     {table.getRowModel().rows.map((row, index) => (
-                      <DraggableRow key={row.id || `unique-row-${index}`} row={row} index={index} />
+                      <DraggableRow
+                        key={row.id || `unique-row-${index}`}
+                        row={row}
+                        index={index}
+                      />
                     ))}
                   </SortableContext>
                 ) : (
@@ -555,7 +548,7 @@ export function UserDataTable({
   );
 }
 
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({ item }: { item: UserPublic }) {
   const isMobile = useIsMobile();
 
   return (
@@ -602,7 +595,9 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                 id="user_created_at"
                 className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
               >
-                {item.user_created_at ? format(item.user_created_at, "yyyy-MM-dd HH:mm:ss") : "-"}
+                {item.user_created_at
+                  ? format(item.user_created_at, "yyyy-MM-dd HH:mm:ss")
+                  : "-"}
               </div>
             </div>
             <div className="flex flex-col gap-3">
@@ -616,7 +611,10 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                   <IconUser className="text-green-500 dark:text-green-400 size-4" />
                 )}
                 <Select defaultValue={item.user_role}>
-                  <SelectTrigger id="user_role" className="w-full cursor-pointer">
+                  <SelectTrigger
+                    id="user_role"
+                    className="w-full cursor-pointer"
+                  >
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -652,4 +650,4 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
       </DrawerContent>
     </Drawer>
   );
-} 
+}
