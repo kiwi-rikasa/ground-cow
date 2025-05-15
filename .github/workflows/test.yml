@@ -21,7 +21,7 @@ jobs:
         run: |
           cd ..
           touch .env
-          echo "${{ secrets.ENV_FILE }}" > .env
+          cat .env.example > .env
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -103,4 +103,4 @@ jobs:
         with:
           files: ./frontend/coverage/lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: kiwi-rikasa/ground-cow 
+          slug: kiwi-rikasa/ground-cow
