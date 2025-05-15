@@ -5,6 +5,7 @@ omit =
     app/core/config.py
     app/core/db.py
     app/core/pre_start.py
+    app/core/seed.py
     app/api/routes/__init__.py
 
 [report]
