@@ -24,3 +24,7 @@ def validate_fk_exists(
             status_code=400,
             detail=f"Invalid foreign key '{fk_name}': record with ID {fk_value} does not exist.",
         )
+
+
+def say_hi():
+    pass
