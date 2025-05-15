@@ -24,6 +24,8 @@ jobs:
           cd ..
           touch .env
           echo "${{ secrets.ENV_FILE }}" > .env
+          ls -lah
+          cat .env
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -40,7 +42,8 @@ jobs:
           ENV_FILE: ${{ secrets.ENV_FILE }}
         run: |
           cd ..
-          touch .env
+          ls -lah
+          cat .env
           echo "${{ secrets.ENV_FILE }}" > .env
           docker compose down -v
           docker compose --profile backend up --build -d
