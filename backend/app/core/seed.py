@@ -3,9 +3,14 @@ from datetime import datetime, timedelta
 from random import randrange
 from app.models.models import Zone, Earthquake, Event, Alert, Report, User
 from app.models.consts import EventSeverity, AlertState, UserRole
+from app.core.config import settings
 
 
 def seed_db(session: Session) -> None:
+    if settings.ENVIRONMENT != "local":
+        print("🚫 Seed data not needed in non-local environment. Skipping.")
+        return
+
     if session.exec(select(User)).first():
         print("✅ Seed data already exists. Skipping.")
         return
