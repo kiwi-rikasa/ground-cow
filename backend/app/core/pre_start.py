@@ -4,9 +4,7 @@ from sqlalchemy import Engine
 from sqlmodel import Session, select
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
 
-from app.core.config import settings
 from app.core.db import engine
-from app.core.seed import seed_db
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,10 +22,7 @@ wait_seconds = 1
 def init(db_engine: Engine) -> None:
     try:
         with Session(db_engine) as session:
-            # Try to create session to check if DB is awake
             session.exec(select(1))
-            if settings.ENVIRONMENT == "local":
-                seed_db(session)
 
     except Exception as e:
         logger.error(e)
