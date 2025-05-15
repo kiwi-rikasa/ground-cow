@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up env
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
         run: |
           cd ..
           touch .env
@@ -34,6 +36,8 @@ jobs:
           enable-cache: true
 
       - name: Init database and backend
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
         run: |
           cd ..
           touch .env
