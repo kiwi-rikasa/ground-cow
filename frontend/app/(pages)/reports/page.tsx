@@ -1,21 +1,30 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
-import { DataTable } from "@/components/data-table";
+import { ReportDataTable } from "@/components/report-data-table";
 import { SiteHeader } from "@/components/site-header";
 import { LoginForm } from "@/components/login-form";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-import data from "../../data.json";
+import { listReportsReportGet, ReportPublic } from "@/app/client";
 
 export default function Page() {
   const { data: session, status } = useSession();
-  const transformedData = data.map((item) => ({
-    ...item,
-    occurredTime: new Date(item.occurredTime),
-    lastUpdated: item.lastUpdated ? new Date(item.lastUpdated) : null,
-  }));
+  const [reports, setReports] = useState<ReportPublic[] | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchReports() {
+      const { data: reports } = await listReportsReportGet();
+      if (reports) {
+        setReports(reports?.data);
+      }
+    }
+
+    fetchReports();
+  }, [reports]);
+
+  const transformedData = reports;
 
   if (status === "loading") {
     return;
@@ -48,7 +57,7 @@ export default function Page() {
           <div className="@container/main flex flex-1 flex-col gap-2">
             {session?.user ? (
               <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                <DataTable data={transformedData} />
+                <ReportDataTable data={transformedData || []} />
               </div>
             ) : (
               <div></div>

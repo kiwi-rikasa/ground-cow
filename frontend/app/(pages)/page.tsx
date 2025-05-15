@@ -8,9 +8,9 @@ import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 
 import { AlertPublic, listAlertsAlertGet } from "../client";
-import { Skeleton } from "@/components/ui/skeleton";
+
 export default function Page() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [alerts, setAlerts] = useState<AlertPublic[] | undefined>(undefined);
 
   useEffect(() => {
@@ -30,10 +30,6 @@ export default function Page() {
     alert_state: item.alert_state as "active" | "resolved" | "closed",
     alert_is_suppressed_by: item.alert_is_suppressed_by ?? null,
   }));
-
-  if (status === "loading" || !transformedData) {
-    return <Skeleton className="h-svh" />;
-  }
 
   if (!session) {
     return (

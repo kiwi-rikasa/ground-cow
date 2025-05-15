@@ -30,7 +30,6 @@ import {
   IconDotsVertical,
   IconGripVertical,
   IconLayoutColumns,
-  IconLoader,
   IconXboxXFilled,
 } from "@tabler/icons-react";
 import {
@@ -48,7 +47,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -93,20 +91,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
-
-export const schema = z.object({
-  id: z.number(),
-  header: z.string(),
-  status: z.string(),
-  reviewer: z.string(),
-  damage: z.string(),
-  action: z.string(),
-  occurredTime: z.string().transform((val) => new Date(val)),
-  lastUpdated: z
-    .string()
-    .transform((val) => (val === "" ? null : new Date(val))),
-  reporter: z.string(),
-});
+import { ReportPublic } from "@/app/client/types.gen";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -127,11 +112,11 @@ function DragHandle({ id }: { id: number }) {
   );
 }
 
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
+const columns: ColumnDef<ReportPublic>[] = [
   {
     id: "drag",
     header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />,
+    cell: ({ row }) => <DragHandle id={row.original.report_id} />,
   },
   {
     id: "select",
@@ -162,11 +147,11 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "header",
-    header: "Task",
+    accessorKey: "report_id",
+    header: "ID",
     cell: ({ row }) => {
       return (
-        <div className="w-32">
+        <div className="w-16">
           <TableCellViewer item={row.original} />
         </div>
       );
@@ -174,57 +159,55 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.status === "Resolved" ? (
-            <IconCircleCheckFilled
-              className="fill-green-500 dark:fill-green-400"
-              role="icon"
-            />
-          ) : row.original.status === "Closed" ? (
-            <IconXboxXFilled
-              className="fill-red-500 dark:fill-red-400"
-              role="icon"
-            />
-          ) : (
-            <IconLoader role="icon" />
-          )}
-          {row.original.status}
-        </Badge>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "damage",
-    header: "Damage",
-    cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.damage}
-        </Badge>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "action",
+    accessorKey: "report_action_flag",
     header: "Action",
     cell: ({ row }) => (
       <div className="w-32">
         <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.action}
+          {row.original.report_action_flag ? (
+            <IconCircleCheckFilled
+              className="fill-green-500 dark:fill-green-400"
+              role="icon"
+            />
+          ) : (
+            <IconXboxXFilled
+              className="fill-red-500 dark:fill-red-400"
+              role="icon"
+            />
+          )}
+          {row.original.report_action_flag ? "True" : "False"}
         </Badge>
       </div>
     ),
   },
   {
-    accessorKey: "occurredTime",
-    header: "Occurred Time",
+    accessorKey: "report_damage_flag",
+    header: "Damage",
+    cell: ({ row }) => (
+      <div className="w-32">
+        <Badge variant="outline" className="text-muted-foreground px-1.5">
+          {row.original.report_damage_flag ? "True" : "False"}
+        </Badge>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "report_factory_zone",
+    header: "Factory Zone",
+    cell: ({ row }) => (
+      <div className="w-32">
+        <Badge variant="outline" className="text-muted-foreground px-1.5">
+          {row.original.report_factory_zone ?? "N/A"}
+        </Badge>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "report_reported_at",
+    header: "Reported At",
     cell: ({ row }) => {
       const formattedTime = format(
-        row.original.occurredTime,
+        new Date(row.original.report_reported_at),
         "yyyy-MM-dd HH:mm:ss"
       );
       return (
@@ -236,12 +219,13 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     enableHiding: true,
   },
   {
-    accessorKey: "lastUpdated",
-    header: "Last Updated",
+    accessorKey: "report_created_at",
+    header: "Created At",
     cell: ({ row }) => {
-      const formattedTime = row.original.lastUpdated
-        ? format(row.original.lastUpdated, "yyyy-MM-dd HH:mm:ss")
-        : "-";
+      const formattedTime = format(
+        new Date(row.original.report_created_at),
+        "yyyy-MM-dd HH:mm:ss"
+      );
       return (
         <div className="w-48">
           <span>{formattedTime}</span>
@@ -251,12 +235,24 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     enableHiding: true,
   },
   {
-    accessorKey: "reporter",
-    header: "Reporter",
+    accessorKey: "user_id",
+    header: "User ID",
     cell: ({ row }) => {
       return (
         <div className="w-32">
-          {row.original.reporter ? row.original.reporter : "-"}
+          {row.original.user_id ? row.original.user_id : "-"}
+        </div>
+      );
+    },
+    enableHiding: true,
+  },
+  {
+    accessorKey: "alert_id",
+    header: "Alert ID",
+    cell: ({ row }) => {
+      return (
+        <div className="w-32">
+          {row.original.alert_id ? row.original.alert_id : "-"}
         </div>
       );
     },
@@ -288,9 +284,9 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   },
 ];
 
-function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
+function DraggableRow({ row }: { row: Row<ReportPublic> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
+    id: row.original.report_id,
   });
 
   return (
@@ -313,12 +309,12 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   );
 }
 
-export function DataTable({
+export function ReportDataTable({
   data: initialData,
 }: {
-  data: z.infer<typeof schema>[];
+  data: ReportPublic[];
 }) {
-  const [data, setData] = React.useState(() => initialData);
+  const [data, setData] = React.useState(() => initialData || []);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -338,7 +334,7 @@ export function DataTable({
   );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
+    () => data?.map(({ report_id }) => report_id) || [],
     [data]
   );
 
@@ -352,7 +348,7 @@ export function DataTable({
       columnFilters,
       pagination,
     },
-    getRowId: (row) => row.id.toString(),
+    getRowId: (row) => row.report_id.toString(),
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -386,12 +382,12 @@ export function DataTable({
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-2">
           <Input
-            placeholder="Search tasks..."
+            placeholder="Search reports..."
             value={
-              (table.getColumn("header")?.getFilterValue() as string) ?? ""
+              (table.getColumn("report_id")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
-              table.getColumn("header")?.setFilterValue(event.target.value)
+              table.getColumn("report_id")?.setFilterValue(event.target.value)
             }
             className="h-8 w-[150px] lg:w-[250px]"
           />
@@ -596,7 +592,7 @@ export function DataTable({
   );
 }
 
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({ item }: { item: ReportPublic }) {
   const isMobile = useIsMobile();
 
   return (
@@ -606,14 +602,14 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
           variant="link"
           className="text-foreground w-fit px-0 text-left cursor-pointer"
         >
-          {item.header}
+          {item.report_id}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
+          <DrawerTitle>Report #{item.report_id}</DrawerTitle>
           <DrawerDescription>
-            Please provide the detailed report for the task.
+            Please provide the detailed report information.
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
@@ -622,36 +618,51 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               <Separator />
               <div className="grid grid-cols-1 gap-4">
                 <div className="flex flex-col gap-3">
-                  <Label htmlFor="occurredTime">Occurred Time</Label>
+                  <Label htmlFor="reportedAt">Reported At</Label>
                   <div
-                    id="occurredTime"
+                    id="reportedAt"
                     className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
                   >
-                    {format(item.occurredTime, "yyyy-MM-dd")}
+                    {format(
+                      new Date(item.report_reported_at),
+                      "yyyy-MM-dd HH:mm:ss"
+                    )}
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4">
                 <div className="flex flex-col gap-3">
-                  <Label htmlFor="lastUpdated">Last Updated</Label>
+                  <Label htmlFor="createdAt">Created At</Label>
                   <div
-                    id="lastUpdated"
+                    id="createdAt"
                     className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
                   >
-                    {item.lastUpdated
-                      ? format(item.lastUpdated, "yyyy-MM-dd")
-                      : "-"}
+                    {format(
+                      new Date(item.report_created_at),
+                      "yyyy-MM-dd HH:mm:ss"
+                    )}
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4">
                 <div className="flex flex-col gap-3">
-                  <Label htmlFor="reporter">Reporter</Label>
+                  <Label htmlFor="userId">User ID</Label>
                   <div
-                    id="reporter"
+                    id="userId"
                     className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
                   >
-                    {item.reporter ? item.reporter : "-"}
+                    {item.user_id ? item.user_id : "N/A"}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="alertId">Alert ID</Label>
+                  <div
+                    id="alertId"
+                    className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
+                  >
+                    {item.alert_id ? item.alert_id : "N/A"}
                   </div>
                 </div>
               </div>
@@ -660,32 +671,42 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
           <form className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
-                <Label htmlFor="type">Damage</Label>
-                <Select defaultValue={item.damage}>
-                  <SelectTrigger id="type" className="w-full cursor-pointer">
-                    <SelectValue placeholder="Select a type" />
+                <Label htmlFor="actionFlag">Action Flag</Label>
+                <Select
+                  defaultValue={item.report_action_flag ? "true" : "false"}
+                >
+                  <SelectTrigger
+                    id="actionFlag"
+                    className="w-full cursor-pointer"
+                  >
+                    <SelectValue placeholder="Select a value" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="True" className="cursor-pointer">
+                    <SelectItem value="true" className="cursor-pointer">
                       True
                     </SelectItem>
-                    <SelectItem value="False" className="cursor-pointer">
+                    <SelectItem value="false" className="cursor-pointer">
                       False
                     </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex flex-col gap-3">
-                <Label htmlFor="status">Action</Label>
-                <Select defaultValue={item.action}>
-                  <SelectTrigger id="status" className="w-full cursor-pointer">
-                    <SelectValue placeholder="Select a status" />
+                <Label htmlFor="damageFlag">Damage Flag</Label>
+                <Select
+                  defaultValue={item.report_damage_flag ? "true" : "false"}
+                >
+                  <SelectTrigger
+                    id="damageFlag"
+                    className="w-full cursor-pointer"
+                  >
+                    <SelectValue placeholder="Select a value" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="True" className="cursor-pointer">
+                    <SelectItem value="true" className="cursor-pointer">
                       True
                     </SelectItem>
-                    <SelectItem value="False" className="cursor-pointer">
+                    <SelectItem value="false" className="cursor-pointer">
                       False
                     </SelectItem>
                   </SelectContent>
@@ -694,7 +715,17 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
             </div>
             <div className="grid grid-cols-1 gap-4">
               <div className="flex flex-col gap-3">
-                <Label htmlFor="descriptions">Descriptions</Label>
+                <Label htmlFor="factoryZone">Factory Zone</Label>
+                <Input
+                  id="factoryZone"
+                  type="number"
+                  defaultValue={item.report_factory_zone?.toString() || ""}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="descriptions">Additional Notes</Label>
                 <Textarea id="descriptions" defaultValue={""} />
               </div>
             </div>
