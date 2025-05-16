@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset } from "@/components/ui/sidebar";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { BarChart, Bar } from "recharts";
 import {
   Select,
   SelectContent,
@@ -40,6 +41,8 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -65,6 +68,213 @@ const earthquakeChartConfig = {
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
+
+// Define a color palette for zones
+const zoneColors: { [key: string]: string } = {
+  "1": "hsl(var(--chart-1))", // North Factory
+  "2": "hsl(var(--chart-2))", // South Warehouse
+  "3": "hsl(var(--chart-3))", // East Wing Office
+  // Add more colors if there are more zones or a dynamic assignment strategy
+};
+
+function ActiveAlertsTrendChart({
+  alerts,
+  zones,
+}: {
+  alerts: AlertPublic[];
+  zones: ZonePublic[];
+}) {
+  const [timeRange, setTimeRange] = React.useState("30d");
+
+  const activeAlertsTrendData = React.useMemo(() => {
+    const now = new Date();
+    const initialStartDate = new Date(); // Changed to const
+    if (timeRange === "30d") {
+      initialStartDate.setDate(now.getDate() - 30);
+    } else if (timeRange === "7d") {
+      initialStartDate.setDate(now.getDate() - 7);
+    } else if (timeRange === "90d") {
+      initialStartDate.setDate(now.getDate() - 90);
+    }
+    const startDate = initialStartDate; // Use the modified date
+
+    const activeAlerts = alerts.filter(
+      (alert) =>
+        alert.alert_state === "active" &&
+        alert.alert_is_suppressed_by === null &&
+        new Date(alert.alert_alert_time) >= startDate
+    );
+
+    // Group by date (YYYY-MM-DD) and then by zone_id
+    const groupedByDateAndZone = activeAlerts.reduce((acc, alert) => {
+      const alertDate = new Date(alert.alert_alert_time)
+        .toISOString()
+        .split("T")[0];
+      acc[alertDate] = acc[alertDate] || {};
+      acc[alertDate][alert.zone_id] = (acc[alertDate][alert.zone_id] || 0) + 1;
+      return acc;
+    }, {} as Record<string, Record<number, number>>);
+
+    // Transform into chart data format, ensuring all zones are present for each date
+    const allZoneIds = zones.map((z) => z.zone_id);
+
+    type ChartEntry = { date: string; [key: string]: number | string };
+
+    const chartData = Object.entries(groupedByDateAndZone).map(
+      ([date, zoneCounts]) => {
+        const entry: ChartEntry = { date };
+        allZoneIds.forEach((zoneId) => {
+          entry[`zone_${zoneId}`] = zoneCounts[zoneId] || 0;
+        });
+        return entry;
+      }
+    );
+
+    return chartData;
+  }, [alerts, zones, timeRange]);
+
+  const activeAlertsChartConfig = React.useMemo(() => {
+    const config: ChartConfig = {};
+    zones.forEach((zone) => {
+      config[`zone_${zone.zone_id}`] = {
+        label: zone.zone_name || `Zone ${zone.zone_id}`,
+        color: zoneColors[String(zone.zone_id)] || "hsl(var(--chart-5))", // Fallback color
+      };
+    });
+    return config;
+  }, [zones]);
+
+  if (activeAlertsTrendData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Active Alerts Trend per Zone</CardTitle>
+          <CardDescription>
+            Shows the trend of active (unsuppressed) alerts per zone.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-gray-500 py-8">
+            No active alert data to display for the selected period.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+        <div className="grid flex-1 gap-1 text-center sm:text-left">
+          <CardTitle>Active Alerts Trend per Zone</CardTitle>
+          <CardDescription>
+            Shows the trend of active (unsuppressed) alerts per zone.
+          </CardDescription>
+        </div>
+        <Select value={timeRange} onValueChange={setTimeRange}>
+          <SelectTrigger
+            className="w-[160px] rounded-lg sm:ml-auto"
+            aria-label="Select a time range"
+          >
+            <SelectValue placeholder="Select time range" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl">
+            <SelectItem value="90d" className="rounded-lg">
+              Last 90 days
+            </SelectItem>
+            <SelectItem value="30d" className="rounded-lg">
+              Last 30 days
+            </SelectItem>
+            <SelectItem value="7d" className="rounded-lg">
+              Last 7 days
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </CardHeader>
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+        <ChartContainer
+          config={activeAlertsChartConfig}
+          className="aspect-auto h-[300px] w-full"
+        >
+          <AreaChart
+            data={activeAlertsTrendData}
+            margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
+          >
+            <defs>
+              {Object.keys(activeAlertsChartConfig).map((key) => (
+                <linearGradient
+                  key={key}
+                  id={`fill_${key}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor={`var(--color-${key})`}
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={`var(--color-${key})`}
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              ))}
+            </defs>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              minTickGap={16} // Adjust based on data density
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                // Add a day to correct for potential timezone issues in display
+                date.setDate(date.getDate() + 1);
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+              }}
+            />
+            <YAxis tickMargin={8} />
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  labelFormatter={(value) => {
+                    const date = new Date(value);
+                    date.setDate(date.getDate() + 1); // Adjust for display
+                    return date.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    });
+                  }}
+                  indicator="dot"
+                />
+              }
+            />
+            {Object.keys(activeAlertsChartConfig).map((key) => (
+              <Area
+                key={key}
+                dataKey={key}
+                type="natural"
+                fill={`url(#fill_${key})`}
+                stroke={`var(--color-${key})`}
+                stackId="a"
+              />
+            ))}
+            <ChartLegend content={<ChartLegendContent />} />
+          </AreaChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Page() {
   const [selectedZone, setSelectedZone] = React.useState<number | undefined>(
@@ -178,10 +388,8 @@ export default function Page() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col p-6 space-y-6">
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid flex-1 auto-rows-max gap-6 p-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
             <Card>
               <CardHeader>
                 <CardTitle>Filter Options</CardTitle>
@@ -252,148 +460,159 @@ export default function Page() {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Events</CardTitle>
-              <CardDescription>
-                Detailed list of seismic events and their alert statuses.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Event ID</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead>Intensity</TableHead>
-                      <TableHead>Earthquake ID</TableHead>
-                      <TableHead>Zone ID</TableHead>
-                      <TableHead>Alert Status</TableHead>
-                      <TableHead>Alert Duration</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredEvents.length > 0 ? (
-                      filteredEvents.map((event) => {
-                        const alertInfo = getAlertInfo(event.event_id);
-                        return (
-                          <TableRow key={event.event_id}>
-                            <TableCell>{event.event_id}</TableCell>
-                            <TableCell>{event.event_severity}</TableCell>
-                            <TableCell>{event.event_intensity}</TableCell>
-                            <TableCell>{event.earthquake_id}</TableCell>
-                            <TableCell>{event.zone_id}</TableCell>
-                            <TableCell>{alertInfo.status}</TableCell>
-                            <TableCell>{alertInfo.duration}</TableCell>
-                          </TableRow>
-                        );
-                      })
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center">
-                          No events found matching your criteria.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Active Alerts Trend Chart - Spanning more columns on larger screens */}
+          <div className="md:col-span-2 lg:col-span-2 xl:col-span-3">
+            <ActiveAlertsTrendChart alerts={alerts} zones={zones} />
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-              <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-                <CardTitle>Earthquake Magnitudes Over Time</CardTitle>
+          {/* Events Table - Spanning more columns */}
+          <div className="md:col-span-2 lg:col-span-3 xl:col-span-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Events</CardTitle>
                 <CardDescription>
-                  Bar chart showing earthquake magnitudes. Filter by zone or
-                  specific earthquake above.
+                  Detailed list of seismic events and their alert statuses.
                 </CardDescription>
-              </div>
-              <div className="flex">
-                <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
-                  <span className="text-xs text-muted-foreground">
-                    Total Recorded
-                  </span>
-                  <span className="text-lg font-bold leading-none sm:text-3xl">
-                    {earthquakeSummary.total}
-                  </span>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Event ID</TableHead>
+                        <TableHead>Severity</TableHead>
+                        <TableHead>Intensity</TableHead>
+                        <TableHead>Earthquake ID</TableHead>
+                        <TableHead>Zone ID</TableHead>
+                        <TableHead>Alert Status</TableHead>
+                        <TableHead>Alert Duration</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredEvents.length > 0 ? (
+                        filteredEvents.map((event) => {
+                          const alertInfo = getAlertInfo(event.event_id);
+                          return (
+                            <TableRow key={event.event_id}>
+                              <TableCell>{event.event_id}</TableCell>
+                              <TableCell>{event.event_severity}</TableCell>
+                              <TableCell>{event.event_intensity}</TableCell>
+                              <TableCell>{event.earthquake_id}</TableCell>
+                              <TableCell>{event.zone_id}</TableCell>
+                              <TableCell>{alertInfo.status}</TableCell>
+                              <TableCell>{alertInfo.duration}</TableCell>
+                            </TableRow>
+                          );
+                        })
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center">
+                            No events found matching your criteria.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
-                <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    Avg. Magnitude
-                  </span>
-                  <span className="text-lg font-bold leading-none sm:text-3xl">
-                    {earthquakeSummary.averageMagnitude}
-                  </span>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Earthquake Magnitudes Chart - Spanning more columns */}
+          <div className="md:col-span-2 lg:col-span-3 xl:col-span-4">
+            <Card>
+              <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+                <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+                  <CardTitle>Earthquake Magnitudes Over Time</CardTitle>
+                  <CardDescription>
+                    Bar chart showing earthquake magnitudes. Filter by zone or
+                    specific earthquake above.
+                  </CardDescription>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-              {earthquakeMagnitudeChartData.length > 0 ? (
-                <ChartContainer
-                  config={earthquakeChartConfig}
-                  className="aspect-auto h-[300px] w-full"
-                >
-                  <BarChart
-                    accessibilityLayer
-                    data={earthquakeMagnitudeChartData}
-                    margin={{ top: 5, left: 0, right: 0, bottom: 5 }}
+                <div className="flex">
+                  <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+                    <span className="text-xs text-muted-foreground">
+                      Total Recorded
+                    </span>
+                    <span className="text-lg font-bold leading-none sm:text-3xl">
+                      {earthquakeSummary.total}
+                    </span>
+                  </div>
+                  <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      Avg. Magnitude
+                    </span>
+                    <span className="text-lg font-bold leading-none sm:text-3xl">
+                      {earthquakeSummary.averageMagnitude}
+                    </span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+                {earthquakeMagnitudeChartData.length > 0 ? (
+                  <ChartContainer
+                    config={earthquakeChartConfig}
+                    className="aspect-auto h-[300px] w-full"
                   >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                      dataKey="displayDate"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                    />
-                    <YAxis
-                      dataKey="magnitude"
-                      tickMargin={8}
-                      domain={[0, "dataMax + 1"]}
-                    />
-                    <ChartTooltip
-                      cursor={false}
-                      content={
-                        <ChartTooltipContent
-                          labelFormatter={(value, payload) => {
-                            if (
-                              payload &&
-                              payload.length > 0 &&
-                              payload[0].payload.date
-                            ) {
-                              return new Date(
+                    <BarChart
+                      accessibilityLayer
+                      data={earthquakeMagnitudeChartData}
+                      margin={{ top: 5, left: 0, right: 0, bottom: 5 }}
+                    >
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="displayDate"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                      />
+                      <YAxis
+                        dataKey="magnitude"
+                        tickMargin={8}
+                        domain={[0, "dataMax + 1"]}
+                      />
+                      <ChartTooltip
+                        cursor={false}
+                        content={
+                          <ChartTooltipContent
+                            labelFormatter={(value, payload) => {
+                              if (
+                                payload &&
+                                payload.length > 0 &&
                                 payload[0].payload.date
-                              ).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              });
-                            }
-                            return value;
-                          }}
-                          formatter={(value) => `${value} Richter`}
-                          indicator="line"
-                        />
-                      }
-                    />
-                    <Bar
-                      dataKey="magnitude"
-                      fill="var(--color-magnitude)"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ChartContainer>
-              ) : (
-                <p className="text-center text-gray-500 py-8">
-                  No earthquake data to display based on current filters.
-                </p>
-              )}
-            </CardContent>
-          </Card>
+                              ) {
+                                return new Date(
+                                  payload[0].payload.date
+                                ).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                });
+                              }
+                              return value;
+                            }}
+                            formatter={(value) => `${value} Richter`}
+                            indicator="line"
+                          />
+                        }
+                      />
+                      <Bar
+                        dataKey="magnitude"
+                        fill="var(--color-magnitude)"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ChartContainer>
+                ) : (
+                  <p className="text-center text-gray-500 py-8">
+                    No earthquake data to display based on current filters.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
