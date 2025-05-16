@@ -1,14 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Literal
 from sqlmodel import select
-from ...models.models import Earthquake
+from ...models.models import Earthquake, User
 from ...models.schemas.earthquake import (
     EarthquakeCreate,
     EarthquakeUpdate,
     EarthquakePublic,
     EarthquakesPublic,
 )
-from app.api.deps import SessionDep
+from app.api.deps import SessionDep, get_session_user, require_controller
 
 earthquake_router = APIRouter()
 
@@ -20,6 +20,7 @@ def list_earthquakes(
     limit: int = 30,
     sort_by: Optional[str] = "earthquake_occurred_at",
     order: Literal["asc", "desc"] = "desc",
+    _: User = Depends(get_session_user),
 ) -> EarthquakesPublic:
     """
     Get all earthquakes.
@@ -37,7 +38,11 @@ def list_earthquakes(
 
 
 @earthquake_router.get("/{earthquake_id}", response_model=EarthquakePublic)
-def get_earthquake(earthquake_id: int, session: SessionDep) -> EarthquakePublic:
+def get_earthquake(
+    earthquake_id: int,
+    session: SessionDep,
+    _: User = Depends(get_session_user),
+) -> EarthquakePublic:
     """
     Get a specific earthquake by ID.
     """
@@ -66,6 +71,7 @@ def update_earthquake(
     earthquake_id: int,
     earthquake_in: EarthquakeUpdate,
     session: SessionDep,
+    _: User = Depends(require_controller),
 ) -> EarthquakePublic:
     """
     Update a earthquake's information.
@@ -84,7 +90,11 @@ def update_earthquake(
 
 
 @earthquake_router.delete("/{earthquake_id}")
-def delete_earthquake(earthquake_id: int, session: SessionDep) -> dict:
+def delete_earthquake(
+    earthquake_id: int,
+    session: SessionDep,
+    _: User = Depends(require_controller),
+) -> dict:
     """
     Delete a earthquake by ID.
     """

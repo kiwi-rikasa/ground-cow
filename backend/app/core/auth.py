@@ -14,8 +14,6 @@ def verify_google_token(token: str) -> dict:
             audience=settings.AUTH_GOOGLE_ID,
         )
 
-        print("ID Info:", idinfo)
-
         if idinfo.get("iss") not in [
             "accounts.google.com",
             "https://accounts.google.com",

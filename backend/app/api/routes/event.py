@@ -1,9 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Literal
 from sqlmodel import select
-from ...models.models import Event, Earthquake, Zone
+from ...models.models import Event, Earthquake, User, Zone
 from ...models.schemas.event import EventCreate, EventUpdate, EventPublic, EventsPublic
-from app.api.deps import SessionDep, validate_fk_exists
+from app.api.deps import (
+    SessionDep,
+    validate_fk_exists,
+    get_session_user,
+    require_controller,
+)
 
 event_router = APIRouter()
 
@@ -18,6 +23,7 @@ def list_events(
     event_severity: Optional[str] = None,
     sort_by: Optional[str] = "event_created_at",
     order: Literal["asc", "desc"] = "desc",
+    _: User = Depends(get_session_user),
 ) -> EventsPublic:
     """
     Get specified events.
@@ -40,7 +46,11 @@ def list_events(
 
 
 @event_router.get("/{event_id}", response_model=EventPublic)
-def get_event(event_id: int, session: SessionDep) -> EventPublic:
+def get_event(
+    event_id: int,
+    session: SessionDep,
+    _: User = Depends(get_session_user),
+) -> EventPublic:
     """
     Get a specific event by ID.
     """
@@ -70,6 +80,7 @@ def update_event(
     event_id: int,
     event_in: EventUpdate,
     session: SessionDep,
+    _: User = Depends(require_controller),
 ) -> EventPublic:
     """
     Update a event's information.
@@ -88,7 +99,11 @@ def update_event(
 
 
 @event_router.delete("/{event_id}")
-def delete_event(event_id: int, session: SessionDep) -> dict:
+def delete_event(
+    event_id: int,
+    session: SessionDep,
+    _: User = Depends(require_controller),
+) -> dict:
     """
     Delete a event by ID.
     """

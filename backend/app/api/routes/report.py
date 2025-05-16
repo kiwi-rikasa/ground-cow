@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Literal
 from sqlmodel import select
 from ...models.models import Report, Alert, User, Zone
@@ -8,7 +8,8 @@ from ...models.schemas.report import (
     ReportPublic,
     ReportsPublic,
 )
-from app.api.deps import SessionDep, validate_fk_exists
+from app.api.deps import SessionDep, validate_fk_exists, get_session_user, require_controller
+
 
 report_router = APIRouter()
 
@@ -23,6 +24,7 @@ def list_reports(
     report_factory_zone: Optional[int] = None,
     sort_by: Optional[str] = "report_reported_at",
     order: Literal["asc", "desc"] = "desc",
+    _: User = Depends(get_session_user),
 ) -> ReportsPublic:
     """
     Get all reports.
@@ -47,7 +49,11 @@ def list_reports(
 
 
 @report_router.get("/{report_id}", response_model=ReportPublic)
-def get_report(report_id: int, session: SessionDep) -> ReportPublic:
+def get_report(
+    report_id: int,
+    session: SessionDep,
+    _: User = Depends(get_session_user),
+) -> ReportPublic:
     """
     Get a specific report by ID.
     """
@@ -58,17 +64,21 @@ def get_report(report_id: int, session: SessionDep) -> ReportPublic:
 
 
 @report_router.post("/", response_model=ReportPublic)
-def create_report(report_in: ReportCreate, session: SessionDep) -> ReportPublic:
+def create_report(
+    report_in: ReportCreate,
+    session: SessionDep,
+    user: User = Depends(get_session_user),
+) -> ReportPublic:
     """
     Create a new report.
     """
     validate_fk_exists(session, Alert, report_in.alert_id, "alert_id")
-    validate_fk_exists(session, User, report_in.user_id, "user_id")
     validate_fk_exists(
         session, Zone, report_in.report_factory_zone, "report_factory_zone"
     )
 
     report = Report.model_validate(report_in)
+    report.user_id = user.user_id
     session.add(report)
     session.commit()
     session.refresh(report)
@@ -80,6 +90,7 @@ def update_report(
     report_id: int,
     report_in: ReportUpdate,
     session: SessionDep,
+    _: User = Depends(require_controller),
 ) -> ReportPublic:
     """
     Update a report's information.
@@ -98,7 +109,11 @@ def update_report(
 
 
 @report_router.delete("/{report_id}")
-def delete_report(report_id: int, session: SessionDep) -> dict:
+def delete_report(
+    report_id: int,
+    session: SessionDep,
+    _: User = Depends(require_controller),
+) -> dict:
     """
     Delete a report by ID.
     """
