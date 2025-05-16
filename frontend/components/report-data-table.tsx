@@ -390,8 +390,6 @@ export function ReportDataTable({
             }
             className="h-8 w-[150px] lg:w-[250px]"
           />
-          {data.length}
-          intial data length {data.length}
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
