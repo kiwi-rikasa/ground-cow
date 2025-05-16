@@ -13,6 +13,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
+  IconAlertCircle,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -32,8 +33,13 @@ import { usePathname } from "next/navigation";
 const data = {
   navMain: [
     {
-      title: "Dashboard",
+      title: "Alerts",
       url: "/",
+      icon: IconAlertCircle,
+    },
+    {
+      title: "Dashboard",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
