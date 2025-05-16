@@ -66,6 +66,22 @@ def get_session_user(
     return user
 
 
+def require_controller(user: User = Depends(get_session_user)) -> User:
+    """
+    Verify that the current user is a controller or admin.
+
+    - In local development, skip checking.
+    - In real application, check if the user is a controller or admin.
+    """
+    # In local environment, skip checking
+    if settings.ENVIRONMENT == "local":
+        return user
+    # In real application, check if the user is a controller or admin
+    if user.user_role != UserRole.control and user.user_role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Controller access required")
+    return user
+
+
 def require_admin(user: User = Depends(get_session_user)) -> User:
     """
     Verify that the current user is an admin.
