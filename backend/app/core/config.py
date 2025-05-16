@@ -72,6 +72,9 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
 
+    AUTH_GOOGLE_ID: str
+    SESSION_SECRET: str = secrets.token_urlsafe(32)
+
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
             message = (
