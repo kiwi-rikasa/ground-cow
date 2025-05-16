@@ -6,7 +6,7 @@ from ...models.schemas.event import EventCreate, EventUpdate, EventPublic, Event
 from app.api.deps import (
     SessionDep,
     validate_fk_exists,
-    get_session_user,
+    require_session_user,
     require_controller,
 )
 
@@ -23,7 +23,7 @@ def list_events(
     event_severity: Optional[str] = None,
     sort_by: Optional[str] = "event_created_at",
     order: Literal["asc", "desc"] = "desc",
-    _: User = Depends(get_session_user),
+    _: User = Depends(require_session_user),
 ) -> EventsPublic:
     """
     Get specified events.
@@ -49,7 +49,7 @@ def list_events(
 def get_event(
     event_id: int,
     session: SessionDep,
-    _: User = Depends(get_session_user),
+    _: User = Depends(require_session_user),
 ) -> EventPublic:
     """
     Get a specific event by ID.

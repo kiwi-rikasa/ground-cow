@@ -29,7 +29,7 @@ def validate_fk_exists(
         )
 
 
-def get_session_user_id(request: Request) -> int:
+def require_session_user_id(request: Request) -> int:
     """
     Get the user ID from the session.
 
@@ -46,9 +46,9 @@ def get_session_user_id(request: Request) -> int:
     return user_id
 
 
-def get_session_user(
+def require_session_user(
     session: SessionDep,
-    user_id: int = Depends(get_session_user_id),
+    user_id: int = Depends(require_session_user_id),
 ) -> User:
     """
     Get the user corresponding to the user ID from the session.
@@ -66,7 +66,7 @@ def get_session_user(
     return user
 
 
-def require_controller(user: User = Depends(get_session_user)) -> User:
+def require_controller(user: User = Depends(require_session_user)) -> User:
     """
     Verify that the current user is a controller or admin.
 
@@ -82,7 +82,7 @@ def require_controller(user: User = Depends(get_session_user)) -> User:
     return user
 
 
-def require_admin(user: User = Depends(get_session_user)) -> User:
+def require_admin(user: User = Depends(require_session_user)) -> User:
     """
     Verify that the current user is an admin.
 

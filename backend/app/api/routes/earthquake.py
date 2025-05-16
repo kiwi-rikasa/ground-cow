@@ -8,7 +8,7 @@ from ...models.schemas.earthquake import (
     EarthquakePublic,
     EarthquakesPublic,
 )
-from app.api.deps import SessionDep, get_session_user, require_controller
+from app.api.deps import SessionDep, require_session_user, require_controller
 
 earthquake_router = APIRouter()
 
@@ -20,7 +20,7 @@ def list_earthquakes(
     limit: int = 30,
     sort_by: Optional[str] = "earthquake_occurred_at",
     order: Literal["asc", "desc"] = "desc",
-    _: User = Depends(get_session_user),
+    _: User = Depends(require_session_user),
 ) -> EarthquakesPublic:
     """
     Get all earthquakes.
@@ -41,7 +41,7 @@ def list_earthquakes(
 def get_earthquake(
     earthquake_id: int,
     session: SessionDep,
-    _: User = Depends(get_session_user),
+    _: User = Depends(require_session_user),
 ) -> EarthquakePublic:
     """
     Get a specific earthquake by ID.

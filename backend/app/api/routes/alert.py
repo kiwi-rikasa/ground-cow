@@ -6,7 +6,7 @@ from ...models.schemas.alert import AlertCreate, AlertUpdate, AlertPublic, Alert
 from app.api.deps import (
     SessionDep,
     validate_fk_exists,
-    get_session_user,
+    require_session_user,
     require_controller,
 )
 
@@ -22,7 +22,7 @@ def list_alerts(
     zone_id: Optional[int] = None,
     sort_by: Optional[str] = "alert_created_at",
     order: Literal["asc", "desc"] = "desc",
-    _: User = Depends(get_session_user),
+    _: User = Depends(require_session_user),
 ) -> AlertsPublic:
     """
     Get specified alerts.
@@ -46,7 +46,7 @@ def list_alerts(
 def get_alert(
     alert_id: int,
     session: SessionDep,
-    _: User = Depends(get_session_user),
+    _: User = Depends(require_session_user),
 ) -> AlertPublic:
     """
     Get a specific alert by ID.

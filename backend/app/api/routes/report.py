@@ -8,7 +8,7 @@ from ...models.schemas.report import (
     ReportPublic,
     ReportsPublic,
 )
-from app.api.deps import SessionDep, validate_fk_exists, get_session_user, require_controller
+from app.api.deps import SessionDep, validate_fk_exists, require_session_user, require_controller
 
 
 report_router = APIRouter()
@@ -24,7 +24,7 @@ def list_reports(
     report_factory_zone: Optional[int] = None,
     sort_by: Optional[str] = "report_reported_at",
     order: Literal["asc", "desc"] = "desc",
-    _: User = Depends(get_session_user),
+    _: User = Depends(require_session_user),
 ) -> ReportsPublic:
     """
     Get all reports.
@@ -52,7 +52,7 @@ def list_reports(
 def get_report(
     report_id: int,
     session: SessionDep,
-    _: User = Depends(get_session_user),
+    _: User = Depends(require_session_user),
 ) -> ReportPublic:
     """
     Get a specific report by ID.
@@ -67,7 +67,7 @@ def get_report(
 def create_report(
     report_in: ReportCreate,
     session: SessionDep,
-    user: User = Depends(get_session_user),
+    user: User = Depends(require_session_user),
 ) -> ReportPublic:
     """
     Create a new report.

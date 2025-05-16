@@ -10,7 +10,7 @@ This directory contains the API layer for the backend service. It defines FastAP
 
 ## Common Dependencies
 
-- `get_session_user`: Check if the session user is **valid**, and get the user's information.
+- `require_session_user`: Check if the session user is **valid**, and get the user's information.
 - `require_admin`: Check if the session user is **an admin**, and get the user's information.
 - `require_controller`: Check if the session user is **a controller or admin**, and get the user's information.
 - `SessionDep`: Injects a database session.
