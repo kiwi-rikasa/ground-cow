@@ -1,8 +1,10 @@
 from collections.abc import Generator
 from typing import Annotated
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from sqlmodel import Session
 from app.core.db import engine
+from app.models.models import User
+from app.models.consts import UserRole
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -24,3 +26,29 @@ def validate_fk_exists(
             status_code=400,
             detail=f"Invalid foreign key '{fk_name}': record with ID {fk_value} does not exist.",
         )
+
+
+def get_session_user_id(request: Request) -> int:
+    """Get the user ID from the session."""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return user_id
+
+
+def get_session_user(
+    session: SessionDep,
+    user_id: int = Depends(get_session_user_id),
+) -> User:
+    """Get the current user from the session."""
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return user
+
+
+def require_admin(user: User = Depends(get_session_user)) -> User:
+    """Verify that the current user is an admin."""
+    if user.user_role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
