@@ -171,6 +171,10 @@ export function ColumnDefinitionHandler({
         );
       },
       enableHiding: false,
+      filterFn: (row, columnId, filterValue) => {
+        const value = row.getValue(columnId);
+        return String(value ?? "") === String(filterValue);
+      },
     },
     {
       accessorKey: "alert_state",

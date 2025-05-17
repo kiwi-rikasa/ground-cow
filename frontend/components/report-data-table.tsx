@@ -170,6 +170,10 @@ export function ColumnDefinitionHandler({
         );
       },
       enableHiding: false,
+      filterFn: (row, columnId, filterValue) => {
+        const value = row.getValue(columnId);
+        return String(value ?? "") === String(filterValue);
+      },
     },
     {
       accessorKey: "report_action_flag",
@@ -626,7 +630,7 @@ export function ReportDataTable({
           open={drawerOpen}
           onOpenChange={(open) => {
             setDrawerOpen(open);
-            if (!open) setSelectedReport(null); // ← Reset state when drawer closes
+            if (!open) setSelectedReport(null);
           }}
         />
       )}

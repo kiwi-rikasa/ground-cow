@@ -170,6 +170,10 @@ export function ColumnDefinitionHandler({
         );
       },
       enableHiding: false,
+      filterFn: (row, columnId, filterValue) => {
+        const value = row.getValue(columnId);
+        return String(value ?? "") === String(filterValue);
+      },
     },
     {
       accessorKey: "event_severity",
@@ -719,28 +723,6 @@ function TableCellViewer({
                   : "-"}
               </div>
             </div>
-            {/* <div className="flex flex-col gap-3">
-              <Label htmlFor="event_severity">Severity</Label>
-              <Select defaultValue={item.event_severity || "NA"}>
-                <SelectTrigger
-                  id="event_severity"
-                  className="w-full cursor-pointer"
-                >
-                  <SelectValue placeholder="Select severity" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="NA" className="cursor-pointer">
-                    NA
-                  </SelectItem>
-                  <SelectItem value="L1" className="cursor-pointer">
-                    L1
-                  </SelectItem>
-                  <SelectItem value="L2" className="cursor-pointer">
-                    L2
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div> */}
           </div>
           <div className="grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-3">
