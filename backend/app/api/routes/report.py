@@ -8,7 +8,12 @@ from ...models.schemas.report import (
     ReportPublic,
     ReportsPublic,
 )
-from app.api.deps import SessionDep, validate_fk_exists, require_session_user, require_controller
+from app.api.deps import (
+    SessionDep,
+    validate_fk_exists,
+    require_session_user,
+    require_controller,
+)
 
 
 report_router = APIRouter()
