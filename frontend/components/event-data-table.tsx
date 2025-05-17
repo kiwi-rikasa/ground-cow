@@ -279,156 +279,6 @@ export function ColumnDefinitionHandler({
   return columns;
 }
 
-// const columns: ColumnDef<EventPublic>[] = [
-//   {
-//     id: "drag",
-//     header: () => null,
-//     cell: ({ row }) => <DragHandle id={row.original.event_id} />,
-//   },
-//   {
-//     id: "select",
-//     header: ({ table }) => (
-//       <div className="flex items-center justify-center">
-//         <Checkbox
-//           checked={
-//             table.getIsAllPageRowsSelected() ||
-//             (table.getIsSomePageRowsSelected() && "indeterminate")
-//           }
-//           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-//           aria-label="Select all"
-//           className="cursor-pointer"
-//         />
-//       </div>
-//     ),
-//     cell: ({ row }) => (
-//       <div className="flex items-center justify-center">
-//         <Checkbox
-//           checked={row.getIsSelected()}
-//           onCheckedChange={(value) => row.toggleSelected(!!value)}
-//           aria-label="Select row"
-//           className="cursor-pointer"
-//         />
-//       </div>
-//     ),
-//     enableSorting: false,
-//     enableHiding: false,
-//   },
-//   {
-//     accessorKey: "event_id",
-//     header: "Event ID",
-//     cell: ({ row }) => {
-//       return (
-//         <div className="w-24">
-//           <TableCellViewer item={row.original} />
-//         </div>
-//       );
-//     },
-//     enableHiding: false,
-//   },
-//   {
-//     accessorKey: "event_severity",
-//     header: "Severity",
-//     cell: ({ row }) => (
-//       <div className="w-32">
-//         <Badge variant="outline" className="text-muted-foreground px-1.5">
-//           {row.original.event_severity === "L2" ? (
-//             <IconCircleCheckFilled
-//               className="fill-red-500 dark:fill-red-400"
-//               role="icon"
-//             />
-//           ) : row.original.event_severity === "L1" ? (
-//             <IconCircleCheckFilled
-//               className="fill-yellow-500 dark:fill-yellow-400"
-//               role="icon"
-//             />
-//           ) : (
-//             <IconCircleCheckFilled
-//               className="fill-blue-500 dark:fill-blue-400"
-//               role="icon"
-//             />
-//           )}
-//           {row.original.event_severity}
-//         </Badge>
-//       </div>
-//     ),
-//   },
-//   {
-//     accessorKey: "event_intensity",
-//     header: "Intensity",
-//     cell: ({ row }) => (
-//       <div className="w-32">
-//         <Badge variant="outline" className="text-muted-foreground px-1.5">
-//           {row.original.event_intensity !== undefined &&
-//           row.original.event_intensity !== null
-//             ? row.original.event_intensity.toFixed(1)
-//             : "-"}
-//         </Badge>
-//       </div>
-//     ),
-//   },
-//   {
-//     accessorKey: "earthquake_id",
-//     header: "Earthquake ID",
-//     cell: ({ row }) => (
-//       <div className="w-32">
-//         <Badge variant="outline" className="text-muted-foreground px-1.5">
-//           {row.original.earthquake_id || "-"}
-//         </Badge>
-//       </div>
-//     ),
-//   },
-//   {
-//     accessorKey: "zone_id",
-//     header: "Zone ID",
-//     cell: ({ row }) => (
-//       <div className="w-32">
-//         <Badge variant="outline" className="text-muted-foreground px-1.5">
-//           {row.original.zone_id || "-"}
-//         </Badge>
-//       </div>
-//     ),
-//   },
-//   {
-//     accessorKey: "event_created_at",
-//     header: "Created At",
-//     cell: ({ row }) => {
-//       const formattedTime = format(
-//         row.original.event_created_at,
-//         "yyyy-MM-dd HH:mm:ss"
-//       );
-//       return (
-//         <div className="w-48">
-//           <span>{formattedTime}</span>
-//         </div>
-//       );
-//     },
-//     enableHiding: true,
-//   },
-//   {
-//     id: "actions",
-//     cell: () => (
-//       <DropdownMenu>
-//         <DropdownMenuTrigger asChild role="button">
-//           <Button
-//             variant="ghost"
-//             className="data-[state=open]:bg-muted text-muted-foreground flex size-8 cursor-pointer"
-//             size="icon"
-//           >
-//             <IconDotsVertical />
-//             <span className="sr-only">Open menu</span>
-//           </Button>
-//         </DropdownMenuTrigger>
-//         <DropdownMenuContent align="end" className="w-32">
-//           <DropdownMenuItem>View Details</DropdownMenuItem>
-//           <DropdownMenuItem>View Alerts</DropdownMenuItem>
-//           <DropdownMenuSeparator />
-//           <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-//         </DropdownMenuContent>
-//       </DropdownMenu>
-//     ),
-//   },
-// ];
-
 function DraggableRow({
   row,
   index,
@@ -859,6 +709,18 @@ function TableCellViewer({
             </div>
             <div className="flex flex-col gap-3">
               <Label htmlFor="event_severity">Severity</Label>
+              <div
+                id="event_severity"
+                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
+              >
+                {item.event_severity !== undefined &&
+                item.event_severity !== null
+                  ? item.event_severity
+                  : "-"}
+              </div>
+            </div>
+            {/* <div className="flex flex-col gap-3">
+              <Label htmlFor="event_severity">Severity</Label>
               <Select defaultValue={item.event_severity || "NA"}>
                 <SelectTrigger
                   id="event_severity"
@@ -878,7 +740,7 @@ function TableCellViewer({
                   </SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
           <div className="grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-3">
