@@ -1,9 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Literal
 from sqlmodel import select
-from app.api.deps import SessionDep, validate_fk_exists
-from ...models.models import Alert, Event, Zone
+from ...models.models import Alert, Event, Zone, User
 from ...models.schemas.alert import AlertCreate, AlertUpdate, AlertPublic, AlertsPublic
+from app.api.deps import (
+    SessionDep,
+    validate_fk_exists,
+    require_session_user,
+    require_controller,
+    require_airflow_key,
+)
 
 alert_router = APIRouter()
 
@@ -17,6 +23,7 @@ def list_alerts(
     zone_id: Optional[int] = None,
     sort_by: Optional[str] = "alert_created_at",
     order: Literal["asc", "desc"] = "desc",
+    _: User = Depends(require_session_user),
 ) -> AlertsPublic:
     """
     Get specified alerts.
@@ -37,7 +44,11 @@ def list_alerts(
 
 
 @alert_router.get("/{alert_id}", response_model=AlertPublic)
-def get_alert(alert_id: int, session: SessionDep) -> AlertPublic:
+def get_alert(
+    alert_id: int,
+    session: SessionDep,
+    _: User = Depends(require_session_user),
+) -> AlertPublic:
     """
     Get a specific alert by ID.
     """
@@ -48,7 +59,11 @@ def get_alert(alert_id: int, session: SessionDep) -> AlertPublic:
 
 
 @alert_router.post("/", response_model=AlertPublic)
-def create_alert(alert_in: AlertCreate, session: SessionDep) -> AlertPublic:
+def create_alert(
+    alert_in: AlertCreate,
+    session: SessionDep,
+    _: bool = Depends(require_airflow_key),
+) -> AlertPublic:
     """
     Create a new alert.
     """
@@ -70,6 +85,7 @@ def update_alert(
     alert_id: int,
     alert_in: AlertUpdate,
     session: SessionDep,
+    _: User = Depends(require_controller),
 ) -> AlertPublic:
     """
     Update alert state or fields.
@@ -88,7 +104,11 @@ def update_alert(
 
 
 @alert_router.delete("/{alert_id}")
-def delete_alert(alert_id: int, session: SessionDep) -> dict:
+def delete_alert(
+    alert_id: int,
+    session: SessionDep,
+    _: User = Depends(require_controller),
+) -> dict:
     """
     Delete a specific alert by ID.
     """

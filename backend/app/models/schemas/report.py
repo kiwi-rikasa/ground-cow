@@ -6,7 +6,6 @@ from sqlmodel import SQLModel
 # Shared fields
 class ReportBase(SQLModel):
     alert_id: Optional[int] = None
-    user_id: Optional[int] = None
     report_action_flag: bool
     report_damage_flag: bool
     report_factory_zone: Optional[int] = None
@@ -30,6 +29,7 @@ class ReportUpdate(SQLModel):
 
 # Response schema
 class ReportPublic(ReportBase):
+    user_id: Optional[int] = None
     report_id: int
     report_created_at: datetime
 

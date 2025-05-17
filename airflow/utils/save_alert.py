@@ -2,7 +2,10 @@ import requests
 import logging
 from typing import Dict
 
-ALERT_API_URL = "http://backend:8000/alert"
+from utils.config import config
+
+BACKEND_HOST = config.BACKEND_HOST
+ALERT_API_URL = f"{BACKEND_HOST}/alert"
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +25,12 @@ def save_alert(alert: Dict[str, str]) -> Dict:
             "alert_state": "active" if alert.get("suppressed_by") is None else "closed",
             "alert_is_suppressed_by": alert.get("suppressed_by"),
         }
-        response = requests.post(ALERT_API_URL, json=payload, timeout=10)
+        response = requests.post(
+            ALERT_API_URL,
+            json=payload,
+            headers=config.AIRFLOW_ACCESS_HEADER,
+            timeout=10,
+        )
         response.raise_for_status()
         result = response.json()
         log.info(f"Saved alert ID {result.get('alert_id')} successfully.")

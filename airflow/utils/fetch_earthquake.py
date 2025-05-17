@@ -1,8 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 import requests
 import logging
-import os
 
+from utils.config import config
 from utils.parse_earthquake import EquakeDataParser
 
 log = logging.getLogger(__name__)
@@ -14,16 +14,12 @@ def fetch_earthquake(endpoint: str) -> dict[str, str]:
 
     :return earthquake: A dictionary containing the latest earthquake data.
     """
-    # Load environment variables from .env file
-    if not os.environ.get("CWA_APIKEY"):
-        raise EnvironmentError("Please set the CWA_APIKEY env variable.")
-
     log.info(f"Fetching the latest earthquake data from {endpoint}...")
     try:
         # Make a GET request to the CWA Earthquake API
         response = requests.get(
             url=endpoint,
-            params={"Authorization": os.environ.get("CWA_APIKEY"), "limit": 1},
+            params={"Authorization": config.CWA_API_KEY, "limit": 1},
             timeout=10,
         )
         response.raise_for_status()

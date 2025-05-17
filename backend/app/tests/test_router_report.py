@@ -203,7 +203,6 @@ def test_create_report(
     """Test creating a new report."""
     report_data = {
         "alert_id": test_alert.alert_id,
-        "user_id": test_user.user_id,
         "report_action_flag": False,
         "report_damage_flag": False,
         "report_factory_zone": test_zone.zone_id,
@@ -215,7 +214,7 @@ def test_create_report(
 
     data = response.json()
     assert data["alert_id"] == report_data["alert_id"]
-    assert data["user_id"] == report_data["user_id"]
+    assert data["user_id"] == 0
     assert data["report_action_flag"] == report_data["report_action_flag"]
     assert data["report_damage_flag"] == report_data["report_damage_flag"]
     assert data["report_factory_zone"] == report_data["report_factory_zone"]
@@ -228,10 +227,9 @@ def test_create_report(
     "fk_field, invalid_value",
     [
         ("alert_id", 999999),
-        ("user_id", 999999),
         ("report_factory_zone", 999999),
     ],
-    ids=["invalid_alert_id", "invalid_user_id", "invalid_factory_zone"],
+    ids=["invalid_alert_id", "invalid_factory_zone"],
 )
 def test_create_report_with_invalid_fk(
     client: TestClient,
@@ -243,7 +241,6 @@ def test_create_report_with_invalid_fk(
 ):
     payload = {
         "alert_id": test_alert.alert_id,
-        "user_id": test_user.user_id,
         "report_factory_zone": test_zone.zone_id,
         "report_created_at": datetime.now().isoformat(),
         "report_reported_at": datetime.now().isoformat(),

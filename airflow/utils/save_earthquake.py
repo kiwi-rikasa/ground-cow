@@ -1,7 +1,10 @@
 import requests
 import logging
 
-EARTHQUAKE_API_URL = "http://backend:8000/earthquake"
+from utils.config import config
+
+BACKEND_HOST = config.BACKEND_HOST
+EARTHQUAKE_API_URL = f"{BACKEND_HOST}/earthquake"
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +23,12 @@ def save_earthquake(earthquake: dict[str, str]) -> None:
             "earthquake_magnitude": earthquake.get("magnitude"),
             "earthquake_source": "CWA",
         }
-        response = requests.post(EARTHQUAKE_API_URL, json=payload, timeout=10)
+        response = requests.post(
+            EARTHQUAKE_API_URL,
+            json=payload,
+            headers=config.AIRFLOW_ACCESS_HEADER,
+            timeout=10,
+        )
         response.raise_for_status()
         log.info(f"Saved earthquake ID {earthquake.get('id')} successfully.")
         return response.json()
