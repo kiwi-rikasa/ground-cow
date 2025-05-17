@@ -9,7 +9,7 @@ from .consts import UserRole, AlertState, EventSeverity
 class User(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, primary_key=True)
     user_created_at: datetime = Field(default_factory=datetime.now)
-    user_email: str
+    user_email: str = Field(unique=True)
     user_name: str
     user_role: UserRole = Field(default=UserRole.operator)  # admin/control/operator
 
