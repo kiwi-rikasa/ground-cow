@@ -29,37 +29,21 @@ def validate_fk_exists(
         )
 
 
-def require_session_user_id(request: Request) -> int:
-    """
-    Get the user ID from the session.
-
-    - In local development, skip checking and return a dummy user ID `0`.
-    - In real application, it is the user ID from the session.
-    """
-    # In local environment, skip checking
-    if settings.ENVIRONMENT == "local":
-        return 0
-    # In real application, use user id from the session
-    user_id = request.session.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    return user_id
-
-
 def require_session_user(
     session: SessionDep,
-    user_id: int = Depends(require_session_user_id),
+    request: Request,
 ) -> User:
     """
     Get the user corresponding to the user ID from the session.
 
-    - In local development, skip checking and return a dummy user.
+    - In local development, skip checking and return a dummy user with user_id `0`.
     - In real application, check if the user exists in the database.
     """
     # In local environment, skip checking
     if settings.ENVIRONMENT == "local":
-        return User(user_id=user_id)
+        return User(user_id=0)
     # In real application, get user using the user_id from the session
+    user_id = request.session.get("user_id")
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
