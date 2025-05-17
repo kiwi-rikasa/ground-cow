@@ -92,6 +92,13 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { ReportPublic } from "@/app/client/types.gen";
+import {
+  updateReportReportReportIdPatch,
+  getReportReportReportIdGet,
+} from "@/app/client/";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -632,6 +639,7 @@ export function ReportDataTable({
             setDrawerOpen(open);
             if (!open) setSelectedReport(null);
           }}
+          setData={setData}
         />
       )}
     </>
@@ -642,12 +650,75 @@ function TableCellViewer({
   item,
   open,
   onOpenChange,
+  setData,
 }: {
   item: ReportPublic;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  setData: React.Dispatch<React.SetStateAction<ReportPublic[]>>;
 }) {
   const isMobile = useIsMobile();
+
+  const [actionFlag, setActionFlag] = React.useState(item.report_action_flag);
+  const [damageFlag, setDamageFlag] = React.useState(item.report_damage_flag);
+  const [factoryZone, setFactoryZone] = React.useState(
+    item.report_factory_zone
+  );
+  const [isAnimatingIn, setIsAnimatingIn] = React.useState(false);
+  const [alert, setAlert] = React.useState<{
+    type: "success" | "error";
+    message: string;
+    visible: boolean;
+  }>({ type: "success", message: "", visible: false });
+
+  const handleUpdate = async () => {
+    try {
+      await updateReportReportReportIdPatch({
+        body: {
+          report_action_flag: actionFlag,
+          report_damage_flag: damageFlag,
+          report_factory_zone: factoryZone,
+        },
+        path: {
+          report_id: item.report_id,
+        },
+      });
+
+      const res = await getReportReportReportIdGet({
+        path: { report_id: item.report_id },
+      });
+
+      const updatedReport = res.data;
+      if (!updatedReport) return;
+
+      setData((prev) =>
+        prev.map((report) =>
+          report.report_id === updatedReport.report_id ? updatedReport : report
+        )
+      );
+
+      setAlert({
+        type: "success",
+        message: "The report was updated successfully.",
+        visible: true,
+      });
+
+      setIsAnimatingIn(true);
+      setTimeout(() => setIsAnimatingIn(false), 3000);
+      setTimeout(() => setAlert((prev) => ({ ...prev, visible: false })), 3300);
+    } catch (error) {
+      console.error("Report update failed", error);
+      setAlert({
+        type: "error",
+        message: "Failed to update the report.",
+        visible: true,
+      });
+
+      setIsAnimatingIn(true);
+      setTimeout(() => setIsAnimatingIn(false), 3000);
+      setTimeout(() => setAlert((prev) => ({ ...prev, visible: false })), 3300);
+    }
+  };
 
   return (
     <Drawer
@@ -731,7 +802,8 @@ function TableCellViewer({
               <div className="flex flex-col gap-3">
                 <Label htmlFor="actionFlag">Action Flag</Label>
                 <Select
-                  defaultValue={item.report_action_flag ? "true" : "false"}
+                  value={actionFlag ? "true" : "false"}
+                  onValueChange={(value) => setActionFlag(value === "true")}
                 >
                   <SelectTrigger
                     id="actionFlag"
@@ -752,7 +824,8 @@ function TableCellViewer({
               <div className="flex flex-col gap-3">
                 <Label htmlFor="damageFlag">Damage Flag</Label>
                 <Select
-                  defaultValue={item.report_damage_flag ? "true" : "false"}
+                  value={damageFlag ? "true" : "false"}
+                  onValueChange={(value) => setDamageFlag(value === "true")}
                 >
                   <SelectTrigger
                     id="damageFlag"
@@ -777,7 +850,9 @@ function TableCellViewer({
                 <Input
                   id="factoryZone"
                   type="number"
-                  defaultValue={item.report_factory_zone?.toString() || ""}
+                  min={0}
+                  value={factoryZone?.toString() || ""}
+                  onChange={(e) => setFactoryZone(Number(e.target.value))}
                 />
               </div>
             </div>
@@ -795,8 +870,26 @@ function TableCellViewer({
             </div>
           </form>
         </div>
+        {alert.visible && (
+          <Alert
+            className={cn(
+              "fixed top-4 right-4 z-50 w-80 border shadow-lg rounded-md bg-white dark:bg-zinc-900 p-4",
+              isAnimatingIn
+                ? "animate-in fade-in slide-in-from-right duration-300"
+                : "animate-out fade-out slide-out-to-right duration-300"
+            )}
+          >
+            <Terminal className="h-4 w-4" />
+            <AlertTitle>
+              {alert.type === "error" ? "Error!" : "Success!"}
+            </AlertTitle>
+            <AlertDescription>{alert.message}</AlertDescription>
+          </Alert>
+        )}
         <DrawerFooter>
-          <Button className="cursor-pointer">Update</Button>
+          <Button className="cursor-pointer" onClick={handleUpdate}>
+            Update
+          </Button>
           <DrawerClose asChild>
             <Button className="cursor-pointer" variant="outline">
               Close
