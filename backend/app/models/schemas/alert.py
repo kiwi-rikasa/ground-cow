@@ -6,6 +6,7 @@ from ..consts import AlertState
 from app.models.schemas.zone import ZonePublic
 from app.models.schemas.event import EventPublic
 
+
 # Shared fields
 class AlertBase(SQLModel):
     event_id: int
