@@ -796,10 +796,10 @@ function TableCellViewer({
           </form>
         </div>
         <DrawerFooter>
-          <Button className="cursor-pointer">Submit</Button>
+          <Button className="cursor-pointer">Update</Button>
           <DrawerClose asChild>
             <Button className="cursor-pointer" variant="outline">
-              Done
+              Close
             </Button>
           </DrawerClose>
         </DrawerFooter>
