@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Literal
 from sqlmodel import select
+from sqlalchemy.orm import selectinload
 from ...models.models import Report, Alert, User, Zone
 from ...models.schemas.report import (
     ReportCreate,
@@ -34,7 +35,10 @@ def list_reports(
     """
     Get all reports.
     """
-    query = select(Report)
+    query = select(Report).options(
+        selectinload(Report.user),
+        selectinload(Report.alert),
+    )
 
     if alert_id is not None:
         query = query.where(Report.alert_id == alert_id)
@@ -62,7 +66,12 @@ def get_report(
     """
     Get a specific report by ID.
     """
-    report = session.get(Report, report_id)
+    query = (
+        select(Report)
+        .where(Report.report_id == report_id)
+        .options(selectinload(Report.user), selectinload(Report.alert))
+    )
+    report = session.exec(query).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     return report

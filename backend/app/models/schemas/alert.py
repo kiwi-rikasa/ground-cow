@@ -3,6 +3,8 @@ from typing import Optional
 from sqlmodel import SQLModel, Field
 from ..consts import AlertState
 
+from app.models.schemas.zone import ZonePublic
+from app.models.schemas.event import EventPublic
 
 # Shared fields
 class AlertBase(SQLModel):
@@ -27,6 +29,8 @@ class AlertUpdate(SQLModel):
 # Response schema
 class AlertPublic(AlertBase):
     alert_id: int
+    zone: ZonePublic
+    event: EventPublic
     alert_created_at: datetime
 
 
