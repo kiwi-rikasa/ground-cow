@@ -105,8 +105,8 @@ def require_airflow_key(request: Request) -> bool:
     - In local development, skip checking.
     - In real application, check if the Airflow key is presented.
     """
-    # if settings.ENVIRONMENT == "local":
-    #     return True
+    if settings.ENVIRONMENT == "local":
+        return True
 
     airflow_key = request.headers.get("x-airflow-key")
     expected_key = settings.AIRFLOW_ACCESS_KEY
