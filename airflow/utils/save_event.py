@@ -2,7 +2,10 @@ import requests
 import logging
 from typing import Dict
 
-EVENT_API_URL = "http://backend:8000/event"
+from utils.config import config
+
+BACKEND_HOST = config.BACKEND_HOST
+EVENT_API_URL = f"{BACKEND_HOST}/event"
 
 log = logging.getLogger(__name__)
 

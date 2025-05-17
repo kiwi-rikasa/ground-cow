@@ -2,7 +2,10 @@ import requests
 import logging
 from typing import Dict
 
-ALERT_API_URL = "http://backend:8000/alert"
+from utils.config import config
+
+BACKEND_HOST = config.BACKEND_HOST
+ALERT_API_URL = f"{BACKEND_HOST}/alert"
 
 log = logging.getLogger(__name__)
 

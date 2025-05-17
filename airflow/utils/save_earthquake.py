@@ -1,7 +1,10 @@
 import requests
 import logging
 
-EARTHQUAKE_API_URL = "http://backend:8000/earthquake"
+from utils.config import config
+
+BACKEND_HOST = config.BACKEND_HOST
+EARTHQUAKE_API_URL = f"{BACKEND_HOST}/earthquake"
 
 log = logging.getLogger(__name__)
 

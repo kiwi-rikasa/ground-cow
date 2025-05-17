@@ -1,7 +1,10 @@
 import requests
 import logging
 
-SUPPRESSION_INTERVAL_API_URL = "http://backend:8000/placeholder"
+from utils.config import config
+
+BACKEND_HOST = config.BACKEND_HOST
+SUPPRESSION_INTERVAL_API_URL = f"{BACKEND_HOST}/placeholder"
 
 log = logging.getLogger(__name__)
 
