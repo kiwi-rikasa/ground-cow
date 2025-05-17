@@ -25,8 +25,8 @@ export default function Page() {
 
   const transformedData = alerts?.map((item) => ({
     ...item,
-    alert_created_at: new Date(item.alert_created_at),
-    alert_alert_time: new Date(item.alert_alert_time),
+    alert_created_at: item.alert_created_at,
+    alert_alert_time: item.alert_alert_time,
     alert_state: item.alert_state as "active" | "resolved" | "closed",
     alert_is_suppressed_by: item.alert_is_suppressed_by ?? null,
   }));
