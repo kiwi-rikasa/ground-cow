@@ -7,21 +7,42 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 
-import { AlertPublic, listAlertsAlertGet } from "@/app/client";
+import {
+  AlertPublic,
+  createSessionSessionPost,
+  listAlertsAlertGet,
+} from "@/app/client";
 
 export default function Page() {
   const { data: session } = useSession();
   const [alerts, setAlerts] = useState<AlertPublic[] | undefined>(undefined);
+  console.log("session", session);
 
   useEffect(() => {
     async function fetchAlerts() {
-      const { data: alerts } = await listAlertsAlertGet();
+      const { data: alerts } = await listAlertsAlertGet({
+        credentials: "include",
+      });
       if (alerts) {
         setAlerts(alerts?.data);
       }
     }
     fetchAlerts();
   }, []);
+
+  useEffect(() => {
+    async function setSession() {
+      console.log("starting set session", session);
+      if (session?.idToken) {
+        await createSessionSessionPost({
+          body: {
+            id_token: session?.idToken,
+          },
+        });
+      }
+    }
+    setSession();
+  }, [session]);
 
   const transformedData = alerts?.map((item) => ({
     ...item,
