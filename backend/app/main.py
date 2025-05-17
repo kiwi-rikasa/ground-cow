@@ -8,7 +8,7 @@ from app.core.config import settings
 
 app = FastAPI()
 
-origins = ["*"]
+origins = [settings.FRONTEND_HOST]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
