@@ -174,7 +174,7 @@ export function ColumnDefinitionHandler({
     },
     {
       accessorKey: "alert_state",
-      header: "Status",
+      header: "State",
       cell: ({ row }) => (
         <div className="w-32">
           <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -707,26 +707,13 @@ function TableCellViewer({
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <Label htmlFor="alert_state">Status</Label>
-              <Select defaultValue={item.alert_state || "active"}>
-                <SelectTrigger
-                  id="alert_state"
-                  className="w-full cursor-pointer"
-                >
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active" className="cursor-pointer">
-                    Active
-                  </SelectItem>
-                  <SelectItem value="resolved" className="cursor-pointer">
-                    Resolved
-                  </SelectItem>
-                  <SelectItem value="closed" className="cursor-pointer">
-                    Closed
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="alert_state">State</Label>
+              <div
+                id="alert_state"
+                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
+              >
+                {item.alert_state || "-"}
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4">
