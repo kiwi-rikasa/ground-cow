@@ -850,6 +850,7 @@ function TableCellViewer({
                 <Input
                   id="factoryZone"
                   type="number"
+                  min={0}
                   value={factoryZone?.toString() || ""}
                   onChange={(e) => setFactoryZone(Number(e.target.value))}
                 />
