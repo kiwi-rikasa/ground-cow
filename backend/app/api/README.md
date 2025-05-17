@@ -10,9 +10,10 @@ This directory contains the API layer for the backend service. It defines FastAP
 
 ## Common Dependencies
 
-- `require_session_user`: Check if the session user is **valid**, and get the user's information.
-- `require_admin`: Check if the session user is **an admin**, and get the user's information.
-- `require_controller`: Check if the session user is **a controller or admin**, and get the user's information.
+- `require_session_user`: Check if the session user is **valid**, and return the user's information.
+- `require_admin`: Check if the session user is **an admin**, and return the user's information.
+- `require_controller`: Check if the session user is **a controller or admin**, and return the user's information.
+- `require_airflow_key`: Check if the request is made by the Airflow DAG, where `AIRFLOW_ACCESS_KEY` is presented in header.
 - `SessionDep`: Injects a database session.
 
 See `deps.py` for details.
@@ -31,20 +32,21 @@ See `deps.py` for details.
 
 Below is a summary of authentication and authorization requirements for CRUD operations on each API resource:
 
-| Resource       | GET        | POST   | PATCH      | DELETE     |
-| -------------- | ---------- | ------ | ---------- | ---------- |
-| **User**       | Controller | Admin  | Admin      | Admin      |
-| **Session**    | ---        | Public | ---        | Public     |
-| **Zone**       | Public     | Admin  | Admin      | Admin      |
-| **Earthquake** | User       | Public | Controller | Controller |
-| **Event**      | User       | Public | Controller | Controller |
-| **Alert**      | User       | Public | Controller | Controller |
-| **Report**     | User       | User   | Controller | Controller |
+| Resource       | GET        | POST    | PATCH      | DELETE     |
+| -------------- | ---------- | ------- | ---------- | ---------- |
+| **User**       | Controller | Admin   | Admin      | Admin      |
+| **Session**    | ---        | Public  | ---        | Public     |
+| **Zone**       | Public     | Admin   | Admin      | Admin      |
+| **Earthquake** | User       | Airflow | Controller | Controller |
+| **Event**      | User       | Airflow | Controller | Controller |
+| **Alert**      | User       | Airflow | Controller | Controller |
+| **Report**     | User       | User    | Controller | Controller |
 
 - **Public**: No authentication required.
 - **User**: Requires a valid session (user must be logged in).
 - **Controller**: Requires user to have controller or admin role.
 - **Admin**: Requires user to have admin role.
+- **Airflow**: Requires `AIRFLOW_ACCESS_KEY` to be presented in the `x-airflow-key` header.
 - **---**: Not implemented or not applicable.
 
 ## Notes
