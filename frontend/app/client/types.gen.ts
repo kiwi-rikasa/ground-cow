@@ -87,7 +87,6 @@ export type HttpValidationError = {
 
 export type ReportCreate = {
     alert_id?: number | null;
-    user_id?: number | null;
     report_action_flag: boolean;
     report_damage_flag: boolean;
     report_factory_zone?: number | null;
@@ -96,11 +95,11 @@ export type ReportCreate = {
 
 export type ReportPublic = {
     alert_id?: number | null;
-    user_id?: number | null;
     report_action_flag: boolean;
     report_damage_flag: boolean;
     report_factory_zone?: number | null;
     report_reported_at: string;
+    user_id?: number | null;
     report_id: number;
     report_created_at: string;
 };
@@ -116,6 +115,10 @@ export type ReportUpdate = {
 
 export type ReportsPublic = {
     data: Array<ReportPublic>;
+};
+
+export type TokenInput = {
+    id_token: string;
 };
 
 export type UserCreate = {
@@ -310,6 +313,45 @@ export type UpdateUserUserUserIdPatchResponses = {
 };
 
 export type UpdateUserUserUserIdPatchResponse = UpdateUserUserUserIdPatchResponses[keyof UpdateUserUserUserIdPatchResponses];
+
+export type DeleteSessionSessionDeleteData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/session/';
+};
+
+export type DeleteSessionSessionDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type CreateSessionSessionPostData = {
+    body: TokenInput;
+    path?: never;
+    query?: never;
+    url: '/session/';
+};
+
+export type CreateSessionSessionPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateSessionSessionPostError = CreateSessionSessionPostErrors[keyof CreateSessionSessionPostErrors];
+
+export type CreateSessionSessionPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserPublic;
+};
+
+export type CreateSessionSessionPostResponse = CreateSessionSessionPostResponses[keyof CreateSessionSessionPostResponses];
 
 export type ListEarthquakesEarthquakeGetData = {
     body?: never;
