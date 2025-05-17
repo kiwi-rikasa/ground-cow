@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Literal
 from sqlmodel import select
+from sqlalchemy.orm import selectinload
 from ...models.models import Alert, Event, Zone, User
 from ...models.schemas.alert import AlertCreate, AlertUpdate, AlertPublic, AlertsPublic
 from app.api.deps import (
@@ -28,7 +29,10 @@ def list_alerts(
     """
     Get specified alerts.
     """
-    query = select(Alert)
+    query = select(Alert).options(
+        selectinload(Alert.zone),
+        selectinload(Alert.event),
+    )
 
     if alert_state is not None:
         query = query.where(Alert.alert_state == alert_state)
@@ -52,7 +56,12 @@ def get_alert(
     """
     Get a specific alert by ID.
     """
-    alert = session.get(Alert, alert_id)
+    query = (
+        select(Alert)
+        .where(Alert.alert_id == alert_id)
+        .options(selectinload(Alert.zone), selectinload(Alert.event))
+    )
+    alert = session.exec(query).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
     return alert

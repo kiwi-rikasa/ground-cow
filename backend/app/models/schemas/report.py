@@ -2,6 +2,9 @@ from datetime import datetime
 from typing import Optional
 from sqlmodel import SQLModel
 
+from app.models.schemas.user import UserPublic
+from app.models.schemas.alert import AlertPublic
+
 
 # Shared fields
 class ReportBase(SQLModel):
@@ -30,6 +33,8 @@ class ReportUpdate(SQLModel):
 # Response schema
 class ReportPublic(ReportBase):
     user_id: Optional[int] = None
+    user: Optional[UserPublic] = None
+    alert: Optional[AlertPublic] = None
     report_id: int
     report_created_at: datetime
 
