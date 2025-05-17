@@ -8,7 +8,12 @@ from ...models.schemas.earthquake import (
     EarthquakePublic,
     EarthquakesPublic,
 )
-from app.api.deps import SessionDep, require_session_user, require_controller
+from app.api.deps import (
+    SessionDep,
+    require_session_user,
+    require_controller,
+    require_airflow_key,
+)
 
 earthquake_router = APIRouter()
 
@@ -54,7 +59,9 @@ def get_earthquake(
 
 @earthquake_router.post("/", response_model=EarthquakePublic)
 def create_earthquake(
-    earthquake_in: EarthquakeCreate, session: SessionDep
+    earthquake_in: EarthquakeCreate,
+    session: SessionDep,
+    _: bool = Depends(require_airflow_key),
 ) -> EarthquakePublic:
     """
     Create a new earthquake.

@@ -25,7 +25,12 @@ def save_alert(alert: Dict[str, str]) -> Dict:
             "alert_state": "active" if alert.get("suppressed_by") is None else "closed",
             "alert_is_suppressed_by": alert.get("suppressed_by"),
         }
-        response = requests.post(ALERT_API_URL, json=payload, timeout=10)
+        response = requests.post(
+            ALERT_API_URL,
+            json=payload,
+            headers=config.AIRFLOW_ACCESS_HEADER,
+            timeout=10,
+        )
         response.raise_for_status()
         result = response.json()
         log.info(f"Saved alert ID {result.get('alert_id')} successfully.")

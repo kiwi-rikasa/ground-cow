@@ -8,6 +8,7 @@ from app.api.deps import (
     validate_fk_exists,
     require_session_user,
     require_controller,
+    require_airflow_key,
 )
 
 alert_router = APIRouter()
@@ -58,7 +59,11 @@ def get_alert(
 
 
 @alert_router.post("/", response_model=AlertPublic)
-def create_alert(alert_in: AlertCreate, session: SessionDep) -> AlertPublic:
+def create_alert(
+    alert_in: AlertCreate,
+    session: SessionDep,
+    _: bool = Depends(require_airflow_key),
+) -> AlertPublic:
     """
     Create a new alert.
     """

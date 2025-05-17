@@ -96,3 +96,22 @@ def require_admin(user: User = Depends(require_session_user)) -> User:
     if user.user_role != UserRole.admin:
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
+
+
+def require_airflow_key(request: Request) -> bool:
+    """
+    Verify if the request is made from Airflow.
+
+    - In local development, skip checking.
+    - In real application, check if the Airflow key is presented.
+    """
+    # if settings.ENVIRONMENT == "local":
+    #     return True
+
+    airflow_key = request.headers.get("x-airflow-key")
+    expected_key = settings.AIRFLOW_ACCESS_KEY
+
+    if not airflow_key or airflow_key != expected_key:
+        raise HTTPException(status_code=403, detail="Invalid request source")
+
+    return True

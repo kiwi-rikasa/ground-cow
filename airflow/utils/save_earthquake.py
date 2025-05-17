@@ -23,7 +23,12 @@ def save_earthquake(earthquake: dict[str, str]) -> None:
             "earthquake_magnitude": earthquake.get("magnitude"),
             "earthquake_source": "CWA",
         }
-        response = requests.post(EARTHQUAKE_API_URL, json=payload, timeout=10)
+        response = requests.post(
+            EARTHQUAKE_API_URL,
+            json=payload,
+            headers=config.AIRFLOW_ACCESS_HEADER,
+            timeout=10,
+        )
         response.raise_for_status()
         log.info(f"Saved earthquake ID {earthquake.get('id')} successfully.")
         return response.json()

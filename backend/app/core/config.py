@@ -74,6 +74,7 @@ class Settings(BaseSettings):
 
     AUTH_GOOGLE_ID: str
     SESSION_SECRET: str = secrets.token_urlsafe(32)
+    AIRFLOW_ACCESS_KEY: str
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":

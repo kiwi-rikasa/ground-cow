@@ -24,7 +24,12 @@ def save_event(event: Dict[str, str]) -> Dict:
             "earthquake_id": event.get("earthquake_id"),
             "zone_id": event.get("zone_id"),
         }
-        response = requests.post(EVENT_API_URL, json=payload, timeout=10)
+        response = requests.post(
+            EVENT_API_URL,
+            json=payload,
+            headers=config.AIRFLOW_ACCESS_HEADER,
+            timeout=10,
+        )
         response.raise_for_status()
         result = response.json()
         log.info(f"Saved event ID {result.get('event_id')} successfully.")

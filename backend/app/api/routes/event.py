@@ -8,6 +8,7 @@ from app.api.deps import (
     validate_fk_exists,
     require_session_user,
     require_controller,
+    require_airflow_key,
 )
 
 event_router = APIRouter()
@@ -61,7 +62,11 @@ def get_event(
 
 
 @event_router.post("/", response_model=EventPublic)
-def create_event(event_in: EventCreate, session: SessionDep) -> EventPublic:
+def create_event(
+    event_in: EventCreate,
+    session: SessionDep,
+    _: bool = Depends(require_airflow_key),
+) -> EventPublic:
     """
     Create a new event.
     """
