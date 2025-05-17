@@ -1,9 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional
 from sqlmodel import select
 from ...models.models import User
 from ...models.schemas.user import UserCreate, UserUpdate, UserPublic, UsersPublic
-from app.api.deps import SessionDep
+from app.api.deps import SessionDep, require_controller, require_admin
 
 user_router = APIRouter()
 
@@ -14,6 +14,7 @@ def list_users(
     offset: int = 0,
     limit: int = 30,
     user_role: Optional[str] = None,
+    _: User = Depends(require_controller),
 ) -> UsersPublic:
     """
     Get all users.
@@ -28,7 +29,11 @@ def list_users(
 
 
 @user_router.get("/{user_id}", response_model=UserPublic)
-def get_user(user_id: int, session: SessionDep) -> UserPublic:
+def get_user(
+    user_id: int,
+    session: SessionDep,
+    _: User = Depends(require_controller),
+) -> UserPublic:
     """
     Get a specific user by ID.
     """
@@ -39,7 +44,11 @@ def get_user(user_id: int, session: SessionDep) -> UserPublic:
 
 
 @user_router.post("/", response_model=UserPublic)
-def create_user(user_in: UserCreate, session: SessionDep) -> UserPublic:
+def create_user(
+    user_in: UserCreate,
+    session: SessionDep,
+    _: User = Depends(require_admin),
+) -> UserPublic:
     """
     Create a new user.
     """
@@ -55,6 +64,7 @@ def update_user(
     user_id: int,
     user_in: UserUpdate,
     session: SessionDep,
+    _: User = Depends(require_admin),
 ) -> UserPublic:
     """
     Update a user's information.
@@ -73,7 +83,11 @@ def update_user(
 
 
 @user_router.delete("/{user_id}")
-def delete_user(user_id: int, session: SessionDep) -> dict:
+def delete_user(
+    user_id: int,
+    session: SessionDep,
+    _: User = Depends(require_admin),
+) -> dict:
     """
     Delete a user by ID.
     """

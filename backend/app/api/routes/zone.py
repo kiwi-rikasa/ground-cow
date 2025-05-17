@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select
-from ...models.models import Zone
+from ...models.models import Zone, User
 from ...models.schemas.zone import ZoneCreate, ZoneUpdate, ZonePublic, ZonesPublic
-from app.api.deps import SessionDep
+from app.api.deps import SessionDep, require_admin
 
 zone_router = APIRouter()
 
@@ -28,7 +28,11 @@ def get_zone(zone_id: int, session: SessionDep) -> ZonePublic:
 
 
 @zone_router.post("/", response_model=ZonePublic)
-def create_zone(zone_in: ZoneCreate, session: SessionDep) -> ZonePublic:
+def create_zone(
+    zone_in: ZoneCreate,
+    session: SessionDep,
+    _: User = Depends(require_admin),
+) -> ZonePublic:
     """
     Create a new zone.
     """
@@ -44,6 +48,7 @@ def update_zone(
     zone_id: int,
     zone_in: ZoneUpdate,
     session: SessionDep,
+    _: User = Depends(require_admin),
 ) -> ZonePublic:
     """
     Update a zone's information.
@@ -62,7 +67,11 @@ def update_zone(
 
 
 @zone_router.delete("/{zone_id}")
-def delete_zone(zone_id: int, session: SessionDep) -> dict:
+def delete_zone(
+    zone_id: int,
+    session: SessionDep,
+    _: User = Depends(require_admin),
+) -> dict:
     """
     Delete a zone by ID.
     """

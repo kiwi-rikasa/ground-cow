@@ -1,7 +1,10 @@
 import requests
 import logging
 
-ZONE_API_URL = "http://backend:8000/zone"
+from utils.config import config
+
+BACKEND_HOST = config.BACKEND_HOST
+ZONE_API_URL = f"{BACKEND_HOST}/zone"
 
 log = logging.getLogger(__name__)
 
