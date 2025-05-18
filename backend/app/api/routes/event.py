@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Literal
 from sqlmodel import select
+from sqlalchemy.orm import selectinload
 from ...models.models import Event, Earthquake, User, Zone
 from ...models.schemas.event import EventCreate, EventUpdate, EventPublic, EventsPublic
 from app.api.deps import (
@@ -29,7 +30,10 @@ def list_events(
     """
     Get specified events.
     """
-    query = select(Event)
+    query = select(Event).options(
+        selectinload(Event.zone),
+        selectinload(Event.earthquake),
+    )
 
     if zone_id is not None:
         query = query.where(Event.zone_id == zone_id)
@@ -55,7 +59,12 @@ def get_event(
     """
     Get a specific event by ID.
     """
-    event = session.get(Event, event_id)
+    query = (
+        select(Event)
+        .where(Event.event_id == event_id)
+        .options(selectinload(Event.zone), selectinload(Event.earthquake))
+    )
+    event = session.exec(query).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     return event

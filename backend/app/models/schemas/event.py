@@ -3,6 +3,9 @@ from typing import Optional
 from sqlmodel import SQLModel, Field
 from ..consts import EventSeverity
 
+from app.models.schemas.zone import ZonePublic
+from app.models.schemas.earthquake import EarthquakePublic
+
 
 # Shared fields
 class EventBase(SQLModel):
@@ -26,7 +29,9 @@ class EventUpdate(SQLModel):
 class EventPublic(EventBase):
     event_id: int
     earthquake_id: int
+    earthquake: EarthquakePublic
     zone_id: int
+    zone: ZonePublic
     event_created_at: datetime
 
 
