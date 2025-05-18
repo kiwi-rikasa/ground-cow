@@ -2,11 +2,7 @@
 
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
-import { SidebarInset } from "@/components/ui/sidebar";
 import { BarChart, Bar } from "recharts";
 import {
   Select,
@@ -377,244 +373,225 @@ export default function Page() {
   }, [filteredEarthquakes]);
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="grid flex-1 auto-rows-max gap-6 p-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Filter Options</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="zone-filter"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Filter by Zone
-                  </label>
-                  <Select
-                    onValueChange={(value) =>
-                      setSelectedZone(
-                        value === "all" ? undefined : Number(value)
-                      )
-                    }
-                  >
-                    <SelectTrigger id="zone-filter">
-                      <SelectValue placeholder="Select Zone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Zones</SelectItem>
-                      {zones.map((zone) => (
-                        <SelectItem
-                          key={zone.zone_id}
-                          value={String(zone.zone_id)}
-                        >
-                          {zone.zone_name} (ID: {zone.zone_id})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="earthquake-filter"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Filter by Earthquake
-                  </label>
-                  <Select
-                    onValueChange={(value) =>
-                      setSelectedEarthquake(
-                        value === "all" ? undefined : Number(value)
-                      )
-                    }
-                  >
-                    <SelectTrigger id="earthquake-filter">
-                      <SelectValue placeholder="Select Earthquake" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Earthquakes</SelectItem>
-                      {earthquakes.map((eq) => (
-                        <SelectItem
-                          key={eq.earthquake_id}
-                          value={String(eq.earthquake_id)}
-                        >
-                          EQ ID: {eq.earthquake_id} (Mag:{" "}
-                          {eq.earthquake_magnitude})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Active Alerts Trend Chart - Spanning more columns on larger screens */}
-          <div className="md:col-span-2 lg:col-span-2 xl:col-span-3">
-            <ActiveAlertsTrendChart alerts={alerts} zones={zones} />
-          </div>
-
-          {/* Events Table - Spanning more columns */}
-          <div className="md:col-span-2 lg:col-span-3 xl:col-span-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Events</CardTitle>
-                <CardDescription>
-                  Detailed list of seismic events and their alert statuses.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Event ID</TableHead>
-                        <TableHead>Severity</TableHead>
-                        <TableHead>Intensity</TableHead>
-                        <TableHead>Earthquake ID</TableHead>
-                        <TableHead>Zone</TableHead>
-                        <TableHead>Alert Status</TableHead>
-                        <TableHead>Alert Duration</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredEvents.length > 0 ? (
-                        filteredEvents.map((event) => {
-                          const alertInfo = getAlertInfo(event.event_id);
-                          return (
-                            <TableRow key={event.event_id}>
-                              <TableCell>{event.event_id}</TableCell>
-                              <TableCell>{event.event_severity}</TableCell>
-                              <TableCell>{event.event_intensity}</TableCell>
-                              <TableCell>{event.earthquake_id}</TableCell>
-                              <TableCell>{event.zone?.zone_name}</TableCell>
-                              <TableCell>{alertInfo.status}</TableCell>
-                              <TableCell>{alertInfo.duration}</TableCell>
-                            </TableRow>
-                          );
-                        })
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center">
-                            No events found matching your criteria.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Earthquake Magnitudes Chart - Spanning more columns */}
-          <div className="md:col-span-2 lg:col-span-3 xl:col-span-4">
-            <Card>
-              <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-                <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-                  <CardTitle>Earthquake Magnitudes Over Time</CardTitle>
-                  <CardDescription>
-                    Bar chart showing earthquake magnitudes. Filter by zone or
-                    specific earthquake above.
-                  </CardDescription>
-                </div>
-                <div className="flex">
-                  <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
-                    <span className="text-xs text-muted-foreground">
-                      Total Recorded
-                    </span>
-                    <span className="text-lg font-bold leading-none sm:text-3xl">
-                      {earthquakeSummary.total}
-                    </span>
-                  </div>
-                  <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      Avg. Magnitude
-                    </span>
-                    <span className="text-lg font-bold leading-none sm:text-3xl">
-                      {earthquakeSummary.averageMagnitude}
-                    </span>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-                {earthquakeMagnitudeChartData.length > 0 ? (
-                  <ChartContainer
-                    config={earthquakeChartConfig}
-                    className="aspect-auto h-[300px] w-full"
-                  >
-                    <BarChart
-                      accessibilityLayer
-                      data={earthquakeMagnitudeChartData}
-                      margin={{ top: 5, left: 0, right: 0, bottom: 5 }}
+    <div className="grid flex-1 auto-rows-max gap-6 p-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
+        <Card>
+          <CardHeader>
+            <CardTitle>Filter Options</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label
+                htmlFor="zone-filter"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Filter by Zone
+              </label>
+              <Select
+                onValueChange={(value) =>
+                  setSelectedZone(value === "all" ? undefined : Number(value))
+                }
+              >
+                <SelectTrigger id="zone-filter">
+                  <SelectValue placeholder="Select Zone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Zones</SelectItem>
+                  {zones.map((zone) => (
+                    <SelectItem key={zone.zone_id} value={String(zone.zone_id)}>
+                      {zone.zone_name} (ID: {zone.zone_id})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label
+                htmlFor="earthquake-filter"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Filter by Earthquake
+              </label>
+              <Select
+                onValueChange={(value) =>
+                  setSelectedEarthquake(
+                    value === "all" ? undefined : Number(value)
+                  )
+                }
+              >
+                <SelectTrigger id="earthquake-filter">
+                  <SelectValue placeholder="Select Earthquake" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Earthquakes</SelectItem>
+                  {earthquakes.map((eq) => (
+                    <SelectItem
+                      key={eq.earthquake_id}
+                      value={String(eq.earthquake_id)}
                     >
-                      <CartesianGrid vertical={false} />
-                      <XAxis
-                        dataKey="displayDate"
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
+                      EQ ID: {eq.earthquake_id} (Mag: {eq.earthquake_magnitude})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Active Alerts Trend Chart - Spanning more columns on larger screens */}
+      <div className="md:col-span-2 lg:col-span-2 xl:col-span-3">
+        <ActiveAlertsTrendChart alerts={alerts} zones={zones} />
+      </div>
+
+      {/* Events Table - Spanning more columns */}
+      <div className="md:col-span-2 lg:col-span-3 xl:col-span-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Events</CardTitle>
+            <CardDescription>
+              Detailed list of seismic events and their alert statuses.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Event ID</TableHead>
+                    <TableHead>Severity</TableHead>
+                    <TableHead>Intensity</TableHead>
+                    <TableHead>Earthquake ID</TableHead>
+                    <TableHead>Zone</TableHead>
+                    <TableHead>Alert Status</TableHead>
+                    <TableHead>Alert Duration</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredEvents.length > 0 ? (
+                    filteredEvents.map((event) => {
+                      const alertInfo = getAlertInfo(event.event_id);
+                      return (
+                        <TableRow key={event.event_id}>
+                          <TableCell>{event.event_id}</TableCell>
+                          <TableCell>{event.event_severity}</TableCell>
+                          <TableCell>{event.event_intensity}</TableCell>
+                          <TableCell>{event.earthquake_id}</TableCell>
+                          <TableCell>{event.zone?.zone_name}</TableCell>
+                          <TableCell>{alertInfo.status}</TableCell>
+                          <TableCell>{alertInfo.duration}</TableCell>
+                        </TableRow>
+                      );
+                    })
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center">
+                        No events found matching your criteria.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Earthquake Magnitudes Chart - Spanning more columns */}
+      <div className="md:col-span-2 lg:col-span-3 xl:col-span-4">
+        <Card>
+          <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+            <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+              <CardTitle>Earthquake Magnitudes Over Time</CardTitle>
+              <CardDescription>
+                Bar chart showing earthquake magnitudes. Filter by zone or
+                specific earthquake above.
+              </CardDescription>
+            </div>
+            <div className="flex">
+              <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+                <span className="text-xs text-muted-foreground">
+                  Total Recorded
+                </span>
+                <span className="text-lg font-bold leading-none sm:text-3xl">
+                  {earthquakeSummary.total}
+                </span>
+              </div>
+              <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  Avg. Magnitude
+                </span>
+                <span className="text-lg font-bold leading-none sm:text-3xl">
+                  {earthquakeSummary.averageMagnitude}
+                </span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+            {earthquakeMagnitudeChartData.length > 0 ? (
+              <ChartContainer
+                config={earthquakeChartConfig}
+                className="aspect-auto h-[300px] w-full"
+              >
+                <BarChart
+                  accessibilityLayer
+                  data={earthquakeMagnitudeChartData}
+                  margin={{ top: 5, left: 0, right: 0, bottom: 5 }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="displayDate"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <YAxis
+                    dataKey="magnitude"
+                    tickMargin={8}
+                    domain={[0, "dataMax + 1"]}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent
+                        labelFormatter={(value, payload) => {
+                          if (
+                            payload &&
+                            payload.length > 0 &&
+                            payload[0].payload.date
+                          ) {
+                            return new Date(
+                              payload[0].payload.date
+                            ).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            });
+                          }
+                          return value;
+                        }}
+                        formatter={(value) => `${value} Richter`}
+                        indicator="line"
                       />
-                      <YAxis
-                        dataKey="magnitude"
-                        tickMargin={8}
-                        domain={[0, "dataMax + 1"]}
-                      />
-                      <ChartTooltip
-                        cursor={false}
-                        content={
-                          <ChartTooltipContent
-                            labelFormatter={(value, payload) => {
-                              if (
-                                payload &&
-                                payload.length > 0 &&
-                                payload[0].payload.date
-                              ) {
-                                return new Date(
-                                  payload[0].payload.date
-                                ).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                });
-                              }
-                              return value;
-                            }}
-                            formatter={(value) => `${value} Richter`}
-                            indicator="line"
-                          />
-                        }
-                      />
-                      <Bar
-                        dataKey="magnitude"
-                        fill="var(--color-magnitude)"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ChartContainer>
-                ) : (
-                  <p className="text-center text-gray-500 py-8">
-                    No earthquake data to display based on current filters.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+                    }
+                  />
+                  <Bar
+                    dataKey="magnitude"
+                    fill="var(--color-magnitude)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <p className="text-center text-gray-500 py-8">
+                No earthquake data to display based on current filters.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
