@@ -221,7 +221,7 @@ export function ColumnDefinitionHandler({
       cell: ({ row }) => (
         <div className="w-32">
           <Badge variant="outline" className="text-muted-foreground px-1.5">
-            {row.original.report_factory_zone ?? "N/A"}
+            {row.original.alert?.zone?.zone_name ?? "N/A"}
           </Badge>
         </div>
       ),
@@ -259,12 +259,12 @@ export function ColumnDefinitionHandler({
       enableHiding: true,
     },
     {
-      accessorKey: "user_id",
-      header: "User ID",
+      accessorKey: "user",
+      header: "User",
       cell: ({ row }) => {
         return (
           <div className="w-32">
-            {row.original.user_id ? row.original.user_id : "-"}
+            {row.original.user?.user_name ? row.original.user?.user_name : "-"}
           </div>
         );
       },

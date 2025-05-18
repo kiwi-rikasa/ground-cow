@@ -483,7 +483,7 @@ export default function Page() {
                         <TableHead>Severity</TableHead>
                         <TableHead>Intensity</TableHead>
                         <TableHead>Earthquake ID</TableHead>
-                        <TableHead>Zone ID</TableHead>
+                        <TableHead>Zone</TableHead>
                         <TableHead>Alert Status</TableHead>
                         <TableHead>Alert Duration</TableHead>
                       </TableRow>
@@ -498,7 +498,7 @@ export default function Page() {
                               <TableCell>{event.event_severity}</TableCell>
                               <TableCell>{event.event_intensity}</TableCell>
                               <TableCell>{event.earthquake_id}</TableCell>
-                              <TableCell>{event.zone_id}</TableCell>
+                              <TableCell>{event.zone?.zone_name}</TableCell>
                               <TableCell>{alertInfo.status}</TableCell>
                               <TableCell>{alertInfo.duration}</TableCell>
                             </TableRow>

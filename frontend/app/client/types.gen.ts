@@ -15,6 +15,8 @@ export type AlertPublic = {
     alert_state?: AlertState;
     alert_is_suppressed_by?: number | null;
     alert_id: number;
+    zone: ZonePublic;
+    event: EventPublic;
     alert_created_at: string;
 };
 
@@ -66,7 +68,9 @@ export type EventPublic = {
     event_severity?: EventSeverity;
     event_id: number;
     earthquake_id: number;
+    earthquake: EarthquakePublic;
     zone_id: number;
+    zone: ZonePublic;
     event_created_at: string;
 };
 
@@ -100,6 +104,8 @@ export type ReportPublic = {
     report_factory_zone?: number | null;
     report_reported_at: string;
     user_id?: number | null;
+    user?: UserPublic | null;
+    alert?: AlertPublic | null;
     report_id: number;
     report_created_at: string;
 };

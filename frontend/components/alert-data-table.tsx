@@ -213,11 +213,11 @@ export function ColumnDefinitionHandler({
     },
     {
       accessorKey: "zone_id",
-      header: "Zone ID",
+      header: "Zone",
       cell: ({ row }) => (
         <div className="w-32">
           <Badge variant="outline" className="text-muted-foreground px-1.5">
-            {row.original.zone_id || "-"}
+            {row.original.zone?.zone_name || "-"}
           </Badge>
         </div>
       ),
@@ -691,12 +691,12 @@ function TableCellViewer({
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <Label htmlFor="zone_id">Zone ID</Label>
+              <Label htmlFor="zone_id">Zone</Label>
               <div
                 id="zone_id"
                 className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
               >
-                {item.zone_id || "-"}
+                {item.zone?.zone_name || "-"}
               </div>
             </div>
           </div>
