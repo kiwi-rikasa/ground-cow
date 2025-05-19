@@ -33,7 +33,7 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Init database and backend
+      - name: Build image and start container
         run: |
           cd ..
           docker compose down -v
@@ -42,7 +42,7 @@ jobs:
       - name: Verify application starts
         run: |
           sleep 5
-          curl -s http://localhost:8000/ || { echo "FastAPI endpoint failed"; exit 1; }
+          curl -s http://localhost:8000/ || { echo "Backend endpoint failed"; exit 1; }
 
       - run: docker compose down -v
 
@@ -60,7 +60,7 @@ jobs:
         run: |
           cd ..
           touch .env
-          echo "${{ secrets.ENV_FILE }}" > .env
+          cat .env.example > .env
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -71,7 +71,8 @@ jobs:
         run: bun install
 
       - name: Build frontend
-        run: bun run build
+        run: |
+          bun run build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -79,3 +80,34 @@ jobs:
           name: frontend-build
           path: ./frontend/out
           retention-days: 7
+
+  app-build:
+    name: App Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up env
+        run: |
+          cd ..
+          touch .env
+          cat .env.example > .env
+
+      - name: Build image and start container
+        run: |
+          cd ..
+          docker compose down -v
+          docker compose --profile app up --build -d
+
+      - name: Verify application
+        run: |
+          sleep 5
+          curl -s http://localhost:8000/ || { echo "Backend endpoint failed"; exit 1; }
+          curl -s http://localhost:8081/ || { echo "PG Web endpoint failed"; exit 1; }
+          curl -s http://localhost:3000/ || { echo "Frontend endpoint failed"; exit 1; }
+
+      - run: docker compose down -v
