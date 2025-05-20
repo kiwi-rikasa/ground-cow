@@ -3,6 +3,7 @@ import { ZoneSummaryCards } from "./ZoneSummaryCards";
 import { ZoneEventTrendChart } from "./ZoneEventTrendChart";
 import { ZoneHistograms } from "./ZoneHistograms";
 import { ZoneFilter } from "./ZoneFilter";
+import { rangeOptions } from "../utils";
 
 const zoneOptions = [
   { id: "all", label: "全部廠區" },
@@ -10,21 +11,17 @@ const zoneOptions = [
   { id: 2, label: "南倉" },
   { id: 3, label: "東辦" },
 ];
-const rangeOptions = [
-  { value: "7", label: "最近 7 天" },
-  { value: "30", label: "最近 30 天" },
-  { value: "90", label: "最近 90 天" },
-];
 
 export function ZoneView() {
   const [selectedZone, setSelectedZone] = React.useState<string>("all");
-  const [selectedRange, setSelectedRange] = React.useState<string>("30");
+  const [selectedRange, setSelectedRange] = React.useState<number>(
+    rangeOptions[rangeOptions.length - 1].value
+  );
 
   return (
     <>
       <ZoneFilter
         zoneOptions={zoneOptions}
-        rangeOptions={rangeOptions}
         selectedZone={selectedZone}
         setSelectedZone={setSelectedZone}
         selectedRange={selectedRange}

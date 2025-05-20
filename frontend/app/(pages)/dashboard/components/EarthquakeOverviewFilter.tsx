@@ -9,11 +9,11 @@ import {
 import { rangeOptions } from "../utils";
 
 interface EarthquakesFilterProps {
-  selectedRange: string;
-  setSelectedRange: (range: string) => void;
+  selectedRange: number;
+  setSelectedRange: (range: number) => void;
 }
 
-export function EarthquakeFilter({
+export function EarthquakeOverviewFilter({
   selectedRange,
   setSelectedRange,
 }: EarthquakesFilterProps) {
@@ -22,13 +22,16 @@ export function EarthquakeFilter({
       <label className="block text-sm font-medium text-gray-700">
         時間區間
       </label>
-      <Select value={selectedRange} onValueChange={setSelectedRange}>
+      <Select
+        value={String(selectedRange)}
+        onValueChange={(value) => setSelectedRange(Number(value))}
+      >
         <SelectTrigger className="w-[140px]">
           <SelectValue placeholder="選擇區間" />
         </SelectTrigger>
         <SelectContent>
           {rangeOptions.map((r) => (
-            <SelectItem key={r.value} value={r.value}>
+            <SelectItem key={r.value} value={String(r.value)}>
               {r.label}
             </SelectItem>
           ))}

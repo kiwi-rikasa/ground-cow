@@ -21,7 +21,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { EarthquakeDetailFilter } from "./EarthquakeDetailFilter";
-import { EarthquakeFilter } from "./EarthquakeFilter";
+import { EarthquakeOverviewFilter } from "./EarthquakeOverviewFilter";
 import { rangeOptions } from "../utils";
 
 // Mock earthquake list
@@ -88,21 +88,21 @@ const progressData = [
 ];
 
 export function EarthquakeView({
-  isEarthquakeDetail = false,
+  isEarthquakeOverview = true,
 }: {
-  isEarthquakeDetail?: boolean;
+  isEarthquakeOverview?: boolean;
 }) {
   const [selectedEq, setSelectedEq] = React.useState(earthquakeList[0].id);
   const [selectedRange, setSelectedRange] = React.useState(
-    rangeOptions[0].value
+    rangeOptions[rangeOptions.length - 1].value
   );
   const summary = summaryMap[String(selectedEq)];
 
   return (
     <div className="flex flex-col gap-6">
       {/* Filter */}
-      {!isEarthquakeDetail ? (
-        <EarthquakeFilter
+      {isEarthquakeOverview ? (
+        <EarthquakeOverviewFilter
           selectedRange={selectedRange}
           setSelectedRange={setSelectedRange}
         />

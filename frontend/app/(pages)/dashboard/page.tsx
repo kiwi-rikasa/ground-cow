@@ -50,7 +50,7 @@ export default function Page() {
                 廠區視圖
               </TabsTrigger>
               <TabsTrigger
-                value="earthquake"
+                value="earthquakeOverview"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-2 text-base font-medium transition-colors"
               >
                 地震總覽
@@ -66,11 +66,11 @@ export default function Page() {
               <TabsContent value="zone">
                 <ZoneView />
               </TabsContent>
-              <TabsContent value="earthquake">
-                <EarthquakeView isEarthquakeDetail={false} />
+              <TabsContent value="earthquakeOverview">
+                <EarthquakeView isEarthquakeOverview />
               </TabsContent>
               <TabsContent value="earthquakeDetail">
-                <EarthquakeView isEarthquakeDetail />
+                <EarthquakeView isEarthquakeOverview={false} />
               </TabsContent>
             </div>
           </Tabs>
