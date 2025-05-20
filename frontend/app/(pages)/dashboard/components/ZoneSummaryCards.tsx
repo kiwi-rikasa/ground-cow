@@ -5,14 +5,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export function ZoneSummaryCards() {
+interface ZoneStats {
+  totalEvents: number;
+  alertActivationRate: number;
+  damageRate: number;
+  alertCompletionRate: number;
+  alertSuppressionRate: number;
+  avgResponseTime: string;
+}
+
+interface ZoneSummaryCardsProps {
+  stats: ZoneStats;
+}
+
+export function ZoneSummaryCards({ stats }: ZoneSummaryCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-rows-6 sm:grid-rows-3 lg:grid-rows-2 gap-4 mb-6">
       <Card>
         <CardHeader className="relative">
           <CardDescription>Total event count</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            123
+            {stats.totalEvents}
           </CardTitle>
         </CardHeader>
       </Card>
@@ -20,7 +33,7 @@ export function ZoneSummaryCards() {
         <CardHeader className="relative">
           <CardDescription>啟動戰情 %</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            80%
+            {stats.alertActivationRate}%
           </CardTitle>
         </CardHeader>
       </Card>
@@ -28,7 +41,7 @@ export function ZoneSummaryCards() {
         <CardHeader className="relative">
           <CardDescription>有損傷 %</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            12%
+            {stats.damageRate}%
           </CardTitle>
         </CardHeader>
       </Card>
@@ -36,7 +49,7 @@ export function ZoneSummaryCards() {
         <CardHeader className="relative">
           <CardDescription>alert 完成 %</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            95%
+            {stats.alertCompletionRate}%
           </CardTitle>
         </CardHeader>
       </Card>
@@ -44,7 +57,7 @@ export function ZoneSummaryCards() {
         <CardHeader className="relative">
           <CardDescription>alert 抑制 %</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            5%
+            {stats.alertSuppressionRate}%
           </CardTitle>
         </CardHeader>
       </Card>
@@ -52,7 +65,7 @@ export function ZoneSummaryCards() {
         <CardHeader className="relative">
           <CardDescription>平均回報時間</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            2m 30s
+            {stats.avgResponseTime}
           </CardTitle>
         </CardHeader>
       </Card>
