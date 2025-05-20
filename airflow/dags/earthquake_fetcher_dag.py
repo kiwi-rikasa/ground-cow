@@ -6,21 +6,19 @@ from itertools import product
 from airflow.decorators import dag, task
 from airflow.models import Variable
 
-from utils.parse_event import parse_event
-from utils.save_event import save_event
-
 from utils.parse_alert import check_suppression
 from utils.save_alert import save_alert
 
 from src.core.zone import Zone
 from src.core.equake import Earthquake
-from src.service.zone_service import provide_zones
 from src.service.equake_service import (
     fetch_earthquakes as _fetch_earthquakes,
     save_earthquake,
     get_earthquake_ids,
     set_earthquake_ids,
 )
+from src.service.event_service import parse_event, save_event
+from src.service.zone_service import provide_zones
 
 
 @dag(
@@ -76,10 +74,10 @@ def earthquake_fetcher_dag():
         raw_events = list(product(earthquakes, [zone]))
 
         # For each earthquake...
-        for raw_event in raw_events:
+        for earthquake, zone in raw_events:
             # ========== Event ===========
             # Build the event
-            event = parse_event(raw_event)
+            event = parse_event(earthquake, zone)
 
             if not event:
                 continue
@@ -105,7 +103,7 @@ def earthquake_fetcher_dag():
             alert_should_suppress = (
                 check_suppression(
                     currTime=alert_time,
-                    currSeverity=event.get("severity"),
+                    currSeverity=str(event.severity),
                     prevTime=last_unsuppressed_alert.get("timestamp"),
                     prevSeverity=last_unsuppressed_alert.get("severity"),
                     interval=suppression_interval,
@@ -137,7 +135,7 @@ def earthquake_fetcher_dag():
                     {
                         "alert_id": db_alert_id,
                         "timestamp": alert_time,
-                        "severity": event.get("severity"),
+                        "severity": str(event.severity),
                     },
                     serialize_json=True,
                 )
