@@ -26,12 +26,11 @@ import {
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
+  IconCircleCheckFilled,
   IconDotsVertical,
   IconGripVertical,
   IconLayoutColumns,
-  IconAlertTriangleFilled,
-  IconCheck,
-  IconX,
+  IconXboxXFilled,
 } from "@tabler/icons-react";
 import {
   ColumnDef,
@@ -92,7 +91,15 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
-import { AlertPublic } from "@/app/client/types.gen";
+import { ReportPublic } from "@/app/client/types.gen";
+import {
+  updateReportReportReportIdPatch,
+  getReportReportReportIdGet,
+  deleteReportReportReportIdDelete,
+} from "@/app/client/";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -114,17 +121,19 @@ function DragHandle({ id }: { id: number }) {
 }
 
 interface ColumnDefinitionHandlerProps {
-  handleSelectedAlert: (report: Row<AlertPublic>) => void;
+  handleSelectedReport: (report: Row<ReportPublic>) => void;
+  handleDeletion: (report: Row<ReportPublic>) => void;
 }
 
 export function ColumnDefinitionHandler({
-  handleSelectedAlert,
-}: ColumnDefinitionHandlerProps): ColumnDef<AlertPublic>[] {
-  const columns: ColumnDef<AlertPublic>[] = [
+  handleSelectedReport,
+  handleDeletion,
+}: ColumnDefinitionHandlerProps): ColumnDef<ReportPublic>[] {
+  const columns: ColumnDef<ReportPublic>[] = [
     {
       id: "drag",
       header: () => null,
-      cell: ({ row }) => <DragHandle id={row.original.alert_id} />,
+      cell: ({ row }) => <DragHandle id={row.original.report_id} />,
     },
     {
       id: "select",
@@ -157,16 +166,16 @@ export function ColumnDefinitionHandler({
       enableHiding: false,
     },
     {
-      accessorKey: "alert_id",
-      header: "Alert ID",
+      accessorKey: "report_id",
+      header: "ID",
       cell: ({ row }) => {
         return (
           <Button
             variant="link"
             className="text-foreground w-fit px-0 text-left cursor-pointer"
-            onClick={() => handleSelectedAlert(row)}
+            onClick={() => handleSelectedReport(row)}
           >
-            {row.original.alert_id}
+            {row.original.report_id}
           </Button>
         );
       },
@@ -177,58 +186,73 @@ export function ColumnDefinitionHandler({
       },
     },
     {
-      accessorKey: "alert_state",
-      header: "State",
+      accessorKey: "report_action_flag",
+      header: "Action",
       cell: ({ row }) => (
         <div className="w-32">
           <Badge variant="outline" className="text-muted-foreground px-1.5">
-            {row.original.alert_state === "active" ? (
-              <IconAlertTriangleFilled
-                className="fill-amber-500 dark:fill-amber-400"
-                role="icon"
-              />
-            ) : row.original.alert_state === "resolved" ? (
-              <IconCheck
+            {row.original.report_action_flag ? (
+              <IconCircleCheckFilled
                 className="fill-green-500 dark:fill-green-400"
                 role="icon"
               />
             ) : (
-              <IconX className="fill-red-500 dark:fill-red-400" role="icon" />
+              <IconXboxXFilled
+                className="fill-red-500 dark:fill-red-400"
+                role="icon"
+              />
             )}
-            {row.original.alert_state}
+            {row.original.report_action_flag ? "True" : "False"}
           </Badge>
         </div>
       ),
     },
     {
-      accessorKey: "event_id",
-      header: "Event ID",
+      accessorKey: "report_damage_flag",
+      header: "Damage",
       cell: ({ row }) => (
         <div className="w-32">
           <Badge variant="outline" className="text-muted-foreground px-1.5">
-            {row.original.event_id || "-"}
+            {row.original.report_damage_flag ? "True" : "False"}
           </Badge>
         </div>
       ),
     },
     {
-      accessorKey: "zone_id",
-      header: "Zone",
+      accessorKey: "report_factory_zone",
+      header: "Factory Zone",
       cell: ({ row }) => (
         <div className="w-32">
           <Badge variant="outline" className="text-muted-foreground px-1.5">
-            {row.original.zone?.zone_name || "-"}
+            {row.original.alert?.zone?.zone_name ?? "N/A"}
           </Badge>
         </div>
       ),
     },
     {
-      accessorKey: "alert_created_at",
+      accessorKey: "report_reported_at",
+      header: "Reported At",
+      cell: ({ row }) => {
+        const formattedTime = format(
+          new Date(row.original.report_reported_at),
+          "yyyy-MM-dd HH:mm:ss"
+        );
+        return (
+          <div className="w-48">
+            <span>{formattedTime}</span>
+          </div>
+        );
+      },
+      enableHiding: true,
+    },
+    {
+      accessorKey: "report_created_at",
       header: "Created At",
       cell: ({ row }) => {
-        const formattedTime = row.original.alert_created_at
-          ? format(row.original.alert_created_at, "yyyy-MM-dd HH:mm:ss")
-          : "-";
+        const formattedTime = format(
+          new Date(row.original.report_created_at),
+          "yyyy-MM-dd HH:mm:ss"
+        );
         return (
           <div className="w-48">
             <span>{formattedTime}</span>
@@ -238,30 +262,15 @@ export function ColumnDefinitionHandler({
       enableHiding: true,
     },
     {
-      accessorKey: "alert_alert_time",
-      header: "Alert Time",
+      accessorKey: "user",
+      header: "User",
       cell: ({ row }) => {
-        const formattedTime = row.original.alert_alert_time
-          ? format(row.original.alert_alert_time, "yyyy-MM-dd HH:mm:ss")
-          : "-";
         return (
-          <div className="w-48">
-            <span>{formattedTime}</span>
+          <div className="w-32">
+            {row.original.user?.user_name ? row.original.user?.user_name : "-"}
           </div>
         );
       },
-      enableHiding: true,
-    },
-    {
-      accessorKey: "alert_is_suppressed_by",
-      header: "Suppressed By",
-      cell: ({ row }) => (
-        <div className="w-32">
-          <Badge variant="outline" className="text-muted-foreground px-1.5">
-            {row.original.alert_is_suppressed_by || "-"}
-          </Badge>
-        </div>
-      ),
       enableHiding: true,
     },
     {
@@ -279,13 +288,17 @@ export function ColumnDefinitionHandler({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem onClick={() => handleSelectedAlert(row)}>
+            <DropdownMenuItem onClick={() => handleSelectedReport(row)}>
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem>View Event</DropdownMenuItem>
-            <DropdownMenuItem>Suppress</DropdownMenuItem>
+            <DropdownMenuItem>View Alerts</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => handleDeletion(row)}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -294,16 +307,9 @@ export function ColumnDefinitionHandler({
   return columns;
 }
 
-function DraggableRow({
-  row,
-  index,
-}: {
-  row: Row<AlertPublic>;
-  index: number;
-}) {
-  const rowId = row.id || `row-${index}`;
+function DraggableRow({ row }: { row: Row<ReportPublic> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: rowId,
+    id: row.original.report_id,
   });
 
   return (
@@ -318,7 +324,7 @@ function DraggableRow({
       }}
     >
       {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id || `cell-${row.id}-${cell.column.id}`}>
+        <TableCell key={cell.id}>
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </TableCell>
       ))}
@@ -326,13 +332,13 @@ function DraggableRow({
   );
 }
 
-export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
-  const [data, setData] = React.useState(() =>
-    initialData.map((item, index) => ({
-      ...item,
-      id: item.alert_id || index + 1,
-    }))
-  );
+export function ReportDataTable({
+  data,
+  setData,
+}: {
+  data: ReportPublic[];
+  setData: React.Dispatch<React.SetStateAction<ReportPublic[]>>;
+}) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -344,8 +350,9 @@ export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [selectedAlert, setSelectedAlert] =
-    React.useState<Row<AlertPublic> | null>(null);
+
+  const [selectedReport, setSelectedReport] =
+    React.useState<Row<ReportPublic> | null>(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const sortableId = React.useId();
@@ -356,16 +363,34 @@ export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
   );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }, index) => id?.toString() || `item-${index}`),
+    () => data?.map(({ report_id }) => report_id) || [],
     [data]
   );
 
-  function handleSelectedAlert(report: Row<AlertPublic>) {
-    setSelectedAlert(report);
+  function handleSelectedReport(report: Row<ReportPublic>) {
+    setSelectedReport(report);
     setDrawerOpen(true);
   }
 
-  const columns = ColumnDefinitionHandler({ handleSelectedAlert });
+  const handleDeletion = async (report: Row<ReportPublic>) => {
+    try {
+      await deleteReportReportReportIdDelete({
+        path: {
+          report_id: report.original.report_id,
+        },
+      });
+      setData((prev) =>
+        prev.filter((item) => item.report_id !== report.original.report_id)
+      );
+    } catch (error) {
+      console.error("Report deletion failed", error);
+    }
+  };
+
+  const columns = ColumnDefinitionHandler({
+    handleSelectedReport,
+    handleDeletion,
+  });
 
   const table = useReactTable({
     data,
@@ -377,7 +402,7 @@ export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
       columnFilters,
       pagination,
     },
-    getRowId: (row, index) => row.alert_id?.toString() || `row-${index}`,
+    getRowId: (row) => row.report_id.toString(),
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -395,11 +420,9 @@ export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
-        return arrayMove(data, oldIndex, newIndex);
-      });
+      const oldIndex = dataIds.indexOf(active.id);
+      const newIndex = dataIds.indexOf(over.id);
+      setData(arrayMove([...data], oldIndex, newIndex));
     }
   }
 
@@ -412,12 +435,12 @@ export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
         <div className="flex items-center justify-between px-4 lg:px-6">
           <div className="flex items-center gap-2">
             <Input
-              placeholder="Search alerts..."
+              placeholder="Search reports..."
               value={
-                (table.getColumn("alert_id")?.getFilterValue() as string) ?? ""
+                (table.getColumn("report_id")?.getFilterValue() as string) ?? ""
               }
               onChange={(event) =>
-                table.getColumn("alert_id")?.setFilterValue(event.target.value)
+                table.getColumn("report_id")?.setFilterValue(event.target.value)
               }
               className="h-8 w-[150px] lg:w-[250px]"
             />
@@ -499,12 +522,8 @@ export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
                       items={dataIds}
                       strategy={verticalListSortingStrategy}
                     >
-                      {table.getRowModel().rows.map((row, index) => (
-                        <DraggableRow
-                          key={row.id || `unique-row-${index}`}
-                          row={row}
-                          index={index}
-                        />
+                      {table.getRowModel().rows.map((row) => (
+                        <DraggableRow key={row.id} row={row} />
                       ))}
                     </SortableContext>
                   ) : (
@@ -607,15 +626,34 @@ export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
             </div>
           </div>
         </TabsContent>
+        <TabsContent
+          value="past-performance"
+          className="flex flex-col px-4 lg:px-6"
+        >
+          <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
+        </TabsContent>
+        <TabsContent
+          value="key-personnel"
+          className="flex flex-col px-4 lg:px-6"
+        >
+          <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
+        </TabsContent>
+        <TabsContent
+          value="focus-documents"
+          className="flex flex-col px-4 lg:px-6"
+        >
+          <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
+        </TabsContent>
       </Tabs>
-      {selectedAlert && (
+      {selectedReport && (
         <TableCellViewer
-          item={selectedAlert.original}
+          item={selectedReport.original}
           open={drawerOpen}
           onOpenChange={(open) => {
             setDrawerOpen(open);
-            if (!open) setSelectedAlert(null);
+            if (!open) setSelectedReport(null);
           }}
+          setData={setData}
         />
       )}
     </>
@@ -626,12 +664,75 @@ function TableCellViewer({
   item,
   open,
   onOpenChange,
+  setData,
 }: {
-  item: AlertPublic;
+  item: ReportPublic;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  setData: React.Dispatch<React.SetStateAction<ReportPublic[]>>;
 }) {
   const isMobile = useIsMobile();
+
+  const [actionFlag, setActionFlag] = React.useState(item.report_action_flag);
+  const [damageFlag, setDamageFlag] = React.useState(item.report_damage_flag);
+  const [factoryZone, setFactoryZone] = React.useState(
+    item.report_factory_zone
+  );
+  const [isAnimatingIn, setIsAnimatingIn] = React.useState(false);
+  const [alert, setAlert] = React.useState<{
+    type: "success" | "error";
+    message: string;
+    visible: boolean;
+  }>({ type: "success", message: "", visible: false });
+
+  const handleUpdate = async () => {
+    try {
+      await updateReportReportReportIdPatch({
+        body: {
+          report_action_flag: actionFlag,
+          report_damage_flag: damageFlag,
+          report_factory_zone: factoryZone,
+        },
+        path: {
+          report_id: item.report_id,
+        },
+      });
+
+      const res = await getReportReportReportIdGet({
+        path: { report_id: item.report_id },
+      });
+
+      const updatedReport = res.data;
+      if (!updatedReport) return;
+
+      setData((prev) =>
+        prev.map((report) =>
+          report.report_id === updatedReport.report_id ? updatedReport : report
+        )
+      );
+
+      setAlert({
+        type: "success",
+        message: "The report was updated successfully.",
+        visible: true,
+      });
+
+      setIsAnimatingIn(true);
+      setTimeout(() => setIsAnimatingIn(false), 3000);
+      setTimeout(() => setAlert((prev) => ({ ...prev, visible: false })), 3300);
+    } catch (error) {
+      console.error("Report update failed", error);
+      setAlert({
+        type: "error",
+        message: "Failed to update the report.",
+        visible: true,
+      });
+
+      setIsAnimatingIn(true);
+      setTimeout(() => setIsAnimatingIn(false), 3000);
+      setTimeout(() => setAlert((prev) => ({ ...prev, visible: false })), 3300);
+    }
+  };
 
   return (
     <Drawer
@@ -644,91 +745,154 @@ function TableCellViewer({
           variant="link"
           className="text-foreground w-fit px-0 text-left cursor-pointer"
         >
-          {item.alert_id}
+          {item.report_id}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>Alert {item.alert_id}</DrawerTitle>
+          <DrawerTitle>Report #{item.report_id}</DrawerTitle>
           <DrawerDescription>
-            Alert details and related information
+            Please provide the detailed report information.
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          <Separator />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="alert_created_at">Created At</Label>
-              <div
-                id="alert_created_at"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.alert_created_at
-                  ? format(item.alert_created_at, "yyyy-MM-dd HH:mm:ss")
-                  : "-"}
+          {!isMobile && (
+            <>
+              <Separator />
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="reportedAt">Reported At</Label>
+                  <div
+                    id="reportedAt"
+                    className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
+                  >
+                    {format(
+                      new Date(item.report_reported_at),
+                      "yyyy-MM-dd HH:mm:ss"
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="createdAt">Created At</Label>
+                  <div
+                    id="createdAt"
+                    className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
+                  >
+                    {format(
+                      new Date(item.report_created_at),
+                      "yyyy-MM-dd HH:mm:ss"
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="userId">User ID</Label>
+                  <div
+                    id="userId"
+                    className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
+                  >
+                    {item.user_id ? item.user_id : "N/A"}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+          <form className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="actionFlag">Action Flag</Label>
+                <Select
+                  value={actionFlag ? "true" : "false"}
+                  onValueChange={(value) => setActionFlag(value === "true")}
+                >
+                  <SelectTrigger
+                    id="actionFlag"
+                    className="w-full cursor-pointer"
+                  >
+                    <SelectValue placeholder="Select a value" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true" className="cursor-pointer">
+                      True
+                    </SelectItem>
+                    <SelectItem value="false" className="cursor-pointer">
+                      False
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="damageFlag">Damage Flag</Label>
+                <Select
+                  value={damageFlag ? "true" : "false"}
+                  onValueChange={(value) => setDamageFlag(value === "true")}
+                >
+                  <SelectTrigger
+                    id="damageFlag"
+                    className="w-full cursor-pointer"
+                  >
+                    <SelectValue placeholder="Select a value" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true" className="cursor-pointer">
+                      True
+                    </SelectItem>
+                    <SelectItem value="false" className="cursor-pointer">
+                      False
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="alert_alert_time">Alert Time</Label>
-              <div
-                id="alert_alert_time"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.alert_alert_time
-                  ? format(item.alert_alert_time, "yyyy-MM-dd HH:mm:ss")
-                  : "-"}
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="factoryZone">Factory Zone</Label>
+                <Input
+                  id="factoryZone"
+                  type="number"
+                  min={0}
+                  value={factoryZone?.toString() || ""}
+                  onChange={(e) => setFactoryZone(Number(e.target.value))}
+                />
               </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="event_id">Event ID</Label>
-              <div
-                id="event_id"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.event_id || "-"}
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="descriptions">Additional Notes</Label>
+                <Textarea id="descriptions" defaultValue={""} />
               </div>
             </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="zone_id">Zone</Label>
-              <div
-                id="zone_id"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.zone?.zone_name || "-"}
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="attachments">Attachments</Label>
+                <Input id="attachments" type="file" />
               </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="alert_is_suppressed_by">Suppressed By</Label>
-              <div
-                id="alert_is_suppressed_by"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.alert_is_suppressed_by || "Not suppressed"}
-              </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="alert_state">State</Label>
-              <div
-                id="alert_state"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.alert_state || "-"}
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea id="notes" defaultValue={""} />
-            </div>
-          </div>
+          </form>
         </div>
+        {alert.visible && (
+          <Alert
+            className={cn(
+              "fixed top-4 right-4 z-50 w-80 border shadow-lg rounded-md bg-white dark:bg-zinc-900 p-4",
+              isAnimatingIn
+                ? "animate-in fade-in slide-in-from-right duration-300"
+                : "animate-out fade-out slide-out-to-right duration-300"
+            )}
+          >
+            <Terminal className="h-4 w-4" />
+            <AlertTitle>
+              {alert.type === "error" ? "Error!" : "Success!"}
+            </AlertTitle>
+            <AlertDescription>{alert.message}</AlertDescription>
+          </Alert>
+        )}
         <DrawerFooter>
-          <Button className="cursor-pointer">Update</Button>
+          <Button className="cursor-pointer" onClick={handleUpdate}>
+            Update
+          </Button>
           <DrawerClose asChild>
             <Button className="cursor-pointer" variant="outline">
               Close

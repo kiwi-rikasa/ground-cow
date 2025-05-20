@@ -3,7 +3,7 @@
 import { LoginForm } from "@/components/login-form";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
-import { UserDataTable } from "@/components/user-data-table";
+import { UserDataTable } from "@/components/table/user-data-table";
 import {
   Card,
   CardContent,

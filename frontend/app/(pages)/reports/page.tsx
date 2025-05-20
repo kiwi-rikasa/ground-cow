@@ -1,5 +1,5 @@
 "use client";
-import { ReportDataTable } from "@/components/report-data-table";
+import { ReportDataTable } from "@/components/table/report-data-table";
 import { LoginForm } from "@/components/login-form";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState, useRef } from "react";

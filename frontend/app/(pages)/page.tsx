@@ -1,5 +1,5 @@
 "use client";
-import { AlertDataTable } from "@/components/alert-data-table";
+import { AlertDataTable } from "@/components/table/alert-data-table";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 
