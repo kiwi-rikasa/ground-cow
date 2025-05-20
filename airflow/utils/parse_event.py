@@ -1,8 +1,10 @@
 from typing import Dict, Tuple
 
 from src.core.zone import Zone
+from src.core.equake import Earthquake
 
-def parse_event(data: Tuple[dict, Zone]) -> Dict[str, str]:
+
+def parse_event(data: Tuple[Earthquake, Zone]) -> Dict[str, str]:
     """
     Parses the event data from the given tuple.
 
@@ -11,17 +13,17 @@ def parse_event(data: Tuple[dict, Zone]) -> Dict[str, str]:
     """
     earthquake, zone = data
 
-    stations = earthquake.get("stations", [])
+    stations = earthquake.stations
     region = zone.regions
 
-    station = next((s for s in stations if s.get("id") == region), None)
+    station = next((s for s in stations if s.id == region), None)
 
-    magnitude = earthquake.get("magnitude", 0.0)
-    intensity = station.get("intensity", 0.0) if station else 0.0
+    magnitude = earthquake.magnitude
+    intensity = station.intensity if station else 0.0
     severity = determine_severity(magnitude, intensity)
 
     event = {
-        "earthquake_id": earthquake.get("id"),
+        "earthquake_id": earthquake.id,
         "zone_id": zone.id,
         "intensity": intensity,
         "severity": severity,

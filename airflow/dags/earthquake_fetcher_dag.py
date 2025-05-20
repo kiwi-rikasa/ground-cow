@@ -6,9 +6,6 @@ from itertools import product
 from airflow.decorators import dag, task
 from airflow.models import Variable
 
-from utils.fetch_earthquake import fetch_earthquakes as _fetch_earthquakes
-from utils.save_earthquake import save_earthquake
-
 from utils.parse_event import parse_event
 from utils.save_event import save_event
 
@@ -16,7 +13,14 @@ from utils.parse_alert import check_suppression
 from utils.save_alert import save_alert
 
 from src.core.zone import Zone
+from src.core.equake import Earthquake
 from src.service.zone_service import provide_zones
+from src.service.equake_service import (
+    fetch_earthquakes as _fetch_earthquakes,
+    save_earthquake,
+    get_earthquake_ids,
+    set_earthquake_ids,
+)
 
 
 @dag(
@@ -29,33 +33,24 @@ from src.service.zone_service import provide_zones
 )
 def earthquake_fetcher_dag():
     @task
-    def fetch_earthquakes():
+    def fetch_earthquakes() -> list[Earthquake]:
         earthquakes = _fetch_earthquakes()
+        cached_ids = get_earthquake_ids()
 
-        cached_ids = Variable.get(
-            "earthquake_id_cache", default_var=None, deserialize_json=True
-        )
-
-        # If no cached earthquake IDs, initialize it to current earthquake IDs
+        # Initialize cached earthquake ids if not exists
         if cached_ids is None:
-            current_ids = [e.get("id") for e in earthquakes]
-            Variable.set("earthquake_id_cache", current_ids, serialize_json=True)
+            set_earthquake_ids([e.id for e in earthquakes])
             return []
 
-        new_earthquakes = []
+        # Filter out new earthquakes
+        new_earthquakes = [eq for eq in earthquakes if eq.id not in cached_ids]
 
-        # Check if the earthquake ID already processed
-        for index, earthquakes in enumerate(earthquakes):
-            if earthquakes.get("id") != cached_ids[index]:
-                new_earthquakes.append(earthquakes)
-                cached_ids[index] = earthquakes.get("id")
-
-        # Save the new earthquakes to the database
-        for earthquake in sorted(new_earthquakes, key=lambda x: x.get("timestamp")):
+        # Save the new earthquakes in order of their timestamps to the database
+        for earthquake in sorted(new_earthquakes, key=lambda eq: eq.timestamp):
             save_earthquake(earthquake)
 
-        # Update the variable with the new IDs
-        Variable.set("earthquake_id_cache", cached_ids, serialize_json=True)
+        # Update the earthquake id cache
+        set_earthquake_ids([e.id for e in earthquakes])
 
         return new_earthquakes
 
@@ -65,13 +60,16 @@ def earthquake_fetcher_dag():
         return zones
 
     @task
-    def group_events(earthquakes, zones: list[Zone]):
+    def group_events(
+        earthquakes: list[Earthquake],
+        zones: list[Zone],
+    ) -> list[tuple[Zone, list[Earthquake]]]:
         if not earthquakes:
             return []
         return [(zone, earthquakes) for zone in zones]
 
     @task
-    def process_events(data: tuple[Zone, list[dict]]):
+    def process_events(data: tuple[Zone, list[Earthquake]]) -> None:
         zone, earthquakes = data
         zone_id = zone.id
 
