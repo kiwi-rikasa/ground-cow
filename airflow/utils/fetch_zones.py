@@ -1,7 +1,7 @@
 import requests
 import logging
 
-from utils.config import config
+from src.config import config
 
 BACKEND_HOST = config.BACKEND_HOST
 ZONE_API_URL = f"{BACKEND_HOST}/zone"

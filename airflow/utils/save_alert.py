@@ -2,7 +2,7 @@ import requests
 import logging
 from typing import Dict
 
-from utils.config import config
+from src.config import config
 
 BACKEND_HOST = config.BACKEND_HOST
 ALERT_API_URL = f"{BACKEND_HOST}/alert"

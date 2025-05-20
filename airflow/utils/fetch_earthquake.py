@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import logging
 
-from utils.config import config
+from src.config import config
 from utils.parse_earthquake import EquakeDataParser
 
 log = logging.getLogger(__name__)
