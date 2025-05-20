@@ -20,8 +20,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { EarthquakeDetailFilter } from "./EarthquakeDetailFilter";
 import { EarthquakeFilter } from "./EarthquakeFilter";
-import { EarthquakesFilter } from "./EarthquakesFilter";
+import { rangeOptions } from "../utils";
 
 // Mock earthquake list
 const earthquakeList = [
@@ -86,12 +87,6 @@ const progressData = [
   { zone: "東辦", severity: "low", state: "suppressed" },
 ];
 
-const rangeOptions = [
-  { value: "1d", label: "1 天" },
-  { value: "7d", label: "7 天" },
-  { value: "30d", label: "30 天" },
-];
-
 export function EarthquakeView({
   isEarthquakeDetail = false,
 }: {
@@ -107,13 +102,12 @@ export function EarthquakeView({
     <div className="flex flex-col gap-6">
       {/* Filter */}
       {!isEarthquakeDetail ? (
-        <EarthquakesFilter
-          rangeOptions={rangeOptions}
+        <EarthquakeFilter
           selectedRange={selectedRange}
           setSelectedRange={setSelectedRange}
         />
       ) : (
-        <EarthquakeFilter
+        <EarthquakeDetailFilter
           earthquakeList={earthquakeList}
           selectedEq={selectedEq}
           setSelectedEq={setSelectedEq}
