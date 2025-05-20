@@ -2,24 +2,20 @@ import * as React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ZoneView } from "./ZoneView";
 import { EarthquakeView } from "./EarthquakeView";
-import type {
-  EventPublic,
-  EarthquakePublic,
-  AlertPublic,
-} from "@/app/client/types.gen";
+// import type {
+//   EventPublic,
+//   EarthquakePublic,
+//   AlertPublic,
+// } from "@/app/client/types.gen";
 import { Card } from "@/components/ui/card";
 
-interface DashboardTabsProps {
-  events: EventPublic[];
-  earthquakes: EarthquakePublic[];
-  alerts: AlertPublic[];
-}
+// interface DashboardTabsProps {
+//   events: EventPublic[];
+//   earthquakes: EarthquakePublic[];
+//   alerts: AlertPublic[];
+// }
 
-export function DashboardTabs({
-  events,
-  earthquakes,
-  alerts,
-}: DashboardTabsProps) {
+export function DashboardTabs() {
   return (
     <Card className="p-0 shadow-lg bg-background/80">
       <div className="px-4 pt-4 pb-0 sm:px-8">
@@ -43,11 +39,7 @@ export function DashboardTabs({
               <ZoneView />
             </TabsContent>
             <TabsContent value="earthquake">
-              <EarthquakeView
-                events={events}
-                earthquakes={earthquakes}
-                alerts={alerts}
-              />
+              <EarthquakeView />
             </TabsContent>
           </div>
         </Tabs>

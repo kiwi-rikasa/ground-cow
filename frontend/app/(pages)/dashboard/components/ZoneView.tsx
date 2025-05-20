@@ -11,14 +11,14 @@ const zoneOptions = [
   { id: 3, label: "東辦" },
 ];
 const rangeOptions = [
-  { value: "7d", label: "最近 7 天" },
-  { value: "30d", label: "最近 30 天" },
-  { value: "90d", label: "最近 90 天" },
+  { value: "7", label: "最近 7 天" },
+  { value: "30", label: "最近 30 天" },
+  { value: "90", label: "最近 90 天" },
 ];
 
 export function ZoneView() {
   const [selectedZone, setSelectedZone] = React.useState<string>("all");
-  const [selectedRange, setSelectedRange] = React.useState<string>("30d");
+  const [selectedRange, setSelectedRange] = React.useState<string>("30");
 
   return (
     <>
