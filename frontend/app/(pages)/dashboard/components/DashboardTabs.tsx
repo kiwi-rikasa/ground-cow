@@ -1,21 +1,21 @@
 import * as React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ZoneView } from "./ZoneView";
-import { EarthquakeView } from "./EarthquakeView";
-// import type {
-//   EventPublic,
-//   EarthquakePublic,
-//   AlertPublic,
-// } from "@/app/client/types.gen";
 import { Card } from "@/components/ui/card";
 
-// interface DashboardTabsProps {
-//   events: EventPublic[];
-//   earthquakes: EarthquakePublic[];
-//   alerts: AlertPublic[];
-// }
+interface DashboardTabsProps {
+  // events: EventPublic[];
+  // earthquakes: EarthquakePublic[];
+  // alerts: AlertPublic[];
+  zoneView: React.ReactNode;
+  earthquakeView: React.ReactNode;
+  earthquakesView: React.ReactNode;
+}
 
-export function DashboardTabs() {
+export function DashboardTabs({
+  zoneView,
+  earthquakeView,
+  earthquakesView,
+}: DashboardTabsProps) {
   return (
     <Card className="p-0 shadow-lg bg-background/80">
       <div className="px-4 pt-4 pb-0 sm:px-8">
@@ -31,16 +31,19 @@ export function DashboardTabs() {
               value="earthquake"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-2 text-base font-medium transition-colors"
             >
-              地震視圖
+              地震詳細資料
+            </TabsTrigger>
+            <TabsTrigger
+              value="earthquakes"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-2 text-base font-medium transition-colors"
+            >
+              地震總覽
             </TabsTrigger>
           </TabsList>
           <div className="pb-2 px-1 sm:px-2">
-            <TabsContent value="zone">
-              <ZoneView />
-            </TabsContent>
-            <TabsContent value="earthquake">
-              <EarthquakeView />
-            </TabsContent>
+            <TabsContent value="zone">{zoneView}</TabsContent>
+            <TabsContent value="earthquake">{earthquakeView}</TabsContent>
+            <TabsContent value="earthquakes">{earthquakesView}</TabsContent>
           </div>
         </Tabs>
       </div>

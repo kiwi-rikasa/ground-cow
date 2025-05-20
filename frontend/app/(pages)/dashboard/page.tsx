@@ -11,7 +11,8 @@ import * as React from "react";
 // } from "@/app/client/types.gen";
 // import sampleDataJson from "./sampleData.json";
 import { DashboardTabs } from "./components/DashboardTabs";
-
+import { EarthquakeView } from "./components/EarthquakeView";
+import { ZoneView } from "./components/ZoneView";
 // Type assertion for the imported JSON data
 // const typedSampleData = {
 //   mockEvents: sampleDataJson.mockEvents.map((event) => ({
@@ -38,9 +39,9 @@ export default function Page() {
   return (
     <div className="container mx-auto">
       <DashboardTabs
-      // events={events}
-      // earthquakes={earthquakes}
-      // alerts={alerts}
+        zoneView={<ZoneView />}
+        earthquakeView={<EarthquakeView isEarthquakeDetail />}
+        earthquakesView={<EarthquakeView isEarthquakeDetail={false} />}
       />
     </div>
   );

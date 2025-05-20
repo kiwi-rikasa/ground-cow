@@ -21,6 +21,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { EarthquakeFilter } from "./EarthquakeFilter";
+import { EarthquakesFilter } from "./EarthquakesFilter";
 
 // Mock earthquake list
 const earthquakeList = [
@@ -85,18 +86,39 @@ const progressData = [
   { zone: "東辦", severity: "low", state: "suppressed" },
 ];
 
-export function EarthquakeView() {
+const rangeOptions = [
+  { value: "1d", label: "1 天" },
+  { value: "7d", label: "7 天" },
+  { value: "30d", label: "30 天" },
+];
+
+export function EarthquakeView({
+  isEarthquakeDetail = false,
+}: {
+  isEarthquakeDetail?: boolean;
+}) {
   const [selectedEq, setSelectedEq] = React.useState(earthquakeList[0].id);
+  const [selectedRange, setSelectedRange] = React.useState(
+    rangeOptions[0].value
+  );
   const summary = summaryMap[String(selectedEq)];
 
   return (
     <div className="flex flex-col gap-6">
       {/* Filter */}
-      <EarthquakeFilter
-        earthquakeList={earthquakeList}
-        selectedEq={selectedEq}
-        setSelectedEq={setSelectedEq}
-      />
+      {!isEarthquakeDetail ? (
+        <EarthquakesFilter
+          rangeOptions={rangeOptions}
+          selectedRange={selectedRange}
+          setSelectedRange={setSelectedRange}
+        />
+      ) : (
+        <EarthquakeFilter
+          earthquakeList={earthquakeList}
+          selectedEq={selectedEq}
+          setSelectedEq={setSelectedEq}
+        />
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-rows-6 sm:grid-rows-3 lg:grid-rows-2 gap-4">
