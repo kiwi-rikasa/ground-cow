@@ -6,11 +6,10 @@ from itertools import product
 from airflow.decorators import dag, task
 from airflow.models import Variable
 
-from utils.parse_alert import check_suppression
-from utils.save_alert import save_alert
-
-from src.core.zone import Zone
+from src.core.alert import Alert
 from src.core.equake import Earthquake
+from src.core.zone import Zone
+from src.service.alert_service import save_alert, get_open_alert, set_open_alert
 from src.service.equake_service import (
     fetch_earthquakes as _fetch_earthquakes,
     save_earthquake,
@@ -18,7 +17,7 @@ from src.service.equake_service import (
     set_earthquake_ids,
 )
 from src.service.event_service import parse_event, save_event
-from src.service.zone_service import provide_zones
+from src.service.zone_service import get_zones
 
 
 @dag(
@@ -54,7 +53,7 @@ def earthquake_fetcher_dag():
 
     @task
     def load_zones() -> list[Zone]:
-        zones = provide_zones()
+        zones = get_zones()
         return zones
 
     @task
@@ -84,62 +83,37 @@ def earthquake_fetcher_dag():
 
             # Save the event (if exists) to the database
             db_event = save_event(event)
-            db_event_id = db_event.get("event_id")
+            db_event_id = int(db_event.get("event_id"))
 
             # ========== Alert ===========
             # Pre-work: get suppression variables
             suppression_interval = Variable.get(
                 "suppression_interval_cache", default_var=1800, deserialize_json=True
             )
-            last_unsuppressed_alert = Variable.get(
-                f"zone_{zone_id}_last_unsuppressed_alert_cache",
-                default_var=None,
-                deserialize_json=True,
+
+            alert = Alert(
+                event_id=db_event_id,
+                zone_id=zone_id,
+                timestamp=datetime.now().timestamp(),
+                severity=event.severity,
             )
 
-            alert_time = datetime.now().timestamp()
-            # Check if the alert should be suppressed
-            # If there is no last unsuppressed alert, it means this is the first alert, which should not be suppressed
-            alert_should_suppress = (
-                check_suppression(
-                    currTime=alert_time,
-                    currSeverity=str(event.severity),
-                    prevTime=last_unsuppressed_alert.get("timestamp"),
-                    prevSeverity=last_unsuppressed_alert.get("severity"),
-                    interval=suppression_interval,
-                )
-                if last_unsuppressed_alert
+            prev_open_alert = get_open_alert(zone_id)
+            suppress_flag = (
+                alert.should_be_suppressed_by(prev_open_alert, suppression_interval)
+                if prev_open_alert
                 else False
             )
-
-            # Build the alert
-            alert = {
-                "event_id": db_event_id,
-                "zone_id": zone_id,
-                "timestamp": alert_time,
-                "suppressed_by": (
-                    last_unsuppressed_alert.get("alert_id")
-                    if alert_should_suppress
-                    else None
-                ),
-            }
+            if suppress_flag:
+                alert.suppressed_by = int(prev_open_alert.id)
 
             # Save the alert to the database
             db_alert = save_alert(alert)
-            db_alert_id = db_alert.get("alert_id")
+            alert.id = int(db_alert.get("alert_id"))
 
             # If the alert is not suppressed, update the last unsuppressed alert variable
-            if not alert_should_suppress:
-                Variable.set(
-                    f"zone_{zone_id}_last_unsuppressed_alert_cache",
-                    {
-                        "alert_id": db_alert_id,
-                        "timestamp": alert_time,
-                        "severity": str(event.severity),
-                    },
-                    serialize_json=True,
-                )
-
+            if not suppress_flag:
+                set_open_alert(alert)
         return
 
     earthquakes = fetch_earthquakes()
