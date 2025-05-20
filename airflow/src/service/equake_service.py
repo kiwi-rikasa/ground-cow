@@ -1,5 +1,5 @@
 from src.core.equake import Earthquake
-from src.data.equake_cache import (
+from src.cache.equake_cache import (
     fetch_cached_earthquake_ids,
     save_cached_earthquake_ids,
 )

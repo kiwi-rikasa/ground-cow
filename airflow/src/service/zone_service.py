@@ -1,20 +1,21 @@
 import logging
 
 from src.core.zone import Zone
-from src.data.zone_repository import fetch_zones, get_zones
+from src.data.zone_repository import fetch_zones as _fetch_zones
+from src.cache.zone_cache import fetch_cached_zones, save_cached_zones
 
 log = logging.getLogger(__name__)
 
 
-def provide_zones(fresh: bool = False) -> list[Zone]:
-    """
-    Provide zones either from cache or by fetching from the backend.
+def fetch_zones() -> list[Zone]:
+    return _fetch_zones()
 
-    :param fresh: If `True`, fetch zones from the backend regardless of cache.
 
-    :return: A list of Zone objects.
-    """
-    log.info("Providing zones...")
+def get_zones(fresh: bool = False) -> list[Zone]:
     if fresh:
         return fetch_zones()
-    return get_zones()
+    return fetch_cached_zones()
+
+
+def set_zones(zones: list[Zone]) -> None:
+    save_cached_zones(zones)

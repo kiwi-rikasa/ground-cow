@@ -5,7 +5,7 @@ import pendulum
 from airflow.decorators import dag, task
 
 from src.core.zone import Zone
-from src.data.zone_repository import fetch_zones as _fetch_zones, save_zones
+from src.service.zone_service import fetch_zones as _fetch_zones, set_zones
 
 
 @dag(
@@ -24,7 +24,7 @@ def zone_fetcher_dag():
 
     @task
     def cache_zones(zones: list[Zone]) -> None:
-        save_zones(zones)
+        set_zones(zones)
 
     zones = fetch_zones()
     cache_zones(zones)
