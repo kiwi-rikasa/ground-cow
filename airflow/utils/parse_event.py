@@ -1,7 +1,8 @@
 from typing import Dict, Tuple
 
+from src.core.zone import Zone
 
-def parse_event(data: Tuple) -> Dict[str, str]:
+def parse_event(data: Tuple[dict, Zone]) -> Dict[str, str]:
     """
     Parses the event data from the given tuple.
 
@@ -11,7 +12,7 @@ def parse_event(data: Tuple) -> Dict[str, str]:
     earthquake, zone = data
 
     stations = earthquake.get("stations", [])
-    region = zone.get("zone_regions")
+    region = zone.regions
 
     station = next((s for s in stations if s.get("id") == region), None)
 
@@ -21,7 +22,7 @@ def parse_event(data: Tuple) -> Dict[str, str]:
 
     event = {
         "earthquake_id": earthquake.get("id"),
-        "zone_id": zone.get("zone_id"),
+        "zone_id": zone.id,
         "intensity": intensity,
         "severity": severity,
     }

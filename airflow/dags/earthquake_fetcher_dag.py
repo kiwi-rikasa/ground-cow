@@ -15,6 +15,9 @@ from utils.save_event import save_event
 from utils.parse_alert import check_suppression
 from utils.save_alert import save_alert
 
+from src.core.zone import Zone
+from src.service.zone_service import provide_zones
+
 
 @dag(
     dag_id="earthquake_fetcher_dag",
@@ -57,22 +60,20 @@ def earthquake_fetcher_dag():
         return new_earthquakes
 
     @task
-    def load_zones():
-        zones = Variable.get("zone_cache", default_var=[], deserialize_json=True)
-        if not isinstance(zones, list):
-            raise ValueError("Zone pulled from variable is not a list")
+    def load_zones() -> list[Zone]:
+        zones = provide_zones()
         return zones
 
     @task
-    def group_events(earthquakes, zones):
+    def group_events(earthquakes, zones: list[Zone]):
         if not earthquakes:
             return []
         return [(zone, earthquakes) for zone in zones]
 
     @task
-    def process_events(data):
+    def process_events(data: tuple[Zone, list[dict]]):
         zone, earthquakes = data
-        zone_id = zone.get("zone_id")
+        zone_id = zone.id
 
         raw_events = list(product(earthquakes, [zone]))
 
