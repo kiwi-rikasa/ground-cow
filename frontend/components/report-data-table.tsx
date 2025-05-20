@@ -95,6 +95,7 @@ import { ReportPublic } from "@/app/client/types.gen";
 import {
   updateReportReportReportIdPatch,
   getReportReportReportIdGet,
+  deleteReportReportReportIdDelete,
 } from "@/app/client/";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
@@ -121,10 +122,12 @@ function DragHandle({ id }: { id: number }) {
 
 interface ColumnDefinitionHandlerProps {
   handleSelectedReport: (report: Row<ReportPublic>) => void;
+  handleDeletion: (report: Row<ReportPublic>) => void;
 }
 
 export function ColumnDefinitionHandler({
   handleSelectedReport,
+  handleDeletion,
 }: ColumnDefinitionHandlerProps): ColumnDef<ReportPublic>[] {
   const columns: ColumnDef<ReportPublic>[] = [
     {
@@ -302,7 +305,12 @@ export function ColumnDefinitionHandler({
             </DropdownMenuItem>
             <DropdownMenuItem>View Alerts</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => handleDeletion(row)}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -376,7 +384,25 @@ export function ReportDataTable({
     setDrawerOpen(true);
   }
 
-  const columns = ColumnDefinitionHandler({ handleSelectedReport });
+  const handleDeletion = async (report: Row<ReportPublic>) => {
+    try {
+      await deleteReportReportReportIdDelete({
+        path: {
+          report_id: report.original.report_id,
+        },
+      });
+      setData((prev) =>
+        prev.filter((item) => item.report_id !== report.original.report_id)
+      );
+    } catch (error) {
+      console.error("Report deletion failed", error);
+    }
+  };
+
+  const columns = ColumnDefinitionHandler({
+    handleSelectedReport,
+    handleDeletion,
+  });
 
   const table = useReactTable({
     data,
