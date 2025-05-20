@@ -27,15 +27,25 @@ import {
   ReportPublic,
   AlertPublic,
 } from "@/app/client/";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
-export function CreateReportDialog() {
-  const [alertId, setAlertId] = useState(0);
+interface CreateReportDialogProps {
+  initialAlertId?: number;
+  trigger?: React.ReactNode;
+}
+
+export function CreateReportDialog({
+  initialAlertId,
+  trigger,
+}: CreateReportDialogProps) {
+  const [alertId, setAlertId] = useState(initialAlertId || 0);
   const [zoneId, setZoneId] = useState("");
   const [action, setAction] = useState(false);
   const [damage, setDamage] = useState(false);
   const [alertIdError, setAlertIdError] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(
+    initialAlertId?.toString() || ""
+  );
   const [reports, setReports] = useState<ReportPublic[]>([]);
   const [alerts, setAlerts] = useState<AlertPublic[]>([]);
   const dataFetchedRef = useRef(false);
@@ -89,55 +99,66 @@ export function CreateReportDialog() {
     setZoneId("");
   };
 
-  const handleAlertIdChange = (value: string) => {
-    setInputValue(value);
+  const handleAlertIdChange = useCallback(
+    (value: string) => {
+      setInputValue(value);
 
-    if (value.trim() === "") {
-      setAlertId(0);
-      setZoneId("");
-      setAlertIdError(null);
-      return;
+      if (value.trim() === "") {
+        setAlertId(0);
+        setZoneId("");
+        setAlertIdError(null);
+        return;
+      }
+
+      if (!/^\d+$/.test(value)) {
+        setAlertId(0);
+        setZoneId("");
+        setAlertIdError("Please enter a valid number");
+        return;
+      }
+
+      const numericValue = Number(value);
+      setAlertId(numericValue);
+
+      const reportExist = reports.some((r) => r.alert_id === numericValue);
+      const alertExist = alerts.some((a) => a.alert_id === numericValue);
+
+      if (!alertExist) {
+        setAlertIdError("This alert ID doesn't exist");
+        setZoneId("");
+      } else if (reportExist) {
+        setAlertIdError("This alert already has a report.");
+        setZoneId(
+          String(alerts.find((a) => a.alert_id === numericValue)?.zone_id) || ""
+        );
+      } else {
+        setAlertIdError(null);
+        setZoneId(
+          String(alerts.find((a) => a.alert_id === numericValue)?.zone_id) || ""
+        );
+      }
+    },
+    [reports, alerts]
+  );
+
+  useEffect(() => {
+    if (initialAlertId) {
+      handleAlertIdChange(initialAlertId.toString());
     }
-
-    if (!/^\d+$/.test(value)) {
-      setAlertId(0);
-      setZoneId("");
-      setAlertIdError("Please enter a valid number");
-      return;
-    }
-
-    const numericValue = Number(value);
-    setAlertId(numericValue);
-
-    const reportExist = reports.some((r) => r.alert_id === numericValue);
-    const alertExist = alerts.some((a) => a.alert_id === numericValue);
-
-    if (!alertExist) {
-      setAlertIdError("This alert ID doesn't exist");
-      setZoneId("");
-    } else if (reportExist) {
-      setAlertIdError("This alert already has a report.");
-      setZoneId(
-        String(alerts.find((a) => a.alert_id === numericValue)?.zone_id) || ""
-      );
-    } else {
-      setAlertIdError(null);
-      setZoneId(
-        String(alerts.find((a) => a.alert_id === numericValue)?.zone_id) || ""
-      );
-    }
-  };
+  }, [handleAlertIdChange, initialAlertId]);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <SidebarMenuButton
-          tooltip="Quick Create"
-          className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear cursor-pointer"
-        >
-          <IconCirclePlusFilled />
-          <span>Create Report</span>
-        </SidebarMenuButton>
+        {trigger || (
+          <SidebarMenuButton
+            tooltip="Quick Create"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear cursor-pointer"
+          >
+            <IconCirclePlusFilled />
+            <span>Create Report</span>
+          </SidebarMenuButton>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

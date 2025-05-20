@@ -61,7 +61,6 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import {
   DropdownMenu,
@@ -93,6 +92,7 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { AlertPublic } from "@/app/client/types.gen";
+import { CreateReportDialog } from "@/components/create-report-dialog";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -624,14 +624,6 @@ function TableCellViewer({
       onOpenChange={onOpenChange}
       direction={isMobile ? "bottom" : "right"}
     >
-      <DrawerTrigger asChild>
-        <Button
-          variant="link"
-          className="text-foreground w-fit px-0 text-left cursor-pointer"
-        >
-          {item.alert_id}
-        </Button>
-      </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
           <DrawerTitle>Alert {item.alert_id}</DrawerTitle>
@@ -702,6 +694,10 @@ function TableCellViewer({
           </div>
         </div>
         <DrawerFooter>
+          <CreateReportDialog
+            initialAlertId={item.alert_id}
+            trigger={<Button className="cursor-pointer">Create Report</Button>}
+          />
           <Button className="cursor-pointer">Update</Button>
           <DrawerClose asChild>
             <Button className="cursor-pointer" variant="outline">
