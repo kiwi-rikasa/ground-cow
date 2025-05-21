@@ -10,7 +10,9 @@ class Event:
         zone_id: int,
         intensity: float,
         severity: str | Severity,
+        id: int | None = None,
     ):
+        self.id = id
         self.earthquake_id = int(earthquake_id)
         self.zone_id = int(zone_id)
         self.intensity = float(intensity)
@@ -31,6 +33,7 @@ class Event:
     @classmethod
     def from_dict(cls, data: dict) -> "Event":
         return cls(
+            id=data.get("id"),
             earthquake_id=data.get("earthquake_id"),
             zone_id=data.get("zone_id"),
             intensity=data.get("intensity"),
@@ -39,6 +42,7 @@ class Event:
 
     def to_dict(self) -> dict:
         return {
+            "id": self.id,
             "earthquake_id": self.earthquake_id,
             "zone_id": self.zone_id,
             "intensity": self.intensity,
@@ -63,8 +67,7 @@ class Event:
 
     def __repr__(self):
         return (
-            f"Event(earthquake_id={self.earthquake_id}, "
-            f"zone_id={self.zone_id}, "
-            f"intensity={self.intensity}, "
+            f"Event(id={self.id}, earthquake_id={self.earthquake_id}, "
+            f"zone_id={self.zone_id}, intensity={self.intensity}, "
             f"severity={self.severity})"
         )

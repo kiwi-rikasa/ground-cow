@@ -9,13 +9,13 @@ EVENT_API_URL = f"{config.BACKEND_HOST}/event"
 log = logging.getLogger(__name__)
 
 
-def save_event(event: Event) -> dict:
+def save_event(event: Event) -> tuple[int, dict]:
     """
     Save the event data to the database.
 
     :param event: An Event object containing the event data.
 
-    :return event: A dictionary containing the saved event data.
+    :return: A tuple containing the event id (int) and the saved event data (dict).
     """
     log.info("Saving event to backend...")
     try:
@@ -33,8 +33,9 @@ def save_event(event: Event) -> dict:
         )
         response.raise_for_status()
         result = response.json()
-        log.info(f"Saved event #{result.get('event_id')} successfully.")
-        return result
+        id = int(result.get("event_id"))
+        log.info(f"Saved event #{id} successfully.")
+        return id, result
     except Exception as e:
         log.error(f"Error saving event data: {e}")
         raise

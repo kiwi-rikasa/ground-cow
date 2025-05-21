@@ -9,5 +9,5 @@ def parse_event(earthquake: Earthquake, zone: Zone) -> Event | None:
     return event
 
 
-def save_event(event: Event) -> dict:
+def save_event(event: Event) -> tuple[int, dict]:
     return _save_event(event)

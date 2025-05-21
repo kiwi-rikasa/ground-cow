@@ -3,7 +3,7 @@ from src.cache.alert_cache import fetch_cached_open_alert, save_cached_open_aler
 from src.data.alert_repository import save_alert as _save_alert
 
 
-def save_alert(alert: Alert) -> dict:
+def save_alert(alert: Alert) -> tuple[int, dict]:
     return _save_alert(alert)
 
 

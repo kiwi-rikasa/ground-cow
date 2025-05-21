@@ -43,13 +43,13 @@ def fetch_earthquakes() -> list[Earthquake]:
     return earthquakes
 
 
-def save_earthquake(earthquake: Earthquake) -> dict:
+def save_earthquake(earthquake: Earthquake) -> tuple[int, dict]:
     """
     Save earthquake data to the database via the backend API.
 
     :param earthquake: An Earthquake object to be saved.
 
-    :return: The response from the backend API.
+    :return: A tuple containing the earthquake id (int) and the saved earthquake data (dict).
     """
     log.info(f"Saving earthquake #{earthquake.id} to backend...")
     try:
@@ -68,7 +68,7 @@ def save_earthquake(earthquake: Earthquake) -> dict:
         response.raise_for_status()
         result = response.json()
         log.info(f"Saved earthquake #{earthquake.id} successfully.")
-        return result
+        return earthquake.id, result
     except Exception as e:
         log.error(f"Error saving earthquake data: {e}")
         raise

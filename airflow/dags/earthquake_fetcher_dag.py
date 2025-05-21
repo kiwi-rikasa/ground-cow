@@ -68,7 +68,6 @@ def earthquake_fetcher_dag():
     @task
     def process_events(data: tuple[Zone, list[Earthquake]]) -> None:
         zone, earthquakes = data
-        zone_id = zone.id
 
         raw_events = list(product(earthquakes, [zone]))
 
@@ -82,8 +81,7 @@ def earthquake_fetcher_dag():
                 continue
 
             # Save the event (if exists) to the database
-            db_event = save_event(event)
-            db_event_id = int(db_event.get("event_id"))
+            event_id, _ = save_event(event)
 
             # ========== Alert ===========
             # Pre-work: get suppression variables
@@ -92,13 +90,13 @@ def earthquake_fetcher_dag():
             )
 
             alert = Alert(
-                event_id=db_event_id,
-                zone_id=zone_id,
+                event_id=event_id,
+                zone_id=event.zone_id,
                 timestamp=datetime.now().timestamp(),
                 severity=event.severity,
             )
 
-            prev_open_alert = get_open_alert(zone_id)
+            prev_open_alert = get_open_alert(event.zone_id)
             suppress_flag = (
                 alert.should_be_suppressed_by(prev_open_alert, suppression_interval)
                 if prev_open_alert
@@ -108,8 +106,8 @@ def earthquake_fetcher_dag():
                 alert.suppressed_by = int(prev_open_alert.id)
 
             # Save the alert to the database
-            db_alert = save_alert(alert)
-            alert.id = int(db_alert.get("alert_id"))
+            alert_id, _ = save_alert(alert)
+            alert.id = alert_id
 
             # If the alert is not suppressed, update the last unsuppressed alert variable
             if not suppress_flag:
