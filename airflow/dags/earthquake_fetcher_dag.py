@@ -82,6 +82,7 @@ def earthquake_fetcher_dag():
 
             # Save the event (if exists) to the database
             event_id, _ = save_event(event)
+            event.id = event_id
 
             # ========== Alert ===========
             # Pre-work: get suppression variables
@@ -89,12 +90,7 @@ def earthquake_fetcher_dag():
                 "suppression_interval_cache", default_var=1800, deserialize_json=True
             )
 
-            alert = Alert(
-                event_id=event_id,
-                zone_id=event.zone_id,
-                timestamp=datetime.now().timestamp(),
-                severity=event.severity,
-            )
+            alert = Alert.from_event(event, datetime.now().timestamp())
 
             prev_open_alert = get_open_alert(event.zone_id)
             suppress_flag = (

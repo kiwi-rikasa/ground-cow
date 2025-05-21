@@ -1,3 +1,4 @@
+from src.core.event import Event
 from src.core.severity import Severity
 
 
@@ -17,6 +18,15 @@ class Alert:
         self.timestamp = int(timestamp)
         self.severity = Severity(severity)
         self.suppressed_by = suppressed_by
+
+    @classmethod
+    def from_event(cls, event: Event, timestamp: int) -> "Alert":
+        return cls(
+            event_id=event.id,
+            zone_id=event.zone_id,
+            timestamp=timestamp,
+            severity=event.severity,
+        )
 
     @classmethod
     def from_dict(cls, data: dict) -> "Alert":
