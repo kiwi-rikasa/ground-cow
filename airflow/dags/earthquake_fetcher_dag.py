@@ -1,13 +1,15 @@
 from __future__ import annotations
 import pendulum
+from collections import defaultdict
 from datetime import datetime, timedelta
 from itertools import product
+from typing import TypeAlias
 
-from airflow.decorators import dag, task
-from airflow.models import Variable
+from airflow.decorators import dag, task, task_group
 
 from src.core.alert import Alert
 from src.core.equake import Earthquake
+from src.core.event import Event
 from src.core.zone import Zone
 from src.service.alert_service import save_alert, get_open_alert, set_open_alert
 from src.service.equake_service import (
@@ -17,7 +19,11 @@ from src.service.equake_service import (
     set_earthquake_ids,
 )
 from src.service.event_service import parse_event, save_event
-from src.service.zone_service import get_zones
+from src.service.zone_service import get_zones as _get_zones
+
+
+# Type aliases
+Incident: TypeAlias = tuple[Event, Alert]
 
 
 @dag(
@@ -30,7 +36,7 @@ from src.service.zone_service import get_zones
 )
 def earthquake_fetcher_dag():
     @task
-    def fetch_earthquakes() -> list[Earthquake]:
+    def fetch_and_save_earthquakes() -> list[Earthquake]:
         earthquakes = _fetch_earthquakes()
         cached_ids = get_earthquake_ids()
 
@@ -39,10 +45,8 @@ def earthquake_fetcher_dag():
             set_earthquake_ids([e.id for e in earthquakes])
             return []
 
-        # Filter out new earthquakes
         new_earthquakes = [eq for eq in earthquakes if eq.id not in cached_ids]
 
-        # Save the new earthquakes in order of their timestamps to the database
         for earthquake in sorted(new_earthquakes, key=lambda eq: eq.timestamp):
             save_earthquake(earthquake)
 
@@ -52,68 +56,72 @@ def earthquake_fetcher_dag():
         return new_earthquakes
 
     @task
-    def load_zones() -> list[Zone]:
-        zones = get_zones()
+    def get_zones() -> list[Zone]:
+        zones = _get_zones()
         return zones
 
     @task
-    def group_events(
+    def generate_events(
         earthquakes: list[Earthquake],
         zones: list[Zone],
-    ) -> list[tuple[Zone, list[Earthquake]]]:
-        if not earthquakes:
-            return []
-        return [(zone, earthquakes) for zone in zones]
+    ) -> list[Event]:
+        # Make events for all combinations of earthquakes and zones
+        pairs = product(earthquakes, zones)
+        events = list(filter(None, [parse_event(eq, z) for eq, z in pairs]))
+        return events
 
     @task
-    def process_events(data: tuple[Zone, list[Earthquake]]) -> None:
-        zone, earthquakes = data
+    def generate_alerts(events: list[Event]) -> list[Alert]:
+        alerts = [Alert.from_event(ev, datetime.now().timestamp()) for ev in events]
+        return alerts
 
-        raw_events = list(product(earthquakes, [zone]))
+    @task
+    def pack_incidents(events: list[Event], alerts: list[Alert]) -> list[Incident]:
+        incidents = list(zip(events, alerts))
+        return incidents
 
-        # For each earthquake...
-        for earthquake, zone in raw_events:
-            # ========== Event ===========
-            # Build the event
-            event = parse_event(earthquake, zone)
+    @task_group
+    def generate_incidents(
+        earthquakes: list[Earthquake],
+        zones: list[Zone],
+    ) -> list[Incident]:
+        events = generate_events(earthquakes, zones)
+        alerts = generate_alerts(events)
+        incidents = pack_incidents(events, alerts)
+        return incidents
 
-            if not event:
-                continue
+    @task
+    def group_incident_by_zone(incidents: list[Incident]) -> list[list[Incident]]:
+        grouped: dict[int, list[Incident]] = defaultdict(list)
+        for incident in incidents:
+            zone_id = incident[0].zone_id
+            grouped[zone_id].append(incident)
+        return list(grouped.values())
 
-            # Save the event (if exists) to the database
-            event_id, _ = save_event(event)
-            event.id = event_id
+    @task
+    def save_incidents_by_zone(incidents: list[Incident]) -> None:
+        for event, alert in incidents:
+            # Event
+            event.id, _ = save_event(event)
 
-            # ========== Alert ===========
-            # Pre-work: get suppression variables
-            suppression_interval = Variable.get(
-                "suppression_interval_cache", default_var=1800, deserialize_json=True
-            )
+            # Alert
+            prev_alert = get_open_alert(alert.zone_id)
+            interval = 1800
+            should_suppress = alert.should_be_suppressed_by(prev_alert, interval)
 
-            alert = Alert.from_event(event, datetime.now().timestamp())
-
-            prev_open_alert = get_open_alert(event.zone_id)
-            suppress_flag = (
-                alert.should_be_suppressed_by(prev_open_alert, suppression_interval)
-                if prev_open_alert
-                else False
-            )
-            if suppress_flag:
-                alert.suppressed_by = int(prev_open_alert.id)
-
-            # Save the alert to the database
-            alert_id, _ = save_alert(alert)
-            alert.id = alert_id
-
-            # If the alert is not suppressed, update the last unsuppressed alert variable
-            if not suppress_flag:
+            alert.event_id = event.id
+            alert.suppressed_by = prev_alert.id if should_suppress else None
+            alert.id, _ = save_alert(alert)
+            if not should_suppress:
                 set_open_alert(alert)
-        return
 
-    earthquakes = fetch_earthquakes()
-    zones = load_zones()
-    by_zone_events = group_events(earthquakes, zones)
-    process_events.expand(data=by_zone_events)
+    earthquakes = fetch_and_save_earthquakes()
+    zones = get_zones()
+
+    incidents = generate_incidents(earthquakes, zones)
+    incidents_by_zone = group_incident_by_zone(incidents)
+
+    save_incidents_by_zone.expand(incidents=incidents_by_zone)
 
 
 earthquake_fetcher_dag()

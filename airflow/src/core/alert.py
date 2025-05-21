@@ -5,15 +5,15 @@ from src.core.severity import Severity
 class Alert:
     def __init__(
         self,
-        event_id: int,
         zone_id: int,
         timestamp: int,
         severity: str | Severity,
         id: int | None = None,
+        event_id: int | None = None,
         suppressed_by: int | None = None,
     ):
         self.id = id
-        self.event_id = int(event_id)
+        self.event_id = event_id
         self.zone_id = int(zone_id)
         self.timestamp = int(timestamp)
         self.severity = Severity(severity)
@@ -63,7 +63,7 @@ class Alert:
             f"severity={self.severity}, suppressed_by={self.suppressed_by})"
         )
 
-    def should_be_suppressed_by(self, other: "Alert", interval: int) -> bool:
+    def should_be_suppressed_by(self, other: "Alert | None", interval: int) -> bool:
         """
         Check if this alert should be suppressed by another alert based on the timestamp and severity.
 
@@ -71,6 +71,8 @@ class Alert:
         :param interval: The suppression interval in seconds.
         :return: True if this alert should be suppressed by the other alert, False otherwise.
         """
+        if other is None:
+            return False
         within_interval = (self.timestamp - other.timestamp) <= interval
         not_more_severe = self.severity <= other.severity
         return within_interval and not_more_severe
