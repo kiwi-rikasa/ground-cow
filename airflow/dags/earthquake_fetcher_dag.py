@@ -19,6 +19,7 @@ from src.service.equake_service import (
     set_earthquake_ids,
 )
 from src.service.event_service import parse_event, save_event
+from src.service.interval_service import get_interval
 from src.service.zone_service import get_zones as _get_zones
 
 
@@ -106,7 +107,7 @@ def earthquake_fetcher_dag():
 
             # Alert
             prev_alert = get_open_alert(alert.zone_id)
-            interval = 1800
+            interval = get_interval()
             should_suppress = alert.should_be_suppressed_by(prev_alert, interval)
 
             alert.event_id = event.id
