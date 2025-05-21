@@ -17,18 +17,13 @@ def fetch_cached_interval() -> int:
     try:
         interval = Variable.get(
             INTERVAL_CACHE_KEY,
-            default_var=None,
+            default_var=1800,
             deserialize_json=True,
         )
-        if isinstance(interval, int):
-            return interval
-        log.warning("No valid interval found in cache, using default value.")
-        pass
+        return interval
     except Exception:
         log.warning("Failed to fetch interval from cache, using default value.")
         pass
-    # Set default interval if cache is empty or invalid
-    save_cached_interval(1800)
     return 1800
 
 
