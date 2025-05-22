@@ -5,8 +5,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ZoneView } from "./components/ZoneView";
 import { EarthquakeView } from "./components/EarthquakeView";
+import { useSession } from "next-auth/react";
 
 export default function Page() {
+  const { status } = useSession();
+
+  if (status === "loading" || status === "unauthenticated") {
+    return;
+  }
+
   return (
     <div className="flex flex-1 flex-col">
       <Card className="p-0 bg-background/80 rounded-none shadow-none">

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
 
-export function LoginForm({
+export function LoginDialog({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {

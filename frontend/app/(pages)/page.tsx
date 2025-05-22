@@ -27,7 +27,6 @@ export default function Page() {
 
   useEffect(() => {
     async function setSession() {
-      console.log("starting set session", session);
       if (session?.idToken) {
         await createSessionSessionPost({
           body: {

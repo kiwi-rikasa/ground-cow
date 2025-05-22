@@ -1,6 +1,5 @@
 "use client";
 import { ReportDataTable } from "@/components/table/report-data-table";
-import { LoginForm } from "@/components/login-form";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState, useRef } from "react";
 
@@ -24,18 +23,8 @@ export default function Page() {
     fetchReports();
   }, []);
 
-  if (status === "loading") {
+  if (status === "loading" || status === "unauthenticated") {
     return;
-  }
-
-  if (!session) {
-    return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-        <div className="w-full max-w-sm">
-          <LoginForm />
-        </div>
-      </div>
-    );
   }
 
   return (

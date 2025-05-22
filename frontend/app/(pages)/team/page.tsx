@@ -1,6 +1,5 @@
 "use client";
 
-import { LoginForm } from "@/components/login-form";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 import { UserDataTable } from "@/components/table/user-data-table";
@@ -14,7 +13,7 @@ import {
 import { UserPublic, listUsersUserGet } from "@/app/client";
 
 export default function Page() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [users, setUsers] = useState<UserPublic[]>([]);
 
   useEffect(() => {
@@ -27,18 +26,8 @@ export default function Page() {
     fetchUsers();
   }, []);
 
-  if (status === "loading") {
+  if (status === "loading" || status === "unauthenticated") {
     return;
-  }
-
-  if (!session) {
-    return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-        <div className="w-full max-w-sm">
-          <LoginForm />
-        </div>
-      </div>
-    );
   }
 
   return (

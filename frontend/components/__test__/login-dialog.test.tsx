@@ -1,15 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { LoginForm } from "@/components/login-form";
+import { LoginDialog } from "@/components/login-dialog";
 import { signIn } from "next-auth/react";
 
 vi.mock("next-auth/react", () => ({
   signIn: vi.fn(),
 }));
 
-describe("LoginForm", () => {
+describe("LoginDialog", () => {
   it("renders welcome message and buttons", () => {
-    render(<LoginForm />);
+    render(<LoginDialog />);
 
     expect(
       screen.getByRole("heading", { name: /welcome to TSMC Inc./i })
@@ -23,7 +23,7 @@ describe("LoginForm", () => {
   });
 
   it("calls signIn('google') when the button is clicked", () => {
-    render(<LoginForm />);
+    render(<LoginDialog />);
 
     const googleButton = screen.getByRole("button", {
       name: /continue with google/i,
@@ -35,7 +35,7 @@ describe("LoginForm", () => {
   });
 
   it("contains links to Terms of Service and Privacy Policy", () => {
-    render(<LoginForm />);
+    render(<LoginDialog />);
 
     const termsLink = screen.getByText(/terms of service/i);
     const privacyLink = screen.getByText(/privacy policy/i);

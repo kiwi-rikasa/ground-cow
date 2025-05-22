@@ -1,6 +1,5 @@
 "use client";
 import { EventDataTable } from "@/components/table/event-data-table";
-import { LoginForm } from "@/components/login-form";
 import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 
@@ -29,18 +28,8 @@ export default function Page() {
       earthquake_id: item.earthquake_id || 0,
     })) || [];
 
-  if (status === "loading") {
+  if (status === "loading" || status === "unauthenticated") {
     return;
-  }
-
-  if (!session) {
-    return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-        <div className="w-full max-w-sm">
-          <LoginForm />
-        </div>
-      </div>
-    );
   }
 
   return (
