@@ -1,19 +1,30 @@
 from __future__ import annotations
 import pendulum
+from collections import defaultdict
 from datetime import datetime, timedelta
 from itertools import product
+from typing import TypeAlias
 
-from airflow.decorators import dag, task
-from airflow.models import Variable
+from airflow.decorators import dag, task, task_group
 
-from utils.fetch_earthquake import fetch_earthquakes as _fetch_earthquakes
-from utils.save_earthquake import save_earthquake
+from src.core.alert import Alert
+from src.core.equake import Earthquake
+from src.core.event import Event
+from src.core.zone import Zone
+from src.service.alert_service import save_alert, get_open_alert, set_open_alert
+from src.service.equake_service import (
+    fetch_earthquakes as _fetch_earthquakes,
+    save_earthquake,
+    get_earthquake_ids,
+    set_earthquake_ids,
+)
+from src.service.event_service import parse_event, save_event
+from src.service.interval_service import get_interval
+from src.service.zone_service import get_zones as _get_zones
 
-from utils.parse_event import parse_event
-from utils.save_event import save_event
 
-from utils.parse_alert import check_suppression
-from utils.save_alert import save_alert
+# Type aliases
+Incident: TypeAlias = tuple[Event, Alert]
 
 
 @dag(
@@ -26,129 +37,92 @@ from utils.save_alert import save_alert
 )
 def earthquake_fetcher_dag():
     @task
-    def fetch_earthquakes():
+    def fetch_and_save_earthquakes() -> list[Earthquake]:
         earthquakes = _fetch_earthquakes()
+        cached_ids = get_earthquake_ids()
 
-        cached_ids = Variable.get(
-            "earthquake_id_cache", default_var=None, deserialize_json=True
-        )
-
-        # If no cached earthquake IDs, initialize it to current earthquake IDs
+        # Initialize cached earthquake ids if not exists
         if cached_ids is None:
-            current_ids = [e.get("id") for e in earthquakes]
-            Variable.set("earthquake_id_cache", current_ids, serialize_json=True)
+            set_earthquake_ids([e.id for e in earthquakes])
             return []
 
-        new_earthquakes = []
+        new_earthquakes = [eq for eq in earthquakes if eq.id not in cached_ids]
 
-        # Check if the earthquake ID already processed
-        for index, earthquakes in enumerate(earthquakes):
-            if earthquakes.get("id") != cached_ids[index]:
-                new_earthquakes.append(earthquakes)
-                cached_ids[index] = earthquakes.get("id")
-
-        # Save the new earthquakes to the database
-        for earthquake in sorted(new_earthquakes, key=lambda x: x.get("timestamp")):
+        for earthquake in sorted(new_earthquakes, key=lambda eq: eq.timestamp):
             save_earthquake(earthquake)
 
-        # Update the variable with the new IDs
-        Variable.set("earthquake_id_cache", cached_ids, serialize_json=True)
+        # Update the earthquake id cache
+        set_earthquake_ids([e.id for e in earthquakes])
 
         return new_earthquakes
 
     @task
-    def load_zones():
-        zones = Variable.get("zone_cache", default_var=[], deserialize_json=True)
-        if not isinstance(zones, list):
-            raise ValueError("Zone pulled from variable is not a list")
+    def get_zones() -> list[Zone]:
+        zones = _get_zones()
         return zones
 
     @task
-    def group_events(earthquakes, zones):
-        if not earthquakes:
-            return []
-        return [(zone, earthquakes) for zone in zones]
+    def generate_events(
+        earthquakes: list[Earthquake],
+        zones: list[Zone],
+    ) -> list[Event]:
+        # Make events for all combinations of earthquakes and zones
+        pairs = product(earthquakes, zones)
+        events = list(filter(None, [parse_event(eq, z) for eq, z in pairs]))
+        return events
 
     @task
-    def process_events(data):
-        zone, earthquakes = data
-        zone_id = zone.get("zone_id")
+    def generate_alerts(events: list[Event]) -> list[Alert]:
+        alerts = [Alert.from_event(ev, datetime.now().timestamp()) for ev in events]
+        return alerts
 
-        raw_events = list(product(earthquakes, [zone]))
+    @task
+    def pack_incidents(events: list[Event], alerts: list[Alert]) -> list[Incident]:
+        incidents = list(zip(events, alerts))
+        return incidents
 
-        # For each earthquake...
-        for raw_event in raw_events:
-            # ========== Event ===========
-            # Build the event
-            event = parse_event(raw_event)
+    @task_group
+    def generate_incidents(
+        earthquakes: list[Earthquake],
+        zones: list[Zone],
+    ) -> list[Incident]:
+        events = generate_events(earthquakes, zones)
+        alerts = generate_alerts(events)
+        incidents = pack_incidents(events, alerts)
+        return incidents
 
-            if not event:
-                continue
+    @task
+    def group_incident_by_zone(incidents: list[Incident]) -> list[list[Incident]]:
+        grouped: dict[int, list[Incident]] = defaultdict(list)
+        for incident in incidents:
+            zone_id = incident[0].zone_id
+            grouped[zone_id].append(incident)
+        return list(grouped.values())
 
-            # Save the event (if exists) to the database
-            db_event = save_event(event)
-            db_event_id = db_event.get("event_id")
+    @task
+    def save_incidents_by_zone(incidents: list[Incident]) -> None:
+        for event, alert in incidents:
+            # Event
+            event.id, _ = save_event(event)
 
-            # ========== Alert ===========
-            # Pre-work: get suppression variables
-            suppression_interval = Variable.get(
-                "suppression_interval_cache", default_var=1800, deserialize_json=True
-            )
-            last_unsuppressed_alert = Variable.get(
-                f"zone_{zone_id}_last_unsuppressed_alert_cache",
-                default_var=None,
-                deserialize_json=True,
-            )
+            # Alert
+            prev_alert = get_open_alert(alert.zone_id)
+            interval = get_interval()
+            should_suppress = alert.should_be_suppressed_by(prev_alert, interval)
 
-            alert_time = datetime.now().timestamp()
-            # Check if the alert should be suppressed
-            # If there is no last unsuppressed alert, it means this is the first alert, which should not be suppressed
-            alert_should_suppress = (
-                check_suppression(
-                    currTime=alert_time,
-                    currSeverity=event.get("severity"),
-                    prevTime=last_unsuppressed_alert.get("timestamp"),
-                    prevSeverity=last_unsuppressed_alert.get("severity"),
-                    interval=suppression_interval,
-                )
-                if last_unsuppressed_alert
-                else False
-            )
+            alert.event_id = event.id
+            alert.suppressed_by = prev_alert.id if should_suppress else None
+            alert.id, _ = save_alert(alert)
+            if not should_suppress:
+                set_open_alert(alert)
 
-            # Build the alert
-            alert = {
-                "event_id": db_event_id,
-                "zone_id": zone_id,
-                "timestamp": alert_time,
-                "suppressed_by": (
-                    last_unsuppressed_alert.get("alert_id")
-                    if alert_should_suppress
-                    else None
-                ),
-            }
+    earthquakes = fetch_and_save_earthquakes()
+    zones = get_zones()
 
-            # Save the alert to the database
-            db_alert = save_alert(alert)
-            db_alert_id = db_alert.get("alert_id")
+    incidents = generate_incidents(earthquakes, zones)
+    incidents_by_zone = group_incident_by_zone(incidents)
 
-            # If the alert is not suppressed, update the last unsuppressed alert variable
-            if not alert_should_suppress:
-                Variable.set(
-                    f"zone_{zone_id}_last_unsuppressed_alert_cache",
-                    {
-                        "alert_id": db_alert_id,
-                        "timestamp": alert_time,
-                        "severity": event.get("severity"),
-                    },
-                    serialize_json=True,
-                )
-
-        return
-
-    earthquakes = fetch_earthquakes()
-    zones = load_zones()
-    by_zone_events = group_events(earthquakes, zones)
-    process_events.expand(data=by_zone_events)
+    save_incidents_by_zone.expand(incidents=incidents_by_zone)
 
 
 earthquake_fetcher_dag()

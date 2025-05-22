@@ -1,17 +1,16 @@
 from __future__ import annotations
+from datetime import timedelta
 import pendulum
 
 from airflow.decorators import dag, task
-from airflow.models import Variable
 
-from utils.fetch_zones import fetch_zones as _fetch_zones
-
-DAG_RUN_INTERVAL = 10  # 10 minutes
+from src.core.zone import Zone
+from src.service.zone_service import fetch_zones as _fetch_zones, set_zones
 
 
 @dag(
     dag_id="zone_fetcher_dag",
-    schedule=f"*/{DAG_RUN_INTERVAL} * * * *",
+    schedule=timedelta(minutes=10),
     start_date=pendulum.datetime(2025, 5, 1, tz="Asia/Taipei"),
     catchup=False,
     max_active_runs=1,
@@ -19,16 +18,13 @@ DAG_RUN_INTERVAL = 10  # 10 minutes
 )
 def zone_fetcher_dag():
     @task
-    def fetch_zones():
+    def fetch_zones() -> list[Zone]:
         zones = _fetch_zones()
         return zones
 
     @task
-    def cache_zones(zones):
-        if not isinstance(zones, list):
-            raise ValueError("Zones pulled from XCom is not a list.")
-        Variable.set("zone_cache", zones, serialize_json=True)
-        return
+    def cache_zones(zones: list[Zone]) -> None:
+        set_zones(zones)
 
     zones = fetch_zones()
     cache_zones(zones)
