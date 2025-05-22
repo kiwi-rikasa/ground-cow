@@ -18,6 +18,9 @@ class Config:
         # CWA API key
         self.CWA_API_KEY = os.getenv("CWA_API_KEY")
 
+        # Event: Whether to generate NA-serverity events
+        self.GENERATE_NA_EVENTS = os.getenv("GENERATE_NA_EVENTS", "false").lower() == "true"
+
         # Alert: Suppression interval
         self.SUPPRESSION_INTERVAL = int(os.getenv("ALERT_SUPPRESSION_INTERVAL", 1800))
         set_interval(self.SUPPRESSION_INTERVAL)
