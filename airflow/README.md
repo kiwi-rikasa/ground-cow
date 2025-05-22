@@ -37,6 +37,34 @@ airflow/
     └── config.py                   # Application configuration
 ```
 
+## Configuration
+
+All configuration is managed via environment variables, which are set in the `.env` file in the root of the repository, and loaded by `src/config.py`.
+
+Configurable options include:
+
+- `AIRFLOW_ACCESS_KEY` **(Required)**  
+  The API key for authenticating Airflow with the backend.
+
+- `CWA_API_KEY` **(Required)**  
+  The API key for accessing the CWA earthquake open data API.
+
+- `AIRFLOW_ACCESS_NAME`  
+  The HTTP header name for the backend API key.  
+  **Default:** `x-airflow-key`
+
+- `AIRFLOW_BACKEND_HOST`  
+  The backend API host URL.  
+  **Default:** `http://localhost:8000`
+
+- `ALERT_SUPPRESSION_INTERVAL`  
+  The alert suppression interval in seconds.  
+  **Default:** `1800` (30 minutes)
+
+- `GENERATE_NA_EVENTS`  
+  Whether to generate NA-severity events.  
+  **Default:** `false`
+
 ## Environment
 
 - Python 3.12

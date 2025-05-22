@@ -30,7 +30,7 @@ def save_alert(alert: Alert) -> tuple[int, dict]:
         response = requests.post(
             ALERT_API_URL,
             json=payload,
-            headers=config.AIRFLOW_ACCESS_HEADER,
+            headers=config.BACKEND_ACCESS_HEADER,
             timeout=10,
         )
         response.raise_for_status()

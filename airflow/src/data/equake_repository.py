@@ -62,7 +62,7 @@ def save_earthquake(earthquake: Earthquake) -> tuple[int, dict]:
         response = requests.post(
             EQUAKE_API_URL,
             json=payload,
-            headers=config.AIRFLOW_ACCESS_HEADER,
+            headers=config.BACKEND_ACCESS_HEADER,
             timeout=10,
         )
         response.raise_for_status()
