@@ -28,7 +28,7 @@ def save_event(event: Event) -> tuple[int, dict]:
         response = requests.post(
             EVENT_API_URL,
             json=payload,
-            headers=config.AIRFLOW_ACCESS_HEADER,
+            headers=config.BACKEND_ACCESS_HEADER,
             timeout=10,
         )
         response.raise_for_status()
