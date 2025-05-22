@@ -19,21 +19,16 @@ interface ZoneHistogramData {
 }
 
 interface ZoneData {
-  zoneStats: ZoneStats;
+  totalEvents: number;
+  alertActivationRate: number;
+  damageRate: number;
+  alertCompletionRate: number;
+  alertSuppressionRate: number;
+  avgResponseTime: string;
   zoneEventTrend: ZoneEventTrend[];
   zoneMagnitudeData: ZoneHistogramData[];
   zoneIntensityData: ZoneHistogramData[];
 }
-
-// Mock data
-const mockStats: ZoneData["zoneStats"] = {
-  totalEvents: 123,
-  alertActivationRate: 80,
-  damageRate: 12,
-  alertCompletionRate: 95,
-  alertSuppressionRate: 5,
-  avgResponseTime: "2m 30s",
-};
 
 const mockEventTrend: ZoneData["zoneEventTrend"] = [
   { date: "5/10", L1: 6, L2: 1 },
@@ -70,5 +65,17 @@ const mockIntensityData: ZoneData["zoneIntensityData"] = [
   { bin: "IX+", count: 2 },
 ];
 
-export { mockStats, mockEventTrend, mockMagnitudeData, mockIntensityData };
+const mockZoneData: ZoneData = {
+  totalEvents: 123,
+  alertActivationRate: 80,
+  damageRate: 12,
+  alertCompletionRate: 95,
+  alertSuppressionRate: 5,
+  avgResponseTime: "2m 30s",
+  zoneEventTrend: mockEventTrend,
+  zoneMagnitudeData: mockMagnitudeData,
+  zoneIntensityData: mockIntensityData,
+};
+
+export { mockEventTrend, mockMagnitudeData, mockIntensityData, mockZoneData };
 export type { ZoneStats, ZoneEventTrend, ZoneHistogramData, ZoneData };

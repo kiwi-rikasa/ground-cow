@@ -24,8 +24,8 @@ import { EarthquakeDetailFilter } from "./EarthquakeDetailFilter";
 import { EarthquakeOverviewFilter } from "./EarthquakeOverviewFilter";
 import { rangeOptions } from "../utils";
 import {
+  mockEarthquakeData,
   mockEarthquakeList,
-  mockSummaryMap,
   mockEventTypeData,
   mockProgressData,
 } from "../mock/mock-eq-data";
@@ -55,7 +55,6 @@ export function EarthquakeView({
   const [selectedRange, setSelectedRange] = React.useState(
     rangeOptions[rangeOptions.length - 1].value
   );
-  const summary = mockSummaryMap[String(selectedEq)];
 
   return (
     <div className="flex flex-col gap-6">
@@ -79,7 +78,7 @@ export function EarthquakeView({
           <CardHeader>
             <CardDescription>{translations.occurrenceTime}</CardDescription>
             <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-              {summary.occurrenceTime}
+              {mockEarthquakeData.occurrenceTime}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -87,7 +86,7 @@ export function EarthquakeView({
           <CardHeader>
             <CardDescription>{translations.magnitude}</CardDescription>
             <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-              {summary.magnitude}
+              {mockEarthquakeData.magnitude}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -95,7 +94,7 @@ export function EarthquakeView({
           <CardHeader>
             <CardDescription>{translations.averageIntensity}</CardDescription>
             <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-              {summary.averageIntensity}
+              {mockEarthquakeData.averageIntensity}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -105,7 +104,7 @@ export function EarthquakeView({
               {translations.alertCompletionRate}
             </CardDescription>
             <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-              {summary.alertCompletionRate}
+              {mockEarthquakeData.alertCompletionRate}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -115,7 +114,7 @@ export function EarthquakeView({
               {translations.alertActivationRate}
             </CardDescription>
             <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-              {summary.alertActivationRate}
+              {mockEarthquakeData.alertActivationRate}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -123,7 +122,7 @@ export function EarthquakeView({
           <CardHeader>
             <CardDescription>{translations.damageRate}</CardDescription>
             <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-              {summary.damageRate}
+              {mockEarthquakeData.damageRate}
             </CardTitle>
           </CardHeader>
         </Card>

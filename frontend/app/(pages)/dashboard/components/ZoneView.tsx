@@ -6,12 +6,7 @@ import { ZoneFilter } from "./ZoneFilter";
 import { rangeOptions } from "../utils";
 import { useEffect } from "react";
 import { listZonesZoneGet } from "@/app/client";
-import {
-  mockStats,
-  mockEventTrend,
-  mockMagnitudeData,
-  mockIntensityData,
-} from "../mock/mock-zone-data";
+import { mockZoneData } from "../mock/mock-zone-data";
 
 export function ZoneView() {
   const [selectedZone, setSelectedZone] = React.useState<string>("all");
@@ -50,11 +45,11 @@ export function ZoneView() {
         selectedRange={selectedRange}
         setSelectedRange={setSelectedRange}
       />
-      <ZoneSummaryCards stats={mockStats} />
-      <ZoneEventTrendChart data={mockEventTrend} />
+      <ZoneSummaryCards stats={mockZoneData} />
+      <ZoneEventTrendChart data={mockZoneData.zoneEventTrend} />
       <ZoneHistograms
-        magnitudeData={mockMagnitudeData}
-        intensityData={mockIntensityData}
+        magnitudeData={mockZoneData.zoneMagnitudeData}
+        intensityData={mockZoneData.zoneIntensityData}
       />
     </>
   );
