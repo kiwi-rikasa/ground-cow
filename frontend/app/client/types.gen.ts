@@ -1106,39 +1106,69 @@ export type UpdateReportReportReportIdPatchResponses = {
 
 export type UpdateReportReportReportIdPatchResponse = UpdateReportReportReportIdPatchResponses[keyof UpdateReportReportReportIdPatchResponses];
 
-export type GetZoneDashboardDashboardZoneGetData = {
+export type GetZoneDashboardDashboardZoneZoneIdGetData = {
     body?: never;
-    path?: never;
+    path: {
+        zone_id: number;
+    };
     query: {
         weeks: number;
-        zone_id?: number;
     };
-    url: '/dashboard/zone';
+    url: '/dashboard/zone/{zone_id}';
 };
 
-export type GetZoneDashboardDashboardZoneGetErrors = {
+export type GetZoneDashboardDashboardZoneZoneIdGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetZoneDashboardDashboardZoneGetError = GetZoneDashboardDashboardZoneGetErrors[keyof GetZoneDashboardDashboardZoneGetErrors];
+export type GetZoneDashboardDashboardZoneZoneIdGetError = GetZoneDashboardDashboardZoneZoneIdGetErrors[keyof GetZoneDashboardDashboardZoneZoneIdGetErrors];
 
-export type GetZoneDashboardDashboardZoneGetResponses = {
+export type GetZoneDashboardDashboardZoneZoneIdGetResponses = {
     /**
      * Successful Response
      */
     200: ZoneDashboardResponse;
 };
 
-export type GetZoneDashboardDashboardZoneGetResponse = GetZoneDashboardDashboardZoneGetResponses[keyof GetZoneDashboardDashboardZoneGetResponses];
+export type GetZoneDashboardDashboardZoneZoneIdGetResponse = GetZoneDashboardDashboardZoneZoneIdGetResponses[keyof GetZoneDashboardDashboardZoneZoneIdGetResponses];
+
+export type ListFilteredEarthquakesDashboardEarthquakeListGetData = {
+    body?: never;
+    path?: never;
+    query?: {
+        offset?: number;
+        limit?: number;
+    };
+    url: '/dashboard/earthquake-list';
+};
+
+export type ListFilteredEarthquakesDashboardEarthquakeListGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListFilteredEarthquakesDashboardEarthquakeListGetError = ListFilteredEarthquakesDashboardEarthquakeListGetErrors[keyof ListFilteredEarthquakesDashboardEarthquakeListGetErrors];
+
+export type ListFilteredEarthquakesDashboardEarthquakeListGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: EarthquakeListResponse;
+};
+
+export type ListFilteredEarthquakesDashboardEarthquakeListGetResponse = ListFilteredEarthquakesDashboardEarthquakeListGetResponses[keyof ListFilteredEarthquakesDashboardEarthquakeListGetResponses];
 
 export type GetEarthquakeDashboardDashboardEarthquakeGetData = {
     body?: never;
     path?: never;
     query?: {
         earthquake_id?: number;
+        weeks?: number;
     };
     url: '/dashboard/earthquake';
 };

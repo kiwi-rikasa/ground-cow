@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
 from datetime import datetime, timedelta
@@ -22,7 +22,7 @@ from ...models.schemas.dashboard import (
 dashboard_router = APIRouter()
 
 
-@dashboard_router.get("/zone")
+@dashboard_router.get("/zone/{zone_id}")
 def get_zone_dashboard(
     weeks: int,
     session: SessionDep,
@@ -67,8 +67,8 @@ def get_zone_dashboard(
     }
 
 
-@dashboard_router.get("/earthquake")
-def get_filtered_earthquake_list(
+@dashboard_router.get("/earthquake-list")
+def list_filtered_earthquakes(
     session: SessionDep,
     offset: int = 0,
     limit: int = 30,
@@ -76,6 +76,10 @@ def get_filtered_earthquake_list(
 ) -> EarthquakeListResponse:
     """
     List all earthquakes with at least one L1/L2 events.
+
+    params:
+        offset: int = 0
+        limit: int = 30
     """
     subq = select(Event.earthquake_id).where(Event.event_severity != "NA").distinct()
     filtered_ids = session.exec(subq).all()
@@ -103,6 +107,7 @@ def get_filtered_earthquake_list(
 def get_earthquake_dashboard(
     session: SessionDep,
     earthquake_id: int = -1,
+    weeks: int = -1,
     _: User = Depends(require_session_user),
 ) -> Optional[EarthquakeDashboardResponse]:
     """
@@ -110,12 +115,41 @@ def get_earthquake_dashboard(
 
     params:
         earthquake_id: int = -1 (all earthquakes)
+        weeks: int = -1 (all weeks)
     """
-    events = session.exec(
-        select(Event)
-        .where(Event.earthquake_id == earthquake_id if earthquake_id != -1 else True)
-        .options(selectinload(Event.zone))
-    ).all()
+
+    if weeks == -1 and earthquake_id == -1:
+        return Response(
+            status_code=400,
+            content="Invalid request: weeks and earthquake_id cannot be -1 at the same time",
+        )
+
+    if weeks != -1 and earthquake_id != -1:
+        return Response(
+            status_code=400,
+            content="Invalid request: weeks and earthquake_id cannot be provided at the same time",
+        )
+
+    if earthquake_id != -1:
+        events = session.exec(
+            select(Event)
+            .where(
+                Event.earthquake_id == earthquake_id if earthquake_id != -1 else True
+            )
+            .options(selectinload(Event.zone))
+        ).all()
+    else:
+        now = datetime.now()
+        end = datetime.combine((now + timedelta(days=1)).date(), datetime.min.time())
+        start = end - timedelta(weeks=weeks)
+        events = session.exec(
+            select(Event)
+            .where(
+                Event.earthquake_id == earthquake_id if earthquake_id != -1 else True
+            )
+            .where(Event.event_created_at.between(start, end))
+            .options(selectinload(Event.zone))
+        ).all()
 
     if not events:
         return {}

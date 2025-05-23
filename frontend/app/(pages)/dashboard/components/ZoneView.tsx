@@ -7,7 +7,7 @@ import { rangeOptions } from "../utils";
 import { useEffect } from "react";
 import {
   listZonesZoneGet,
-  getZoneDashboardDashboardZoneGet,
+  getZoneDashboardDashboardZoneZoneIdGet,
   ZoneDashboardResponse,
 } from "@/app/client";
 
@@ -44,10 +44,12 @@ export function ZoneView() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getZoneDashboardDashboardZoneGet({
+      const res = await getZoneDashboardDashboardZoneZoneIdGet({
+        path: {
+          zone_id: parseInt(selectedZone),
+        },
         query: {
           weeks: selectedRange,
-          zone_id: parseInt(selectedZone),
         },
       });
       if (res.data) {
