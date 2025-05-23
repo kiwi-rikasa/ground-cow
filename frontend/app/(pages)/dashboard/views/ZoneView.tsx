@@ -1,8 +1,8 @@
 import * as React from "react";
-import { ZoneSummaryCards } from "./ZoneSummaryCards";
-import { ZoneEventTrendChart } from "./ZoneEventTrendChart";
-import { ZoneHistograms } from "./ZoneHistograms";
-import { ZoneFilter } from "./ZoneFilter";
+import { ZoneSummaryCards } from "../components/ZoneSummaryCards";
+import { ZoneEventTrendChart } from "../components/ZoneEventTrendChart";
+import { ZoneHistograms } from "../components/ZoneHistograms";
+import { ZoneFilter } from "../components/ZoneFilter";
 import { rangeOptions } from "../utils";
 import { useEffect } from "react";
 import {

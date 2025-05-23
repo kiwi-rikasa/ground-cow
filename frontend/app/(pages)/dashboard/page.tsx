@@ -3,8 +3,8 @@
 import * as React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { ZoneView } from "./components/ZoneView";
-import { EarthquakeView } from "./components/EarthquakeView";
+import { ZoneView } from "./views/ZoneView";
+import { EarthquakeView } from "./views/EarthquakeView";
 import { useSession } from "next-auth/react";
 
 export default function Page() {
