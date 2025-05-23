@@ -15,12 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-interface ZoneEventTrend {
-  date: string;
-  L1: number;
-  L2: number;
-}
+import { ZoneEventTrend } from "@/app/client";
 
 interface ZoneEventTrendChartProps {
   data: ZoneEventTrend[];

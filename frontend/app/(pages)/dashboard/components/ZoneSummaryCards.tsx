@@ -4,16 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-interface ZoneStats {
-  totalEvents: number;
-  alertActivationRate: number;
-  damageRate: number;
-  alertCompletionRate: number;
-  alertSuppressionRate: number;
-  avgResponseTime: string;
-}
-
+import { ZoneStats } from "@/app/client";
 interface ZoneSummaryCardsProps {
   stats: ZoneStats;
 }
@@ -25,7 +16,7 @@ export function ZoneSummaryCards({ stats }: ZoneSummaryCardsProps) {
         <CardHeader className="relative">
           <CardDescription>Total event count</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            {stats.totalEvents}
+            {stats.total_events}
           </CardTitle>
         </CardHeader>
       </Card>
@@ -33,7 +24,7 @@ export function ZoneSummaryCards({ stats }: ZoneSummaryCardsProps) {
         <CardHeader className="relative">
           <CardDescription>啟動戰情 %</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            {stats.alertActivationRate}%
+            {stats.alert_activation_rate}
           </CardTitle>
         </CardHeader>
       </Card>
@@ -41,7 +32,7 @@ export function ZoneSummaryCards({ stats }: ZoneSummaryCardsProps) {
         <CardHeader className="relative">
           <CardDescription>有損傷 %</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            {stats.damageRate}%
+            {stats.damage_rate}
           </CardTitle>
         </CardHeader>
       </Card>
@@ -49,7 +40,7 @@ export function ZoneSummaryCards({ stats }: ZoneSummaryCardsProps) {
         <CardHeader className="relative">
           <CardDescription>alert 完成 %</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            {stats.alertCompletionRate}%
+            {stats.alert_completion_rate}
           </CardTitle>
         </CardHeader>
       </Card>
@@ -57,7 +48,7 @@ export function ZoneSummaryCards({ stats }: ZoneSummaryCardsProps) {
         <CardHeader className="relative">
           <CardDescription>alert 抑制 %</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            {stats.alertSuppressionRate}%
+            {stats.alert_suppression_rate}
           </CardTitle>
         </CardHeader>
       </Card>
@@ -65,7 +56,7 @@ export function ZoneSummaryCards({ stats }: ZoneSummaryCardsProps) {
         <CardHeader className="relative">
           <CardDescription>平均回報時間</CardDescription>
           <CardTitle className="text-2xl lg:text-3xl font-semibold tabular-nums">
-            {stats.avgResponseTime}
+            {stats.avg_response_time}
           </CardTitle>
         </CardHeader>
       </Card>

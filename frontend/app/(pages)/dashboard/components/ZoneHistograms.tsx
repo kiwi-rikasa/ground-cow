@@ -12,16 +12,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-interface ZoneHistogramData {
-  bin: string;
-  count: number;
-}
-
-interface ZoneHistogramsProps {
-  magnitudeData: ZoneHistogramData[];
-  intensityData: ZoneHistogramData[];
-}
+import { ZoneMagnitudeData, ZoneIntensityData } from "@/app/client";
 
 const barConfig = {
   count: {
@@ -33,7 +24,10 @@ const barConfig = {
 export function ZoneHistograms({
   magnitudeData,
   intensityData,
-}: ZoneHistogramsProps) {
+}: {
+  magnitudeData: ZoneMagnitudeData[];
+  intensityData: ZoneIntensityData[];
+}) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
       <Card>

@@ -1,5 +1,5 @@
 export const rangeOptions = [
-  { value: 1, label: "1 天" },
-  { value: 7, label: "7 天" },
-  { value: 30, label: "30 天" },
+  { value: 1, label: "1 週" },
+  { value: 4, label: "4 週" },
+  { value: 12, label: "12 週" },
 ];

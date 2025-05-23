@@ -5,11 +5,14 @@ import { ZoneHistograms } from "./ZoneHistograms";
 import { ZoneFilter } from "./ZoneFilter";
 import { rangeOptions } from "../utils";
 import { useEffect } from "react";
-import { listZonesZoneGet } from "@/app/client";
-import { mockZoneData } from "../mock/mock-zone-data";
+import {
+  listZonesZoneGet,
+  getZoneDashboardDashboardZoneGet,
+  ZoneDashboardResponse,
+} from "@/app/client";
 
 export function ZoneView() {
-  const [selectedZone, setSelectedZone] = React.useState<string>("all");
+  const [selectedZone, setSelectedZone] = React.useState<string>("-1");
   const [selectedRange, setSelectedRange] = React.useState<number>(
     rangeOptions[rangeOptions.length - 1].value
   );
@@ -19,13 +22,16 @@ export function ZoneView() {
       label: string;
     }[]
   >([]);
+  const [zoneData, setZoneData] = React.useState<ZoneDashboardResponse | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       const res = await listZonesZoneGet();
       if (res.data) {
         setZoneOptions([
-          { id: "all", label: "全部廠區" },
+          { id: "-1", label: "全部廠區" },
           ...res.data.data.map((z) => ({
             id: z.zone_id,
             label: z.zone_name ?? "",
@@ -36,6 +42,21 @@ export function ZoneView() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getZoneDashboardDashboardZoneGet({
+        query: {
+          weeks: selectedRange,
+          zone_id: parseInt(selectedZone),
+        },
+      });
+      if (res.data) {
+        setZoneData(res.data);
+      }
+    };
+    fetchData();
+  }, [selectedZone, selectedRange]);
+
   return (
     <>
       <ZoneFilter
@@ -45,12 +66,16 @@ export function ZoneView() {
         selectedRange={selectedRange}
         setSelectedRange={setSelectedRange}
       />
-      <ZoneSummaryCards stats={mockZoneData} />
-      <ZoneEventTrendChart data={mockZoneData.zoneEventTrend} />
-      <ZoneHistograms
-        magnitudeData={mockZoneData.zoneMagnitudeData}
-        intensityData={mockZoneData.zoneIntensityData}
-      />
+      {zoneData && (
+        <>
+          <ZoneSummaryCards stats={zoneData.zone_stats} />
+          <ZoneEventTrendChart data={zoneData.zone_event_trend} />
+          <ZoneHistograms
+            magnitudeData={zoneData.zone_magnitude_data}
+            intensityData={zoneData.zone_intensity_data}
+          />
+        </>
+      )}
     </>
   );
 }
