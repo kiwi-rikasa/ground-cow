@@ -1,12 +1,21 @@
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 from collections import defaultdict
 from datetime import datetime, timedelta
 from ..models.models import Event, Alert, Report
+from ..models.schemas.dashboard import (
+    EarthquakeProgress,
+    EarthquakeEventType,
+    EarthquakeDashboardResponse,
+    ZoneStats,
+    ZoneEventTrend,
+    ZoneMagnitudeData,
+    ZoneIntensityData,
+)
 
 
 def get_zone_stats(
     events: List[Event], alerts: List[Alert], reports: List[Report]
-) -> dict:
+) -> ZoneStats:
     """
     Summarize key indicators for a specific zone.
     """
@@ -33,16 +42,16 @@ def get_zone_stats(
     avg_response_time = total_response_time / len(reports) if reports else 0
 
     return {
-        "totalEvents": str(total_events),
-        "actionRate": f"{round(action_rate * 100)}%",
-        "damageRate": f"{round(damage_rate * 100)}%",
-        "alertCompletionRate": f"{round(alert_completion_rate * 100)}%",
-        "alertSuppressionRate": f"{round(alert_suppression_rate * 100)}%",
-        "avgResponseTime": f"{int(avg_response_time // 60)}m {int(avg_response_time % 60)}s",
+        "total_events": str(total_events),
+        "alert_activation_rate": f"{round(action_rate * 100)}%",
+        "damage_rate": f"{round(damage_rate * 100)}%",
+        "alert_completion_rate": f"{round(alert_completion_rate * 100)}%",
+        "alert_suppression_rate": f"{round(alert_suppression_rate * 100)}%",
+        "avg_response_time": f"{int(avg_response_time // 60)}m {int(avg_response_time % 60)}s",
     }
 
 
-def get_zone_event_trend(events: List[Event], weeks: int) -> List[Dict]:
+def get_zone_event_trend(events: List[Event], weeks: int) -> List[ZoneEventTrend]:
     """
     Generate weekly L1/L2 event trend data for the zone dashboard.
     """
@@ -74,7 +83,9 @@ def get_zone_event_trend(events: List[Event], weeks: int) -> List[Dict]:
     return [{"date": format_range(week), **trend[week]} for week in sorted(trend)]
 
 
-def build_histogram(data: List[float], bins: List[Tuple[float, float]]) -> List[dict]:
+def build_histogram(
+    data: List[float], bins: List[Tuple[float, float]]
+) -> List[ZoneMagnitudeData]:
     """
     Create histogram data from a list of values using predefined bins.
     """
@@ -86,7 +97,9 @@ def build_histogram(data: List[float], bins: List[Tuple[float, float]]) -> List[
     return result
 
 
-def get_zone_histograms(events: List[Event]) -> Tuple[List[dict], List[dict]]:
+def get_zone_histograms(
+    events: List[Event],
+) -> Tuple[List[ZoneMagnitudeData], List[ZoneIntensityData]]:
     """
     Generate magnitude and intensity histograms for a list of events.
     """
@@ -120,7 +133,7 @@ def get_zone_histograms(events: List[Event]) -> Tuple[List[dict], List[dict]]:
 
 def get_earthquake_stats(
     events: List[Event], alerts: List[Alert], reports: List[Report]
-) -> Dict[str, str]:
+) -> EarthquakeDashboardResponse:
     """
     Summarize key indicators for a specific earthquake.
     """
@@ -138,16 +151,16 @@ def get_earthquake_stats(
     )
 
     return {
-        "occurrenceTime": occurrence_time,
+        "occurrence_time": occurrence_time,
         "magnitude": str(magnitude),
-        "maxIntensity": str(intensity),
-        "alertCompletionRate": f"{round(completion_rate * 100)}%",
-        "actionRate": f"{round(action_rate * 100)}%",
-        "damageRate": f"{round(damage_rate * 100)}%",
+        "max_intensity": str(intensity),
+        "alert_completion_rate": f"{round(completion_rate * 100)}%",
+        "alert_activation_rate": f"{round(action_rate * 100)}%",
+        "damage_rate": f"{round(damage_rate * 100)}%",
     }
 
 
-def get_earthquake_event_type(events: List[Event]) -> List[Dict[str, int]]:
+def get_earthquake_event_type(events: List[Event]) -> List[EarthquakeEventType]:
     """
     Count the number of L1 and L2 events for a specific earthquake.
     """
@@ -160,7 +173,7 @@ def get_earthquake_event_type(events: List[Event]) -> List[Dict[str, int]]:
 
 def get_earthquake_progress(
     events: List[Event], alerts: List[Alert]
-) -> List[Dict[str, str]]:
+) -> List[EarthquakeProgress]:
     """
     List the alert state and severity for each zone affected by the earthquake.
     """

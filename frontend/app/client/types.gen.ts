@@ -38,6 +38,37 @@ export type EarthquakeCreate = {
     earthquake_id: number;
 };
 
+export type EarthquakeDashboardResponse = {
+    occurrence_time: string;
+    magnitude: string;
+    max_intensity: string;
+    alert_completion_rate: string;
+    alert_activation_rate: string;
+    damage_rate: string;
+    earthquake_event_type: Array<EarthquakeEventType>;
+    earthquake_progress: Array<EarthquakeProgress>;
+};
+
+export type EarthquakeEventType = {
+    type: string;
+    count: number;
+};
+
+export type EarthquakeListItem = {
+    id: number;
+    label: string;
+};
+
+export type EarthquakeListResponse = {
+    earthquakeList: Array<EarthquakeListItem>;
+};
+
+export type EarthquakeProgress = {
+    zone: string;
+    severity: string;
+    state: string;
+};
+
 export type EarthquakePublic = {
     earthquake_magnitude: number;
     earthquake_occurred_at: string;
@@ -165,12 +196,44 @@ export type ZoneCreate = {
     zone_regions: string;
 };
 
+export type ZoneDashboardResponse = {
+    zone_stats: ZoneStats;
+    zone_event_trend: Array<ZoneEventTrend>;
+    zone_magnitude_data: Array<ZoneMagnitudeData>;
+    zone_intensity_data: Array<ZoneIntensityData>;
+};
+
+export type ZoneEventTrend = {
+    date: string;
+    L1: number;
+    L2: number;
+};
+
+export type ZoneIntensityData = {
+    bin: string;
+    count: number;
+};
+
+export type ZoneMagnitudeData = {
+    bin: string;
+    count: number;
+};
+
 export type ZonePublic = {
     zone_name?: string | null;
     zone_note: string;
     zone_regions: string;
     zone_id: number;
     zone_created_at: string;
+};
+
+export type ZoneStats = {
+    total_events: string;
+    alert_activation_rate: string;
+    damage_rate: string;
+    alert_completion_rate: string;
+    alert_suppression_rate: string;
+    avg_response_time: string;
 };
 
 export type ZoneUpdate = {
@@ -1042,6 +1105,61 @@ export type UpdateReportReportReportIdPatchResponses = {
 };
 
 export type UpdateReportReportReportIdPatchResponse = UpdateReportReportReportIdPatchResponses[keyof UpdateReportReportReportIdPatchResponses];
+
+export type GetZoneDashboardDashboardZoneGetData = {
+    body?: never;
+    path?: never;
+    query: {
+        weeks: number;
+        zone_id?: number;
+    };
+    url: '/dashboard/zone';
+};
+
+export type GetZoneDashboardDashboardZoneGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetZoneDashboardDashboardZoneGetError = GetZoneDashboardDashboardZoneGetErrors[keyof GetZoneDashboardDashboardZoneGetErrors];
+
+export type GetZoneDashboardDashboardZoneGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: ZoneDashboardResponse;
+};
+
+export type GetZoneDashboardDashboardZoneGetResponse = GetZoneDashboardDashboardZoneGetResponses[keyof GetZoneDashboardDashboardZoneGetResponses];
+
+export type GetEarthquakeDashboardDashboardEarthquakeGetData = {
+    body?: never;
+    path?: never;
+    query?: {
+        earthquake_id?: number;
+    };
+    url: '/dashboard/earthquake';
+};
+
+export type GetEarthquakeDashboardDashboardEarthquakeGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetEarthquakeDashboardDashboardEarthquakeGetError = GetEarthquakeDashboardDashboardEarthquakeGetErrors[keyof GetEarthquakeDashboardDashboardEarthquakeGetErrors];
+
+export type GetEarthquakeDashboardDashboardEarthquakeGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: EarthquakeDashboardResponse | null;
+};
+
+export type GetEarthquakeDashboardDashboardEarthquakeGetResponse = GetEarthquakeDashboardDashboardEarthquakeGetResponses[keyof GetEarthquakeDashboardDashboardEarthquakeGetResponses];
 
 export type RootGetData = {
     body?: never;
