@@ -11,7 +11,7 @@ import {
 
 export default function Page() {
   const { data: session } = useSession();
-  const [alerts, setAlerts] = useState<AlertPublic[] | undefined>(undefined);
+  const [alerts, setAlerts] = useState<AlertPublic[]>([]);
 
   useEffect(() => {
     async function fetchAlerts() {
@@ -48,14 +48,11 @@ export default function Page() {
 
   return (
     <>
-      <Suspense fallback={<div>Loading auth...</div>}></Suspense>
-      {session?.user && transformedData ? (
+      <Suspense fallback={<div>Loading auth...</div>}>
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-          <AlertDataTable data={transformedData} />
+          <AlertDataTable data={transformedData} setData={setAlerts} />
         </div>
-      ) : (
-        <div></div>
-      )}
+      </Suspense>
     </>
   );
 }

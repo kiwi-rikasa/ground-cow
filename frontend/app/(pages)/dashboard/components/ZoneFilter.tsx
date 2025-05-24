@@ -7,7 +7,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { rangeOptions } from "../utils";
-
+import { Button } from "@/components/ui/button";
+import { RefreshCcwIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 interface ZoneFilterProps {
   zoneOptions: { id: string | number; label: string }[];
   selectedZone: string;
@@ -23,6 +25,7 @@ export function ZoneFilter({
   selectedRange,
   setSelectedRange,
 }: ZoneFilterProps) {
+  const router = useRouter();
   return (
     <div className="flex flex-wrap items-center gap-4 mb-6">
       <label className="block text-sm font-medium text-gray-700">
@@ -58,6 +61,14 @@ export function ZoneFilter({
           ))}
         </SelectContent>
       </Select>
+      <Button
+        variant="outline"
+        size="icon"
+        className="cursor-pointer"
+        onClick={() => router.refresh()}
+      >
+        <RefreshCcwIcon className="w-4 h-4" />
+      </Button>
     </div>
   );
 }

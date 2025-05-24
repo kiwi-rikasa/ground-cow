@@ -311,13 +311,13 @@ function DraggableRow({
   );
 }
 
-export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
-  const [data, setData] = React.useState(() =>
-    initialData.map((item, index) => ({
-      ...item,
-      id: item.alert_id || index + 1,
-    }))
-  );
+export function AlertDataTable({
+  data,
+  setData,
+}: {
+  data: AlertPublic[];
+  setData: React.Dispatch<React.SetStateAction<AlertPublic[]>>;
+}) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -341,7 +341,10 @@ export function AlertDataTable({ data: initialData }: { data: AlertPublic[] }) {
   );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }, index) => id?.toString() || `item-${index}`),
+    () =>
+      data?.map(
+        ({ alert_id }, index) => alert_id?.toString() || `item-${index}`
+      ),
     [data]
   );
 

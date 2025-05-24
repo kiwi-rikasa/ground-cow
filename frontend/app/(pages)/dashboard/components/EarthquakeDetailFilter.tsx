@@ -6,7 +6,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { Button } from "@/components/ui/button";
+import { RefreshCcwIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 interface EarthquakeDetailFilterProps {
   earthquakeList: { id: number; label: string }[];
   selectedEq: number;
@@ -18,6 +20,7 @@ export function EarthquakeDetailFilter({
   selectedEq,
   setSelectedEq,
 }: EarthquakeDetailFilterProps) {
+  const router = useRouter();
   return (
     <div className="flex items-center gap-4">
       <label
@@ -41,6 +44,14 @@ export function EarthquakeDetailFilter({
           ))}
         </SelectContent>
       </Select>
+      <Button
+        variant="outline"
+        size="icon"
+        className="cursor-pointer"
+        onClick={() => router.refresh()}
+      >
+        <RefreshCcwIcon className="w-4 h-4" />
+      </Button>
     </div>
   );
 }

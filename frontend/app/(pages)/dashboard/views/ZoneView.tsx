@@ -4,7 +4,7 @@ import { ZoneEventTrendChart } from "../components/ZoneEventTrendChart";
 import { ZoneHistograms } from "../components/ZoneHistograms";
 import { ZoneFilter } from "../components/ZoneFilter";
 import { rangeOptions } from "../utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   listZonesZoneGet,
   getZoneDashboardDashboardZoneZoneIdGet,
@@ -59,8 +59,18 @@ export function ZoneView() {
     fetchData();
   }, [selectedZone, selectedRange]);
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setRefreshKey((prevKey) => prevKey + 1);
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
-    <>
+    <div key={`zone-view-${refreshKey}`}>
       <ZoneFilter
         zoneOptions={zoneOptions}
         selectedZone={selectedZone}
@@ -78,6 +88,6 @@ export function ZoneView() {
           />
         </>
       )}
-    </>
+    </div>
   );
 }

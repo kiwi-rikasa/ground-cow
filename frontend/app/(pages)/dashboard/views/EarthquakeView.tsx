@@ -8,7 +8,7 @@ import {
   listFilteredEarthquakesDashboardEarthquakeListGet,
   ListFilteredEarthquakesDashboardEarthquakeListGetResponse,
 } from "@/app/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { EarthquakeSummaryCards } from "../components/EarthquakeSummaryCards";
 import { EventTypeBarChart } from "../components/EventTypeBarChart";
 import { EarthquakeProgressTable } from "../components/EarthquakeProgressTable";
@@ -28,6 +28,16 @@ export function EarthquakeView({
   );
   const [earthquakeData, setEarthquakeData] =
     React.useState<EarthquakeDashboardResponse | null>(null);
+
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setRefreshKey((prevKey) => prevKey + 1);
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,7 +70,7 @@ export function EarthquakeView({
   }, [earthquakeData, isEarthquakeOverview]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6" key={`earthquake-view-${refreshKey}`}>
       {isEarthquakeOverview ? (
         <EarthquakeOverviewFilter
           selectedRange={selectedRange}

@@ -7,7 +7,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { rangeOptions } from "../utils";
-
+import { Button } from "@/components/ui/button";
+import { RefreshCcwIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 interface EarthquakesFilterProps {
   selectedRange: number;
   setSelectedRange: (range: number) => void;
@@ -17,6 +19,7 @@ export function EarthquakeOverviewFilter({
   selectedRange,
   setSelectedRange,
 }: EarthquakesFilterProps) {
+  const router = useRouter();
   return (
     <div className="flex items-center gap-4">
       <label className="block text-sm font-medium text-gray-700">
@@ -37,6 +40,14 @@ export function EarthquakeOverviewFilter({
           ))}
         </SelectContent>
       </Select>
+      <Button
+        variant="outline"
+        size="icon"
+        className="cursor-pointer"
+        onClick={() => router.refresh()}
+      >
+        <RefreshCcwIcon className="w-4 h-4" />
+      </Button>
     </div>
   );
 }
