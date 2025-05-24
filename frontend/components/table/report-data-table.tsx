@@ -100,6 +100,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/toast";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -382,8 +383,10 @@ export function ReportDataTable({
       setData((prev) =>
         prev.filter((item) => item.report_id !== report.original.report_id)
       );
+      toast({ message: "Report deleted successfully", type: "success" });
     } catch (error) {
       console.error("Report deletion failed", error);
+      toast({ message: "Failed to delete report", type: "error" });
     }
   };
 
@@ -678,12 +681,6 @@ function TableCellViewer({
   const [factoryZone, setFactoryZone] = React.useState(
     item.report_factory_zone
   );
-  const [isAnimatingIn, setIsAnimatingIn] = React.useState(false);
-  const [alert, setAlert] = React.useState<{
-    type: "success" | "error";
-    message: string;
-    visible: boolean;
-  }>({ type: "success", message: "", visible: false });
 
   const handleUpdate = async () => {
     try {
@@ -703,7 +700,10 @@ function TableCellViewer({
       });
 
       const updatedReport = res.data;
-      if (!updatedReport) return;
+      if (!updatedReport) {
+        toast({ message: "Failed to get updated report", type: "error" });
+        return;
+      }
 
       setData((prev) =>
         prev.map((report) =>
@@ -711,26 +711,10 @@ function TableCellViewer({
         )
       );
 
-      setAlert({
-        type: "success",
-        message: "The report was updated successfully.",
-        visible: true,
-      });
-
-      setIsAnimatingIn(true);
-      setTimeout(() => setIsAnimatingIn(false), 3000);
-      setTimeout(() => setAlert((prev) => ({ ...prev, visible: false })), 3300);
+      toast({ message: "Report updated successfully", type: "success" });
     } catch (error) {
       console.error("Report update failed", error);
-      setAlert({
-        type: "error",
-        message: "Failed to update the report.",
-        visible: true,
-      });
-
-      setIsAnimatingIn(true);
-      setTimeout(() => setIsAnimatingIn(false), 3000);
-      setTimeout(() => setAlert((prev) => ({ ...prev, visible: false })), 3300);
+      toast({ message: "Failed to update report", type: "error" });
     }
   };
 
@@ -873,22 +857,6 @@ function TableCellViewer({
             </div>
           </form>
         </div>
-        {alert.visible && (
-          <Alert
-            className={cn(
-              "fixed top-4 right-4 z-50 w-80 border shadow-lg rounded-md bg-white dark:bg-zinc-900 p-4",
-              isAnimatingIn
-                ? "animate-in fade-in slide-in-from-right duration-300"
-                : "animate-out fade-out slide-out-to-right duration-300"
-            )}
-          >
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>
-              {alert.type === "error" ? "Error!" : "Success!"}
-            </AlertTitle>
-            <AlertDescription>{alert.message}</AlertDescription>
-          </Alert>
-        )}
         <DrawerFooter>
           <Button className="cursor-pointer" onClick={handleUpdate}>
             Update

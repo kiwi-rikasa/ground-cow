@@ -28,6 +28,7 @@ import {
   AlertPublic,
 } from "@/app/client/";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { toast } from "@/components/ui/toast";
 
 interface CreateReportDialogProps {
   initialAlertId?: number;
@@ -84,9 +85,11 @@ export function CreateReportDialog({
         },
       });
 
+      toast({ message: "Report created successfully", type: "success" });
       handleClear();
     } catch (error) {
       console.error("Report creation failed", error);
+      toast({ message: "Failed to create report", type: "error" });
     }
   };
 

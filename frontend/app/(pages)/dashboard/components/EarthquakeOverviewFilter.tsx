@@ -10,6 +10,7 @@ import { rangeOptions } from "../utils";
 import { Button } from "@/components/ui/button";
 import { RefreshCcwIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 interface EarthquakesFilterProps {
   selectedRange: number;
   setSelectedRange: (range: number) => void;
@@ -44,7 +45,10 @@ export function EarthquakeOverviewFilter({
         variant="outline"
         size="icon"
         className="cursor-pointer"
-        onClick={() => router.refresh()}
+        onClick={() => {
+          router.refresh();
+          toast.success("地震總覽已更新");
+        }}
       >
         <RefreshCcwIcon className="w-4 h-4" />
       </Button>

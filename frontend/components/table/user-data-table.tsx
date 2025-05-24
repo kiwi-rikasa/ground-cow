@@ -94,6 +94,7 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { UserPublic } from "@/app/client";
+import { toast } from "@/components/ui/toast";
 
 export type UserDataInput = {
   user_id: number;
@@ -332,6 +333,7 @@ export function UserDataTable({
       setData((data) => {
         const oldIndex = dataIds.indexOf(active.id);
         const newIndex = dataIds.indexOf(over.id);
+        toast({ message: "User order updated", type: "success" });
         return arrayMove(data, oldIndex, newIndex);
       });
     }

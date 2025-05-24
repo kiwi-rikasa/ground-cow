@@ -93,6 +93,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { AlertPublic } from "@/app/client/types.gen";
 import { CreateReportDialog } from "@/components/create-report-dialog";
+import { toast } from "@/components/ui/toast";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -386,6 +387,7 @@ export function AlertDataTable({
       setData((data) => {
         const oldIndex = dataIds.indexOf(active.id);
         const newIndex = dataIds.indexOf(over.id);
+        toast({ message: "Alert order updated", type: "success" });
         return arrayMove(data, oldIndex, newIndex);
       });
     }

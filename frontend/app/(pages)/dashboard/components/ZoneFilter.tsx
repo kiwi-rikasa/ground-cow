@@ -10,6 +10,7 @@ import { rangeOptions } from "../utils";
 import { Button } from "@/components/ui/button";
 import { RefreshCcwIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 interface ZoneFilterProps {
   zoneOptions: { id: string | number; label: string }[];
   selectedZone: string;
@@ -65,7 +66,10 @@ export function ZoneFilter({
         variant="outline"
         size="icon"
         className="cursor-pointer"
-        onClick={() => router.refresh()}
+        onClick={() => {
+          router.refresh();
+          toast.success("廠區視圖已更新");
+        }}
       >
         <RefreshCcwIcon className="w-4 h-4" />
       </Button>

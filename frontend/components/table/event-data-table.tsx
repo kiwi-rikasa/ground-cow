@@ -90,6 +90,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
+import { toast } from "@/components/ui/toast";
 
 import { EventPublic } from "@/app/client";
 
@@ -389,6 +390,7 @@ export function EventDataTable({
       setData((data) => {
         const oldIndex = dataIds.indexOf(active.id);
         const newIndex = dataIds.indexOf(over.id);
+        toast({ message: "Event order updated", type: "success" });
         return arrayMove(data, oldIndex, newIndex);
       });
     }
