@@ -57,7 +57,7 @@ def save_earthquake(earthquake: Earthquake) -> tuple[int, dict]:
             "earthquake_id": earthquake.id,
             "earthquake_occurred_at": earthquake.timestamp,
             "earthquake_magnitude": earthquake.magnitude,
-            "earthquake_source": "CWA",
+            "earthquake_source": earthquake.source,
         }
         response = requests.post(
             EQUAKE_API_URL,
