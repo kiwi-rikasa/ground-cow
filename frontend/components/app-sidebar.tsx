@@ -14,6 +14,7 @@ import {
   IconSettings,
   IconUsers,
   IconAlertCircle,
+  IconGlobe,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -46,6 +47,11 @@ const data = {
       title: "Reports",
       url: "/reports",
       icon: IconListDetails,
+    },
+    {
+      title: "Earthquakes",
+      url: "/earthquakes",
+      icon: IconGlobe,
     },
     {
       title: "Events",

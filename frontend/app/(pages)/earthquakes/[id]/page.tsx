@@ -11,12 +11,8 @@ import { EventTypeBarChart } from "@/app/(pages)/dashboard/components/EventTypeB
 import { EarthquakeProgressTable } from "@/app/(pages)/dashboard/components/EarthquakeProgressTable";
 import { useParams } from "next/navigation";
 
-export default function EarthquakeDetail({
-  passedEarthquakeId,
-}: {
-  passedEarthquakeId: number;
-}) {
-  const earthquakeId = useParams().id ?? passedEarthquakeId;
+export default function EarthquakeDetail() {
+  const earthquakeId = useParams().id;
   const [earthquakeData, setEarthquakeData] =
     React.useState<EarthquakeDashboardResponse | null>(null);
 
