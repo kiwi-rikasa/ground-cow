@@ -28,6 +28,7 @@ import {
   IconChevronsRight,
   IconCircleCheckFilled,
   IconDotsVertical,
+  IconExternalLink,
   IconGripVertical,
   IconLayoutColumns,
   IconXboxXFilled,
@@ -60,7 +61,6 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import {
   DropdownMenu,
@@ -72,7 +72,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -97,10 +96,8 @@ import {
   getReportReportReportIdGet,
   deleteReportReportReportIdDelete,
 } from "@/app/client/";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
+import { cn } from "@/lib/utils";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -308,7 +305,13 @@ export function ColumnDefinitionHandler({
   return columns;
 }
 
-function DraggableRow({ row }: { row: Row<ReportPublic> }) {
+function DraggableRow({
+  row,
+  handleSelectedReport,
+}: {
+  row: Row<ReportPublic>;
+  handleSelectedReport?: (report: Row<ReportPublic>) => void;
+}) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.report_id,
   });
@@ -318,11 +321,15 @@ function DraggableRow({ row }: { row: Row<ReportPublic> }) {
       data-state={row.getIsSelected() && "selected"}
       data-dragging={isDragging}
       ref={setNodeRef}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      className={cn(
+        "relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80",
+        handleSelectedReport && "cursor-pointer"
+      )}
       style={{
         transform: CSS.Transform.toString(transform),
         transition: transition,
       }}
+      onClick={() => handleSelectedReport && handleSelectedReport(row)}
     >
       {row.getVisibleCells().map((cell) => (
         <TableCell key={cell.id}>
@@ -526,7 +533,11 @@ export function ReportDataTable({
                       strategy={verticalListSortingStrategy}
                     >
                       {table.getRowModel().rows.map((row) => (
-                        <DraggableRow key={row.id} row={row} />
+                        <DraggableRow
+                          key={row.id}
+                          row={row}
+                          handleSelectedReport={handleSelectedReport}
+                        />
                       ))}
                     </SortableContext>
                   ) : (
@@ -678,9 +689,6 @@ function TableCellViewer({
 
   const [actionFlag, setActionFlag] = React.useState(item.report_action_flag);
   const [damageFlag, setDamageFlag] = React.useState(item.report_damage_flag);
-  const [factoryZone, setFactoryZone] = React.useState(
-    item.report_factory_zone
-  );
 
   const handleUpdate = async () => {
     try {
@@ -688,7 +696,6 @@ function TableCellViewer({
         body: {
           report_action_flag: actionFlag,
           report_damage_flag: damageFlag,
-          report_factory_zone: factoryZone,
         },
         path: {
           report_id: item.report_id,
@@ -724,61 +731,104 @@ function TableCellViewer({
       onOpenChange={onOpenChange}
       direction={isMobile ? "bottom" : "right"}
     >
-      <DrawerTrigger asChild>
-        <Button
-          variant="link"
-          className="text-foreground w-fit px-0 text-left cursor-pointer"
-        >
-          {item.report_id}
-        </Button>
-      </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>Report #{item.report_id}</DrawerTitle>
+          <DrawerTitle className="text-2xl font-bold">
+            Report #{item.report_id}
+          </DrawerTitle>
           <DrawerDescription>
-            Please provide the detailed report information.
+            Report details and related information
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+          <Separator />
+          <div className="text-lg font-bold flex items-center gap-1">
+            Event #{item.alert?.event?.event_id}{" "}
+            <Button variant="ghost" size="icon" className="cursor-pointer">
+              <IconExternalLink />
+            </Button>
+          </div>
+          <div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="event_intensity">Event Intensity</Label>
+              </div>
+              <div id="event_intensity" className="w-full py-2 rounded-md">
+                {item.alert?.event?.event_intensity}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="event_severity">Event Severity</Label>
+              </div>
+              <div id="event_severity" className="w-full py-2 rounded-md">
+                {item.alert?.event?.event_severity}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="event_created_at">Created At</Label>
+              </div>
+              <div id="event_created_at" className="w-full py-2 rounded-md">
+                {item.alert?.event?.event_created_at
+                  ? format(
+                      item.alert.event.event_created_at,
+                      "yyyy-MM-dd HH:mm:ss"
+                    )
+                  : "-"}
+              </div>
+            </div>
+          </div>
+          <Separator />
+          <div className="text-lg font-bold flex items-center gap-1">
+            Alert #{item.alert?.alert_id}{" "}
+            <Button variant="ghost" size="icon" className="cursor-pointer">
+              <IconExternalLink />
+            </Button>
+          </div>
+          <div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="alert_state">Alert State</Label>
+              </div>
+              <div id="alert_state" className="w-full py-2 rounded-md">
+                {item.alert?.alert_state}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="zone_name">Zone</Label>
+              </div>
+              <div id="zone_name" className="w-full py-2 rounded-md">
+                {item.alert?.zone?.zone_name}
+              </div>
+            </div>
+          </div>
+          <Separator />
           {!isMobile && (
             <>
-              <Separator />
-              <div className="grid grid-cols-1 gap-4">
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="reportedAt">Reported At</Label>
-                  <div
-                    id="reportedAt"
-                    className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-                  >
-                    {format(
-                      new Date(item.report_reported_at),
-                      "yyyy-MM-dd HH:mm:ss"
-                    )}
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex flex-col gap-3">
+                    <Label className="font-bold" htmlFor="reportedAt">
+                      Reported At
+                    </Label>
+                    <div id="reportedAt" className="w-full py-2 rounded-md">
+                      {format(
+                        new Date(item.report_reported_at),
+                        "yyyy-MM-dd HH:mm:ss"
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="createdAt">Created At</Label>
-                  <div
-                    id="createdAt"
-                    className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-                  >
-                    {format(
-                      new Date(item.report_created_at),
-                      "yyyy-MM-dd HH:mm:ss"
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="userId">User ID</Label>
-                  <div
-                    id="userId"
-                    className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-                  >
-                    {item.user_id ? item.user_id : "N/A"}
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex flex-col gap-3">
+                    <Label className="font-bold" htmlFor="userId">
+                      User Name
+                    </Label>
+                    <div id="userId" className="w-full py-2 rounded-md">
+                      {item.user?.user_name ? item.user.user_name : "N/A"}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -787,7 +837,9 @@ function TableCellViewer({
           <form className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
-                <Label htmlFor="actionFlag">Action Flag</Label>
+                <Label className="font-bold" htmlFor="actionFlag">
+                  Action Flag
+                </Label>
                 <Select
                   value={actionFlag ? "true" : "false"}
                   onValueChange={(value) => setActionFlag(value === "true")}
@@ -809,7 +861,9 @@ function TableCellViewer({
                 </Select>
               </div>
               <div className="flex flex-col gap-3">
-                <Label htmlFor="damageFlag">Damage Flag</Label>
+                <Label className="font-bold" htmlFor="damageFlag">
+                  Damage Flag
+                </Label>
                 <Select
                   value={damageFlag ? "true" : "false"}
                   onValueChange={(value) => setDamageFlag(value === "true")}
@@ -829,30 +883,6 @@ function TableCellViewer({
                     </SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="factoryZone">Factory Zone</Label>
-                <Input
-                  id="factoryZone"
-                  type="number"
-                  min={0}
-                  value={factoryZone?.toString() || ""}
-                  onChange={(e) => setFactoryZone(Number(e.target.value))}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="descriptions">Additional Notes</Label>
-                <Textarea id="descriptions" defaultValue={""} />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="attachments">Attachments</Label>
-                <Input id="attachments" type="file" />
               </div>
             </div>
           </form>

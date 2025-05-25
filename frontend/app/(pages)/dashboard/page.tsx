@@ -17,7 +17,7 @@ export default function Page() {
   return (
     <div className="flex flex-1 flex-col">
       <Card className="p-0 bg-background/80 rounded-none shadow-none">
-        <div className="px-4 pt-4 pb-0 sm:px-8">
+        <div className="p-4 sm:px-8">
           <Tabs defaultValue="zone" className="w-full">
             <TabsList className="mb-4 flex w-full justify-center gap-2 rounded-xl bg-muted/60 p-1 shadow-inner">
               <TabsTrigger

@@ -32,6 +32,7 @@ import {
   IconAlertTriangleFilled,
   IconCheck,
   IconX,
+  IconExternalLink,
 } from "@tabler/icons-react";
 import {
   ColumnDef,
@@ -67,12 +68,10 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -268,10 +267,8 @@ export function ColumnDefinitionHandler({
             <DropdownMenuItem onClick={() => handleSelectedAlert(row)}>
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem>View Event</DropdownMenuItem>
-            <DropdownMenuItem>Suppress</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+            {/* <DropdownMenuSeparator /> */}
+            {/* <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -283,9 +280,11 @@ export function ColumnDefinitionHandler({
 function DraggableRow({
   row,
   index,
+  handleSelectedAlert,
 }: {
   row: Row<AlertPublic>;
   index: number;
+  handleSelectedAlert?: (row: Row<AlertPublic>) => void;
 }) {
   const rowId = row.id || `row-${index}`;
   const { transform, transition, setNodeRef, isDragging } = useSortable({
@@ -301,7 +300,9 @@ function DraggableRow({
       style={{
         transform: CSS.Transform.toString(transform),
         transition: transition,
+        cursor: handleSelectedAlert ? "pointer" : "default",
       }}
+      onClick={() => handleSelectedAlert && handleSelectedAlert(row)}
     >
       {row.getVisibleCells().map((cell) => (
         <TableCell key={cell.id || `cell-${row.id}-${cell.column.id}`}>
@@ -494,6 +495,7 @@ export function AlertDataTable({
                           key={row.id || `unique-row-${index}`}
                           row={row}
                           index={index}
+                          handleSelectedAlert={handleSelectedAlert}
                         />
                       ))}
                     </SortableContext>
@@ -631,79 +633,98 @@ function TableCellViewer({
     >
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>Alert {item.alert_id}</DrawerTitle>
+          <DrawerTitle className="text-2xl font-bold">
+            Alert #{item.alert_id}
+          </DrawerTitle>
           <DrawerDescription>
             Alert details and related information
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
           <Separator />
+          <div className="text-lg font-bold flex items-center gap-1">
+            Event {item.event?.event_id}{" "}
+            <Button variant="ghost" size="icon" className="cursor-pointer">
+              <IconExternalLink />
+            </Button>
+          </div>
+          <div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="event_intensity">Event Intensity</Label>
+              </div>
+              <div id="event_intensity" className="w-full py-2 rounded-md">
+                {item.event.event_intensity}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="event_severity">Event Severity</Label>
+              </div>
+              <div id="event_severity" className="w-full py-2 rounded-md">
+                {item.event.event_severity}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="event_created_at">Created At</Label>
+              </div>
+              <div id="event_created_at" className="w-full py-2 rounded-md">
+                {item.event?.event_created_at
+                  ? format(item.event.event_created_at, "yyyy-MM-dd HH:mm:ss")
+                  : "-"}
+              </div>
+            </div>
+          </div>
+          <Separator />
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="alert_created_at">Created At</Label>
-              <div
-                id="alert_created_at"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
+              <Label className="font-bold" htmlFor="alert_created_at">
+                Created At
+              </Label>
+              <div id="alert_created_at" className="w-full py-2 rounded-md">
                 {item.alert_created_at
                   ? format(item.alert_created_at, "yyyy-MM-dd HH:mm:ss")
                   : "-"}
               </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="event_id">Event ID</Label>
-              <div
-                id="event_id"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.event_id || "-"}
-              </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="zone_id">Zone</Label>
-              <div
-                id="zone_id"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
+              <Label className="font-bold" htmlFor="zone_id">
+                Zone
+              </Label>
+              <div id="zone_id" className="w-full py-2 rounded-md">
                 {item.zone?.zone_name || "-"}
               </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="alert_is_suppressed_by">Suppressed By</Label>
+              <Label className="font-bold" htmlFor="alert_is_suppressed_by">
+                Suppressed By
+              </Label>
               <div
                 id="alert_is_suppressed_by"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
+                className="w-full py-2 rounded-md"
               >
                 {item.alert_is_suppressed_by || "Not suppressed"}
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <Label htmlFor="alert_state">State</Label>
-              <div
-                id="alert_state"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
+              <Label className="font-bold" htmlFor="alert_state">
+                State
+              </Label>
+              <div id="alert_state" className="w-full py-2 rounded-md">
                 {item.alert_state || "-"}
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea id="notes" defaultValue={""} />
-            </div>
-          </div>
+          <Separator />
         </div>
         <DrawerFooter>
           <CreateReportDialog
             initialAlertId={item.alert_id}
             trigger={<Button className="cursor-pointer">Create Report</Button>}
           />
-          <Button className="cursor-pointer">Update</Button>
           <DrawerClose asChild>
             <Button className="cursor-pointer" variant="outline">
               Close

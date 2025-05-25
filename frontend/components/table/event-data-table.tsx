@@ -28,6 +28,7 @@ import {
   IconChevronsRight,
   IconCircleCheckFilled,
   IconDotsVertical,
+  IconExternalLink,
   IconGripVertical,
   IconLayoutColumns,
 } from "@tabler/icons-react";
@@ -59,7 +60,6 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import {
   DropdownMenu,
@@ -71,7 +71,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -93,6 +92,8 @@ import { format } from "date-fns";
 import { toast } from "@/components/ui/toast";
 
 import { EventPublic } from "@/app/client";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -287,9 +288,11 @@ export function ColumnDefinitionHandler({
 function DraggableRow({
   row,
   index,
+  handleSelectedEvent,
 }: {
   row: Row<EventPublic>;
   index: number;
+  handleSelectedEvent?: (event: Row<EventPublic>) => void;
 }) {
   const rowId = row.id || `row-${index}`;
   const { transform, transition, setNodeRef, isDragging } = useSortable({
@@ -301,7 +304,11 @@ function DraggableRow({
       data-state={row.getIsSelected() && "selected"}
       data-dragging={isDragging}
       ref={setNodeRef}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      className={cn(
+        "relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80",
+        handleSelectedEvent && "cursor-pointer"
+      )}
+      onClick={() => handleSelectedEvent && handleSelectedEvent(row)}
       style={{
         transform: CSS.Transform.toString(transform),
         transition: transition,
@@ -497,6 +504,7 @@ export function EventDataTable({
                           key={row.id || `unique-row-${index}`}
                           row={row}
                           index={index}
+                          handleSelectedEvent={handleSelectedEvent}
                         />
                       ))}
                     </SortableContext>
@@ -643,6 +651,7 @@ function TableCellViewer({
   onOpenChange: (open: boolean) => void;
 }) {
   const isMobile = useIsMobile();
+  const router = useRouter();
 
   return (
     <Drawer
@@ -650,75 +659,81 @@ function TableCellViewer({
       onOpenChange={onOpenChange}
       direction={isMobile ? "bottom" : "right"}
     >
-      <DrawerTrigger asChild>
-        <Button
-          variant="link"
-          className="text-foreground w-fit px-0 text-left cursor-pointer"
-        >
-          {item.event_id}
-        </Button>
-      </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>Event {item.event_id}</DrawerTitle>
+          <DrawerTitle className="text-2xl font-bold">
+            Event #{item.event_id}
+          </DrawerTitle>
           <DrawerDescription>
             Event details and related information
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
           <Separator />
-          <div className="grid grid-cols-1 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="event_created_at">Created At</Label>
+          <div className="text-lg font-bold flex items-center gap-1">
+            Earthquake #{item.earthquake?.earthquake_id}{" "}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="cursor-pointer"
+              onClick={() => {
+                router.push(`/earthquakes/${item.earthquake?.earthquake_id}`);
+              }}
+            >
+              <IconExternalLink />
+            </Button>
+          </div>
+          <div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="earthquake_magnitude">Magnitude</Label>
+              </div>
+              <div id="earthquake_magnitude" className="w-full py-2 rounded-md">
+                {item.earthquake?.earthquake_magnitude}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="earthquake_occurred_at">Occurred At</Label>
+              </div>
               <div
-                id="event_created_at"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
+                id="earthquake_occurred_at"
+                className="w-full py-2 rounded-md"
               >
+                {item.earthquake?.earthquake_occurred_at
+                  ? format(
+                      item.earthquake.earthquake_occurred_at,
+                      "yyyy-MM-dd HH:mm:ss"
+                    )
+                  : "-"}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 justify-between">
+              <div className="flex gap-3 w-full">
+                <Label htmlFor="earthquake_source">Source</Label>
+              </div>
+              <div id="earthquake_source" className="w-full py-2 rounded-md">
+                {item.earthquake.earthquake_source}
+              </div>
+            </div>
+          </div>
+          <Separator />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
+              <Label className="font-bold" htmlFor="event_created_at">
+                Created At
+              </Label>
+              <div id="event_created_at" className="w-full py-2 rounded-md">
                 {item.event_created_at
                   ? format(item.event_created_at, "yyyy-MM-dd HH:mm:ss")
                   : "-"}
               </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="earthquake_id">Earthquake ID</Label>
-              <div
-                id="earthquake_id"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.earthquake_id || "-"}
-              </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="zone_id">Zone</Label>
-              <div
-                id="zone_id"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.zone?.zone_name || "-"}
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="event_intensity">Intensity</Label>
-              <div
-                id="event_intensity"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
-                {item.event_intensity !== undefined &&
-                item.event_intensity !== null
-                  ? item.event_intensity.toFixed(1)
-                  : "-"}
-              </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="event_severity">Severity</Label>
-              <div
-                id="event_severity"
-                className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground"
-              >
+              <Label className="font-bold" htmlFor="event_severity">
+                Severity
+              </Label>
+              <div id="event_severity" className="w-full py-2 rounded-md">
                 {item.event_severity !== undefined &&
                 item.event_severity !== null
                   ? item.event_severity
@@ -726,10 +741,25 @@ function TableCellViewer({
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea id="notes" defaultValue={""} />
+              <Label className="font-bold" htmlFor="zone_id">
+                Zone
+              </Label>
+              <div id="zone_id" className="w-full py-2 rounded-md">
+                {item.zone?.zone_name || "-"}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label className="font-bold" htmlFor="event_intensity">
+                Intensity
+              </Label>
+              <div id="event_intensity" className="w-full py-2 rounded-md">
+                {item.event_intensity !== undefined &&
+                item.event_intensity !== null
+                  ? item.event_intensity.toFixed(1)
+                  : "-"}
+              </div>
             </div>
           </div>
         </div>
