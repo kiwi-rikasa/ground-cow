@@ -29,7 +29,6 @@ import {
   IconDotsVertical,
   IconGripVertical,
   IconLayoutColumns,
-  IconCheck,
   IconUserShield,
   IconUserCog,
   IconUser,
