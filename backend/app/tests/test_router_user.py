@@ -12,6 +12,7 @@ def test_user(db_session: Session):
         user_email="test@example.com",
         user_name="Test User",
         user_role=UserRole.operator,
+        zone_id=1,
     )
     db_session.add(user)
     db_session.commit()

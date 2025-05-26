@@ -44,9 +44,14 @@ def get_user(
     """
     Get a specific user by ID.
     """
-    user = session.get(User, user_id).options(selectinload(User.zone))
+    user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    else:
+        user.zone = session.exec(
+            select(Zone).where(Zone.zone_id == user.zone_id)
+        ).first()
+
     return user
 
 
