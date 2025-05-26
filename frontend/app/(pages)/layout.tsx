@@ -1,11 +1,10 @@
 "use client";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { LoginDialog } from "@/components/login-dialog";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
-import { useEffect } from "react";
 
 export default function PagesLayout({
   children,
@@ -14,16 +13,21 @@ export default function PagesLayout({
 }) {
   const { status } = useSession();
 
-  // Redirect to login page if not authenticated
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      redirect("/auth/login");
-    }
-  }, [status]);
-
   // Show loading state while checking authentication
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div className="text-2xl font-bold">Loading...</div>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <LoginDialog />
+      </div>
+    );
   }
 
   return (
