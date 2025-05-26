@@ -1,9 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional
 from sqlmodel import select
-from ...models.models import User
+from sqlalchemy.orm import selectinload
+
+from ...models.models import User, Zone
 from ...models.schemas.user import UserCreate, UserUpdate, UserPublic, UsersPublic
-from app.api.deps import SessionDep, require_controller, require_admin
+from app.api.deps import (
+    SessionDep,
+    require_controller,
+    require_admin,
+    validate_fk_exists,
+)
 
 user_router = APIRouter()
 
@@ -19,7 +26,7 @@ def list_users(
     """
     Get all users.
     """
-    query = select(User)
+    query = select(User).options(selectinload(User.zone))
 
     if user_role is not None:
         query = query.where(User.user_role == user_role)
@@ -37,7 +44,7 @@ def get_user(
     """
     Get a specific user by ID.
     """
-    user = session.get(User, user_id)
+    user = session.get(User, user_id).options(selectinload(User.zone))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
@@ -52,6 +59,7 @@ def create_user(
     """
     Create a new user.
     """
+    validate_fk_exists(session, Zone, user_in.zone_id, "zone_id")
     user = User.model_validate(user_in)
     session.add(user)
     session.commit()

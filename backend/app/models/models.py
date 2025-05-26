@@ -12,8 +12,12 @@ class User(SQLModel, table=True):
     user_email: str = Field(unique=True)
     user_name: str
     user_role: UserRole = Field(default=UserRole.operator)  # admin/control/operator
+    zone_id: Optional[int] = Field(
+        default=None, foreign_key="zone.zone_id", ondelete="SET NULL", nullable=True
+    )
 
     reports: list["Report"] = Relationship(back_populates="user")
+    zone: "Zone" = Relationship(back_populates="users")
 
 
 class Earthquake(SQLModel, table=True):
@@ -84,6 +88,8 @@ class Zone(SQLModel, table=True):
     events: list["Event"] = Relationship(back_populates="zone")
     alerts: list["Alert"] = Relationship(back_populates="zone")
     reports: list["Report"] = Relationship(back_populates="zone")
+
+    users: list["User"] = Relationship(back_populates="zone")
 
 
 class Report(SQLModel, table=True):

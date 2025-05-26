@@ -1,4 +1,4 @@
-"""Added initial table
+"""Add initial table
 
 Revision ID: 0c0ca2db16b5
 Revises:

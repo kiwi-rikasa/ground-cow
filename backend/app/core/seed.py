@@ -83,6 +83,7 @@ def seed_db(session: Session) -> None:
             else UserRole.control
             if i == 1
             else UserRole.operator,
+            zone_id=zones[i % 5].zone_id,
         )
         for i in range(5)
     ]
@@ -95,7 +96,7 @@ def seed_db(session: Session) -> None:
             user_id=users[i % 5].user_id,
             report_action_flag=(i % 2 == 0),
             report_damage_flag=(i % 2 == 1),
-            report_factory_zone=zones[i % 5].zone_id,
+            report_factory_zone=zones[i % len(zones)].zone_id,
             report_reported_at=datetime.now(),
         )
         for i in range(30)
