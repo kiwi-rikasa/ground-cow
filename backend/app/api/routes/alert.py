@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Literal
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
+
+from app.services.alert import send_email
 from ...models.models import Alert, Event, Zone, User
 from ...models.schemas.alert import AlertCreate, AlertUpdate, AlertPublic, AlertsPublic
 from app.api.deps import (
@@ -78,14 +80,22 @@ def create_alert(
     """
     validate_fk_exists(session, Event, alert_in.event_id, "event_id")
     validate_fk_exists(session, Zone, alert_in.zone_id, "zone_id")
-    validate_fk_exists(
-        session, Alert, alert_in.alert_is_suppressed_by, "alert_is_suppressed_by"
-    )
+    validate_fk_exists(session, Alert, alert_in.alert_is_suppressed_by, "alert_id")
 
     alert = Alert.model_validate(alert_in)
+
     session.add(alert)
     session.commit()
     session.refresh(alert)
+
+    if alert.alert_is_suppressed_by is None:
+        users = session.exec(select(User).where(User.zone_id == alert.zone_id)).all()
+        send_email(
+            f"Alert {alert.alert_id}",
+            f"Hi! please check the alert {alert.alert_id} for zone {alert.zone.zone_name}",
+            [user.user_email for user in users],
+        )
+
     return alert
 
 
