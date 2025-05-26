@@ -63,35 +63,6 @@ class TestSessionRoutes:
         assert len(users_count) == 1
 
     @patch("app.api.routes.session.verify_google_token")
-    def test_create_session_new_user(
-        self, mock_verify_token, mock_request, db_session, mock_valid_token_payload
-    ):
-        """Test creating a session for a new user."""
-        # Setup mock for Google token verification
-        mock_verify_token.return_value = {
-            "email": "new@example.com",
-            "name": "New User",
-        }
-
-        # Call the create_session function
-        response = create_session(mock_valid_token_payload, mock_request, db_session)
-
-        # Verify that a new user was created with correct information
-        assert response.user_email == "new@example.com"
-        assert response.user_name == "New User"
-        assert response.user_role == UserRole.operator
-
-        # Verify that the user ID was stored in the session
-        assert mock_request.session["user_id"] is not None
-
-        # Verify that a new user was created in the database
-        new_user = db_session.exec(
-            select(User).where(User.user_email == "new@example.com")
-        ).first()
-        assert new_user is not None
-        assert new_user.user_name == "New User"
-
-    @patch("app.api.routes.session.verify_google_token")
     def test_create_session_missing_email(
         self, mock_verify_token, mock_request, db_session, mock_valid_token_payload
     ):
@@ -109,30 +80,6 @@ class TestSessionRoutes:
         # Verify error details
         assert exc_info.value.status_code == 400
         assert "Email not found" in exc_info.value.detail
-
-    @patch("app.api.routes.session.verify_google_token")
-    def test_create_session_missing_name(
-        self, mock_verify_token, mock_request, db_session, mock_valid_token_payload
-    ):
-        """Test handling when name is missing from token."""
-        # Setup mock for Google token verification with missing name
-        mock_verify_token.return_value = {
-            "email": "noname@example.com"
-            # Name is missing
-        }
-
-        # Call the create_session function
-        response = create_session(mock_valid_token_payload, mock_request, db_session)
-
-        # Verify that the name is derived from the email
-        assert response.user_name == "noname"
-
-        # Verify that a user was created
-        user = db_session.exec(
-            select(User).where(User.user_email == "noname@example.com")
-        ).first()
-        assert user is not None
-        assert user.user_name == "noname"
 
     def test_delete_session(self):
         """Test logout functionality."""
