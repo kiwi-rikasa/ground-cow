@@ -97,6 +97,7 @@ import {
   UserRole,
   updateUserUserUserIdPatch,
   getUserUserUserIdGet,
+  deleteUserUserUserIdDelete,
 } from "@/app/client";
 import { toast } from "@/components/ui/toast";
 import { CreateUserDialog } from "@/components/create-user-dialog";
@@ -122,10 +123,12 @@ function DragHandle({ id }: { id: number }) {
 
 interface ColumnDefinitionHandlerProps {
   handleSelectedUser: (report: Row<UserPublic>) => void;
+  handleDeletion: (report: Row<UserPublic>) => void;
 }
 
 export function ColumnDefinitionHandler({
   handleSelectedUser,
+  handleDeletion,
 }: ColumnDefinitionHandlerProps): ColumnDef<UserPublic>[] {
   const columns: ColumnDef<UserPublic>[] = [
     {
@@ -234,7 +237,7 @@ export function ColumnDefinitionHandler({
     },
     {
       id: "actions",
-      cell: () => (
+      cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild role="button">
             <Button
@@ -250,7 +253,12 @@ export function ColumnDefinitionHandler({
             <DropdownMenuItem>View Profile</DropdownMenuItem>
             <DropdownMenuItem>Edit User</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => handleDeletion(row)}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -324,8 +332,26 @@ export function UserDataTable({
     setDrawerOpen(true);
   }
 
+  const handleDeletion = async (report: Row<UserPublic>) => {
+    try {
+      await deleteUserUserUserIdDelete({
+        path: {
+          user_id: report.original.user_id,
+        },
+      });
+      setData((prev) =>
+        prev.filter((item) => item.user_id !== report.original.user_id)
+      );
+      toast({ message: "User deleted successfully", type: "success" });
+    } catch (error) {
+      console.error("User deletion failed", error);
+      toast({ message: "Failed to delete user", type: "error" });
+    }
+  };
+
   const columns = ColumnDefinitionHandler({
     handleSelectedUser,
+    handleDeletion,
   });
 
   const table = useReactTable({
