@@ -23,7 +23,7 @@ export type CreateClientConfig<T extends DefaultClientOptions = ClientOptions> =
 
 export const client = createClient(
   createConfig<ClientOptions>({
-    baseUrl: "http://localhost:8000",
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
     credentials: "include",
   })
 );

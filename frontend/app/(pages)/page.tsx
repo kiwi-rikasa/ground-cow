@@ -1,16 +1,10 @@
 "use client";
 import { AlertDataTable } from "@/components/table/alert-data-table";
-import { useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 
-import {
-  AlertPublic,
-  createSessionSessionPost,
-  listAlertsAlertGet,
-} from "@/app/client";
+import { AlertPublic, listAlertsAlertGet } from "@/app/client";
 
 export default function Page() {
-  const { data: session } = useSession();
   const [alerts, setAlerts] = useState<AlertPublic[]>([]);
 
   useEffect(() => {
@@ -24,19 +18,6 @@ export default function Page() {
     }
     fetchAlerts();
   }, []);
-
-  useEffect(() => {
-    async function setSession() {
-      if (session?.idToken) {
-        await createSessionSessionPost({
-          body: {
-            id_token: session?.idToken,
-          },
-        });
-      }
-    }
-    setSession();
-  }, [session]);
 
   const transformedData = alerts?.map((item) => ({
     ...item,

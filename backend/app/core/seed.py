@@ -7,11 +7,22 @@ from app.core.config import settings
 
 
 def seed_db(session: Session) -> None:
+    # Create super user if not exists
+    user = User(
+        user_email=settings.FIRST_SUPERUSER,
+        user_name=settings.FIRST_SUPERUSER.split("@")[0],
+        user_role=UserRole.admin,
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    # Skip seed data if not local environment
     if settings.ENVIRONMENT != "local":
         print("🚫 Seed data not needed in non-local environment. Skipping.")
         return
 
-    if session.exec(select(User)).first():
+    if session.exec(select(Zone)).first():
         print("✅ Seed data already exists. Skipping.")
         return
 

@@ -3,7 +3,6 @@ from sqlmodel import select
 from pydantic import BaseModel
 
 from app.core.auth import verify_google_token
-from app.models.consts import UserRole
 from app.models.models import User
 from app.models.schemas.user import UserPublic
 from app.api.deps import SessionDep
@@ -39,19 +38,14 @@ def create_session(
     # Step 3: Try to find the user in the database
     user = session.exec(select(User).where(User.user_email == email)).first()
 
-    # Step 4: Create the user if they don't exist
-    if not user:
-        user = User(
-            user_email=email,
-            user_name=google_user.get("name") or email.split("@")[0],
-            user_role=UserRole.operator,
-        )
-        session.add(user)
-        session.commit()
-        session.refresh(user)
-
     # Step 5: Store user ID in session cookie
-    request.session["user_id"] = user.user_id
+    if user:
+        request.session["user_id"] = user.user_id
+    else:
+        raise HTTPException(
+            status_code=401,
+            detail="User not found. Please contact the administrator.",
+        )
 
     return UserPublic.model_validate(user)
 

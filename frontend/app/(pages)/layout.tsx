@@ -5,13 +5,44 @@ import { LoginDialog } from "@/components/login-dialog";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { createSessionSessionPost } from "../client";
+import { toast } from "sonner";
 
 export default function PagesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const [notAuthenticated, setNotAuthenticated] = useState(false);
+
+  useEffect(() => {
+    async function setBackendSession() {
+      if (session?.idToken) {
+        try {
+          console.log("setBackendSession");
+          const { error } = await createSessionSessionPost({
+            body: {
+              id_token: session?.idToken,
+            },
+          });
+          if (error) {
+            throw new Error(`${error.detail}`);
+          }
+          console.log("setBackendSession success");
+        } catch (error) {
+          setNotAuthenticated(true);
+          toast.error(`${error}`);
+        }
+      }
+    }
+    setBackendSession();
+  }, [session]);
+
+  if (status === "unauthenticated" || notAuthenticated) {
+    return <LoginDialog />;
+  }
 
   // Show loading state while checking authentication
   if (status === "loading") {
@@ -20,10 +51,6 @@ export default function PagesLayout({
         <div className="text-2xl font-bold">Loading...</div>
       </div>
     );
-  }
-
-  if (status === "unauthenticated") {
-    return <LoginDialog />;
   }
 
   return (
