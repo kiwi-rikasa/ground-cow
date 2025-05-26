@@ -13,7 +13,7 @@ def fetch_earthquakes() -> list[Earthquake]:
     return _fetch_earthquakes()
 
 
-def save_earthquake(earthquake) -> tuple[int, dict]:
+def save_earthquake(earthquake: Earthquake) -> tuple[int, dict]:
     return _save_earthquake(earthquake)
 
 

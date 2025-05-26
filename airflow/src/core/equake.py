@@ -34,10 +34,12 @@ class Earthquake:
         timestamp: int,
         magnitude: float,
         stations: list[Station],
+        source: str = "N/A",
     ):
         self.id = int(id)
         self.timestamp = int(timestamp)
         self.magnitude = float(magnitude)
+        self.source = source
         self.stations = stations
 
     @classmethod
@@ -46,6 +48,7 @@ class Earthquake:
             id=data.get("id"),
             timestamp=data.get("timestamp"),
             magnitude=data.get("magnitude"),
+            source=data.get("source"),
             stations=data.get("stations", []),
         )
 
@@ -54,6 +57,7 @@ class Earthquake:
             "id": self.id,
             "timestamp": self.timestamp,
             "magnitude": self.magnitude,
+            "source": self.source,
             "stations": self.stations,
         }
 

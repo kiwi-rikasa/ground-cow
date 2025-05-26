@@ -33,6 +33,12 @@ class EarthquakeParser:
         except ValueError:
             return 0
 
+    def get_earthquake_source(self) -> str:
+        """
+        Returns the source of the earthquake data.
+        """
+        return self._entry.get("EarthquakeInfo", {}).get("Source", "N/A")
+
     def get_earthquake_magnitude(self) -> float:
         """
         Returns the magnitude of the earthquake.
@@ -60,6 +66,7 @@ class EarthquakeParser:
             id=parser.get_earthquake_id(),
             timestamp=parser.get_earthquake_timestamp(),
             magnitude=parser.get_earthquake_magnitude(),
+            source=parser.get_earthquake_source(),
             stations=[StationParser.parse(s) for s in parser.get_stations()],
         )
 
