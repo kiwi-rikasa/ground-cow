@@ -8,14 +8,18 @@ from app.core.config import settings
 
 def seed_db(session: Session) -> None:
     # Create super user if not exists
-    user = User(
-        user_email=settings.FIRST_SUPERUSER,
-        user_name=settings.FIRST_SUPERUSER.split("@")[0],
-        user_role=UserRole.admin,
-    )
-    session.add(user)
-    session.commit()
-    session.refresh(user)
+    existing_superuser = session.exec(
+        select(User).where(User.user_email == settings.FIRST_SUPERUSER)
+    ).first()
+    if not existing_superuser:
+        user = User(
+            user_email=settings.FIRST_SUPERUSER,
+            user_name=settings.FIRST_SUPERUSER.split("@")[0],
+            user_role=UserRole.admin,
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
 
     # Skip seed data if not local environment
     if settings.ENVIRONMENT != "local":
@@ -60,9 +64,11 @@ def seed_db(session: Session) -> None:
             earthquake_id=earthquakes[i].earthquake_id,
             zone_id=zones[i % 5].zone_id,
             event_intensity=earthquakes[i].earthquake_magnitude + randrange(-2, 2),
-            event_severity=EventSeverity.L2
-            if earthquakes[i].earthquake_magnitude >= 4.5
-            else EventSeverity.L1,
+            event_severity=(
+                EventSeverity.L2
+                if earthquakes[i].earthquake_magnitude >= 4.5
+                else EventSeverity.L1
+            ),
         )
         for i in range(30)
     ]
@@ -74,11 +80,13 @@ def seed_db(session: Session) -> None:
             event_id=events[i].event_id,
             zone_id=zones[i % 5].zone_id,
             alert_alert_time=datetime.now(),
-            alert_state=AlertState.active
-            if i % 3 == 2
-            else AlertState.closed
-            if i % 3 == 1
-            else AlertState.resolved,
+            alert_state=(
+                AlertState.active
+                if i % 3 == 2
+                else AlertState.closed
+                if i % 3 == 1
+                else AlertState.resolved
+            ),
         )
         for i in range(30)
     ]
@@ -89,11 +97,13 @@ def seed_db(session: Session) -> None:
         User(
             user_email=f"user{i}@seed.com",
             user_name=f"User{i}",
-            user_role=UserRole.admin
-            if i == 0
-            else UserRole.control
-            if i == 1
-            else UserRole.operator,
+            user_role=(
+                UserRole.admin
+                if i == 0
+                else UserRole.control
+                if i == 1
+                else UserRole.operator
+            ),
             zone_id=zones[i % 5].zone_id,
         )
         for i in range(5)
