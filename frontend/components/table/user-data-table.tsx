@@ -99,6 +99,7 @@ import {
   getUserUserUserIdGet,
 } from "@/app/client";
 import { toast } from "@/components/ui/toast";
+import { CreateUserDialog } from "@/components/create-user-dialog";
 
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -384,10 +385,11 @@ export function UserDataTable({
             />
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="default" size="sm" className="cursor-pointer">
+            {/* <Button variant="default" size="sm" className="cursor-pointer">
               <IconCheck className="mr-1" />
               Add User
-            </Button>
+            </Button> */}
+            <CreateUserDialog />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="cursor-pointer">
