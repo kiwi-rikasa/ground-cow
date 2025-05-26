@@ -80,7 +80,9 @@ def create_alert(
     """
     validate_fk_exists(session, Event, alert_in.event_id, "event_id")
     validate_fk_exists(session, Zone, alert_in.zone_id, "zone_id")
-    validate_fk_exists(session, Alert, alert_in.alert_is_suppressed_by, "alert_id")
+    validate_fk_exists(
+        session, Alert, alert_in.alert_is_suppressed_by, "alert_is_suppressed_by"
+    )
 
     alert = Alert.model_validate(alert_in)
 
