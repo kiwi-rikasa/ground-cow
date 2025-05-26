@@ -23,11 +23,7 @@ export default function PagesLayout({
   }
 
   if (status === "unauthenticated") {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <LoginDialog />
-      </div>
-    );
+    return <LoginDialog />;
   }
 
   return (
