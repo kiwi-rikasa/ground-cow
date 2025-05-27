@@ -2,8 +2,8 @@ import logging
 
 from airflow.models import Variable
 
-from src.core.zone import Zone
-from src.data.zone_repository import fetch_zones
+from include.core.zone import Zone
+from include.data.zone_repository import fetch_zones
 
 ZONE_CACHE_KEY = "zone_cache"
 

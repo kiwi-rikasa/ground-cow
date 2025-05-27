@@ -1,8 +1,8 @@
 import logging
 import requests
 
-from src.config import config
-from src.core.zone import Zone
+from include.config import config
+from include.core.zone import Zone
 
 ZONE_API_URL = f"{config.BACKEND_HOST}/zone"
 

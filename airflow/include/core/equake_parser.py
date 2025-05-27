@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from src.core.equake import Earthquake, Station
+from include.core.equake import Earthquake, Station
 
 
 class EarthquakeParser:

@@ -7,16 +7,16 @@ from airflow.decorators import dag, task, task_group
 from airflow.models.param import Param
 from airflow.utils.dates import days_ago
 
-from src.core.alert import Alert
-from src.core.equake import Earthquake
-from src.core.event import Event
-from src.core.simulation import SimulationData
-from src.core.zone import Zone
-from src.service.alert_service import save_alert, get_open_alert, set_open_alert
-from src.service.equake_service import save_earthquake as _save_earthquake
-from src.service.event_service import parse_event, save_event
-from src.service.interval_service import get_interval
-from src.service.zone_service import get_zones as _get_zones
+from include.core.alert import Alert
+from include.core.equake import Earthquake
+from include.core.event import Event
+from include.core.simulation import SimulationData
+from include.core.zone import Zone
+from include.service.alert_service import save_alert, get_open_alert, set_open_alert
+from include.service.equake_service import save_earthquake as _save_earthquake
+from include.service.event_service import parse_event, save_event
+from include.service.interval_service import get_interval
+from include.service.zone_service import get_zones as _get_zones
 
 
 @dag(

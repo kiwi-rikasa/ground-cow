@@ -44,7 +44,7 @@ airflow/
 │   └── zone_fetcher_dag.py
 ├── plugins/
 │   └── config_loader_plugin.py     # Loads and validates config on startup
-└── src/
+└── include/
     ├── cache/...                   # Repository of cache data (Airflow Variables)
     ├── core/...                    # Data models and logic
     ├── data/...                    # Repository of database data
@@ -54,7 +54,7 @@ airflow/
 
 ## Configuration
 
-All configuration is managed via environment variables, which are set in the `.env` file in the root of the repository, and loaded by `src/config.py`.
+All configuration is managed via environment variables, which are set in the `.env` file in the root of the repository, and loaded by `include/config.py`.
 
 Configurable options include:
 

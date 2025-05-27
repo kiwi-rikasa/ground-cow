@@ -1,9 +1,9 @@
-from src.config import config
-from src.core.equake import Earthquake
-from src.core.event import Event
-from src.core.severity import Severity
-from src.core.zone import Zone
-from src.data.event_repository import save_event as _save_event
+from include.config import config
+from include.core.equake import Earthquake
+from include.core.event import Event
+from include.core.severity import Severity
+from include.core.zone import Zone
+from include.data.event_repository import save_event as _save_event
 
 
 def parse_event(earthquake: Earthquake, zone: Zone) -> Event | None:

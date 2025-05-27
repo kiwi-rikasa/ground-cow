@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import TypedDict
 
-from src.core.equake import Earthquake
-from src.core.equake_parser import EarthquakeParser
+from include.core.equake import Earthquake
+from include.core.equake_parser import EarthquakeParser
 
 
 class SimulationEntry(TypedDict):
@@ -29,7 +29,7 @@ class SimulationData:
         id_time = dt.strftime("%Y%m%d%H%M%S")
         id_magnitude = f"{earthquake.magnitude:.1f}".replace(".", "")
         id_serial = 999
-        return int(f"{id_time}{id_magnitude}{id_serial}")
+        return int(f"{id_time}")
 
     @classmethod
     def from_raw(cls, entries: list[SimulationEntry] = []) -> "SimulationData":

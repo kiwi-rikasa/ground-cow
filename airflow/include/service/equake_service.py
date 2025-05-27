@@ -1,9 +1,9 @@
-from src.core.equake import Earthquake
-from src.cache.equake_cache import (
+from include.core.equake import Earthquake
+from include.cache.equake_cache import (
     fetch_cached_earthquake_ids,
     save_cached_earthquake_ids,
 )
-from src.data.equake_repository import (
+from include.data.equake_repository import (
     fetch_earthquakes as _fetch_earthquakes,
     save_earthquake as _save_earthquake,
 )

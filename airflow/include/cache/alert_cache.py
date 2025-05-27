@@ -2,7 +2,7 @@ import logging
 
 from airflow.models import Variable
 
-from src.core.alert import Alert
+from include.core.alert import Alert
 
 log = logging.getLogger(__name__)
 

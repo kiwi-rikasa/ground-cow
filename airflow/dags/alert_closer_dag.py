@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from airflow.decorators import dag, task
 
-from src.data.alert_repository import get_active_alerts, close_alert
+from include.data.alert_repository import get_active_alerts, close_alert
 
 BACKEND_HOST = os.getenv("BACKEND_HOST", "http://localhost:8000")
 ALERT_API_URL = f"{BACKEND_HOST}/alert"

@@ -1,6 +1,6 @@
-from src.core.equake import Earthquake
-from src.core.zone import Zone
-from src.core.severity import Severity
+from include.core.equake import Earthquake
+from include.core.zone import Zone
+from include.core.severity import Severity
 
 
 class Event:

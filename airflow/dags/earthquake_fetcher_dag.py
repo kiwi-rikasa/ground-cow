@@ -7,20 +7,20 @@ from typing import TypeAlias
 
 from airflow.decorators import dag, task, task_group
 
-from src.core.alert import Alert
-from src.core.equake import Earthquake
-from src.core.event import Event
-from src.core.zone import Zone
-from src.service.alert_service import save_alert, get_open_alert, set_open_alert
-from src.service.equake_service import (
+from include.core.alert import Alert
+from include.core.equake import Earthquake
+from include.core.event import Event
+from include.core.zone import Zone
+from include.service.alert_service import save_alert, get_open_alert, set_open_alert
+from include.service.equake_service import (
     fetch_earthquakes as _fetch_earthquakes,
     save_earthquake,
     get_earthquake_ids,
     set_earthquake_ids,
 )
-from src.service.event_service import parse_event, save_event
-from src.service.interval_service import get_interval
-from src.service.zone_service import get_zones as _get_zones
+from include.service.event_service import parse_event, save_event
+from include.service.interval_service import get_interval
+from include.service.zone_service import get_zones as _get_zones
 
 
 # Type aliases
