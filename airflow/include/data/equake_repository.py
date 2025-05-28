@@ -2,9 +2,9 @@ import logging
 import requests
 from concurrent.futures import ThreadPoolExecutor
 
-from src.config import config
-from src.core.equake import Earthquake
-from src.core.equake_parser import EarthquakeParser
+from include.config import config
+from include.core.equake import Earthquake
+from include.core.equake_parser import EarthquakeParser
 
 log = logging.getLogger(__name__)
 

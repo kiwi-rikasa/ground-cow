@@ -1,7 +1,7 @@
 import os
 import sys
 
-from src.service.interval_service import set_interval
+from include.service.interval_service import set_interval
 
 
 class Config:

@@ -1,5 +1,5 @@
 from airflow.plugins_manager import AirflowPlugin
-from src.config import config
+from include.config import config
 
 # Validate or log at import time
 print(f"[Startup] ConfigLoaderPlugin Status={config._STATUS}")

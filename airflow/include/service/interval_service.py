@@ -1,6 +1,6 @@
 import logging
 
-from src.cache.interval_cache import fetch_cached_interval, save_cached_interval
+from include.cache.interval_cache import fetch_cached_interval, save_cached_interval
 
 log = logging.getLogger(__name__)
 

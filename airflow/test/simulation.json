@@ -1,0 +1,104 @@
+[
+  {
+    "delta": 0,
+    "earthquake": {
+      "EarthquakeNo": 114097,
+      "ReportImageURI": "https://scweb.cwa.gov.tw/webdata/OLDEQ/202505/2025051410482845097_H.png",
+      "EarthquakeInfo": {
+        "OriginTime": "2025-05-14 10:48:28",
+        "Source": "中央氣象署",
+        "EarthquakeMagnitude": {
+          "MagnitudeType": "芮氏規模",
+          "MagnitudeValue": 4.5
+        }
+      },
+      "Intensity": {
+        "ShakingArea": [
+          {
+            "AreaDesc": "臺南市地區",
+            "CountyName": "臺南市",
+            "InfoStatus": "observe",
+            "AreaIntensity": "4級",
+            "EqStation": [
+              {
+                "StationName": "曾文",
+                "StationID": "SNS",
+                "InfoStatus": "observe",
+                "SeismicIntensity": "4級",
+                "StationLatitude": 23.22,
+                "StationLongitude": 120.497
+              }
+            ]
+          },
+          {
+            "AreaDesc": "臺東縣地區",
+            "CountyName": "臺東縣",
+            "InfoStatus": "observe",
+            "AreaIntensity": "1級",
+            "EqStation": [
+              {
+                "StationName": "鹿野",
+                "StationID": "LONT",
+                "InfoStatus": "observe",
+                "SeismicIntensity": "1級",
+                "StationLatitude": 22.906,
+                "StationLongitude": 121.131
+              },
+              {
+                "StationName": "池上",
+                "StationID": "ECS",
+                "InfoStatus": "observe",
+                "SeismicIntensity": "1級",
+                "StationLatitude": 23.095,
+                "StationLongitude": 121.219
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "delta": 20,
+    "earthquake": {
+      "EarthquakeNo": 114095,
+      "ReportImageURI": "https://scweb.cwa.gov.tw/webdata/OLDEQ/202505/2025051303375240095_H.png",
+      "EarthquakeInfo": {
+        "OriginTime": "2025-05-13 03:37:52",
+        "Source": "中央氣象署",
+        "EarthquakeMagnitude": {
+          "MagnitudeType": "芮氏規模",
+          "MagnitudeValue": 4
+        }
+      },
+      "Intensity": {
+        "ShakingArea": [
+          {
+            "AreaDesc": "臺東縣地區",
+            "CountyName": "臺東縣",
+            "InfoStatus": "observe",
+            "AreaIntensity": "4級",
+            "EqStation": [
+              {
+                "StationName": "池上",
+                "StationID": "ECS",
+                "InfoStatus": "observe",
+                "SeismicIntensity": "3級",
+                "StationLatitude": 23.095,
+                "StationLongitude": 121.219
+              },
+              {
+                "StationName": "鹿野",
+                "StationID": "LONT",
+                "InfoStatus": "observe",
+                "SeismicIntensity": "1級",
+                "StationLatitude": 22.906,
+                "StationLongitude": 121.131
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

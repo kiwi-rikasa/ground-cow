@@ -1,8 +1,8 @@
 import logging
 import requests
 
-from src.config import config
-from src.core.alert import Alert
+from include.config import config
+from include.core.alert import Alert
 
 ALERT_API_URL = f"{config.BACKEND_HOST}/alert"
 

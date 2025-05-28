@@ -4,8 +4,8 @@ import pendulum
 
 from airflow.decorators import dag, task
 
-from src.core.zone import Zone
-from src.service.zone_service import fetch_zones as _fetch_zones, set_zones
+from include.core.zone import Zone
+from include.service.zone_service import fetch_zones as _fetch_zones, set_zones
 
 
 @dag(

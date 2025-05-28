@@ -1,8 +1,8 @@
 import logging
 import requests
 
-from src.config import config
-from src.core.event import Event
+from include.config import config
+from include.core.event import Event
 
 EVENT_API_URL = f"{config.BACKEND_HOST}/event"
 

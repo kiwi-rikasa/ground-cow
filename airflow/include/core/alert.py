@@ -1,5 +1,5 @@
-from src.core.event import Event
-from src.core.severity import Severity
+from include.core.event import Event
+from include.core.severity import Severity
 
 
 class Alert:
