@@ -26,17 +26,21 @@ docker compose --profile app up --build -d
 docker compose --profile backend up --build -d
 
 # Run the airflow
-docker compose --profile airflow up --build -d
+astro dev start  # under ./airflow
 ```
 
 Stop the services
 
 ```bash
+# Stop other services
 docker compose down -v
+
+# Stop the airflow
+astro dev stop  # under ./airflow
 ```
 
 Access the services at:
 
 - backend: http://localhost:8000
 - db admin: http://localhost:8081
-- airflow web server: http://localhost:8083
+- airflow web server: http://localhost:8080
