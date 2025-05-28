@@ -28,6 +28,14 @@ The parameter should be a JSON array, where each item represents a simulated ear
 
 > The `id`, `timestamp`, and `source` fields of each earthquake will be updated automatically by the simulator.
 
+A valid test case is provided in `test/simulation.json` and can be referenced for simulation. If the suppression interval is set to 30 seconds, the results will be as follows:
+
+| Region                      | Earthquake 1 (at t = 0s) | Earthquake 2 (at t = 20s) |
+| --------------------------- | ------------------------ | ------------------------- |
+| **Luye, Taitung** (LONT)    | L1 Alert                 | L1 Alert _(Suppressed)_   |
+| **Chishang, Taitung** (ECS) | L1 Alert                 | L2 Alert                  |
+| **Tsengwen, Tainan** (SNS)  | L2 Alert                 | No alert                  |
+
 **Note:**  
 The simulation DAG does not run on a schedule and must be triggered manually with input data.
 
