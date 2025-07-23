@@ -87,6 +87,8 @@ services:
       args:
         - VITE_API_URL=http://localhost:8000
         - NODE_ENV=development
+    dns:
+      - 8.8.8.8
 
 networks:
   traefik-public:
